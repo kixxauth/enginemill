@@ -1,0 +1,132 @@
+var CP = require('child_process')
+
+exports['with invalid command'] = {
+  setUp: function (done) {
+  	var self = this
+	  CP.exec('./bin/em.js foobar', function (err, stdout, stderr) {
+	  	self.lines = stderr.split('\n');
+	  	done();
+	  });
+  },
+
+  "should print error line": function (test) {
+  	var errorLine = this.lines[0]
+  	test.equal(errorLine, "'foobar' is not a valid command.");
+  	return test.done();
+  },
+
+  "should print usage line": function (test) {
+  	var usageLine = this.lines[2]
+  	test.equal(usageLine, "Enginemill -- Making it easier to build awesome stuff on the web.");
+  	return test.done();
+  },
+
+  "should print options lines": function (test) {
+  	var options1 = this.lines[4]
+  		, options2 = this.lines[5]
+
+  	test.equal(options1, "Options:");
+  	test.equal(options2, "  --help, -h  Print out this helpful help message and exit.");
+  	return test.done();
+  },
+
+  "should print summary lines": function (test) {
+  	var summary1 = this.lines[7]
+  		, summary2 = this.lines[8]
+
+  	test.equal(summary1, "To get help with a command use `em help <command>`.");
+  	test.equal(summary2, "Running `em` without a command will open the console.");
+  	return test.done();
+  },
+
+  "should print help text": function (test) {
+  	var helpText = this.lines[10]
+
+  	test.equal(helpText, "Commands:");
+  	return test.done();
+  }
+};
+
+exports['with --help switch'] = {
+
+  setUp: function (done) {
+  	var self = this
+	  CP.exec('./bin/em.js --help', function (err, stdout, stderr) {
+	  	self.lines = stderr.split('\n');
+	  	done();
+	  });
+  },
+
+  "should print usage line": function (test) {
+  	var usageLine = this.lines[0]
+  	test.equal(usageLine, "Enginemill -- Making it easier to build awesome stuff on the web.");
+  	return test.done();
+  },
+
+  "should print options lines": function (test) {
+  	var options1 = this.lines[2]
+  		, options2 = this.lines[3]
+
+  	test.equal(options1, "Options:");
+  	test.equal(options2, "  --help, -h  Print out this helpful help message and exit.");
+  	return test.done();
+  },
+
+  "should print summary lines": function (test) {
+  	var summary1 = this.lines[5]
+  		, summary2 = this.lines[6]
+
+  	test.equal(summary1, "To get help with a command use `em help <command>`.");
+  	test.equal(summary2, "Running `em` without a command will open the console.");
+  	return test.done();
+  },
+
+  "should print help text": function (test) {
+  	var helpText = this.lines[8]
+
+  	test.equal(helpText, "Commands:");
+  	return test.done();
+  }
+};
+
+exports['with -h switch'] = {
+
+  setUp: function (done) {
+  	var self = this
+	  CP.exec('./bin/em.js -h', function (err, stdout, stderr) {
+	  	self.lines = stderr.split('\n');
+	  	done();
+	  });
+  },
+
+  "should print usage line": function (test) {
+  	var usageLine = this.lines[0]
+  	test.equal(usageLine, "Enginemill -- Making it easier to build awesome stuff on the web.");
+  	return test.done();
+  },
+
+  "should print options lines": function (test) {
+  	var options1 = this.lines[2]
+  		, options2 = this.lines[3]
+
+  	test.equal(options1, "Options:");
+  	test.equal(options2, "  --help, -h  Print out this helpful help message and exit.");
+  	return test.done();
+  },
+
+  "should print summary lines": function (test) {
+  	var summary1 = this.lines[5]
+  		, summary2 = this.lines[6]
+
+  	test.equal(summary1, "To get help with a command use `em help <command>`.");
+  	test.equal(summary2, "Running `em` without a command will open the console.");
+  	return test.done();
+  },
+
+  "should print help text": function (test) {
+  	var helpText = this.lines[8]
+
+  	test.equal(helpText, "Commands:");
+  	return test.done();
+  }
+};
