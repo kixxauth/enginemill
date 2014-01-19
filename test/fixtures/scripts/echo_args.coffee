@@ -1,24 +1,37 @@
-exports.usage = "echo_args.coffee --filter <filtername> --source <filepath>"
+exports.usage = "echo_args.coffee --a_string <A String> --a_number <A Number> --a_boolean"
 
 exports.options =
-  filter:
-    description: "The filter to use"
+  a_string:
+    description: "Expected to be a String"
     required: yes
     forceString: yes
-  source:
-    description: "The path to the source CSV file."
+  a_number:
+    description: "Expected to be a Number."
     required: yes
-    forceString: yes
+  a_bool:
+    description: "Expected to be a Boolean."
+    boolean: yes
 
 exports.help = """
-Filters:
-
-  debits     - Keeps only the debit transaction from the raw bank file.
-  accounting - Formats a manually edited debit file to a format for accounting software.
+Check argument type parsing and echo args.
 """
 
 
 exports.main = (opts) ->
-  console.log("filter:", opts.filter)
-  console.log("source:", opts.source)
+  if typeof opts.help isnt 'boolean'
+    exitWith('`help` is not a Boolean')
+  else if typeof opts.a_string isnt 'string'
+    exitWith('`a_string` is not a String')
+  else if typeof opts.a_number isnt 'number'
+    exitWith('`a_number` is not a Number')
+  else if typeof opts.a_boolean isnt 'boolean'
+    exitWith('`a_boolean` is not a Boolean')
+
+  console.log('a_string', opts.a_string)
+  console.log('a_number', opts.a_number)
+  console.log('a_boolean', opts.a_boolean)
   return
+
+exitWith = (message) ->
+  console.log(message)
+  process.exit(1)

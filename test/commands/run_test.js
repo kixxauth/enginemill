@@ -64,24 +64,25 @@ exports['with script'] = {
     test.expect(1);
     
     CP.exec(this.command, function (err, stdout, stderr) {
-      test.ok(/Missing required arguments: filter, source/.test(stderr), "Error message")
+      test.ok(/Missing required arguments:/.test(stderr), "Error message")
       test.done();
     })
     return;
   },
 
   'it should assign arguments': function (test) {
-    test.expect(3);
+    test.expect(4);
 
-    CP.exec(this.command +' --filter test_filter --source test_source', function (err, stdout, stderr) {
+    CP.exec(this.command +' --a_string 999 --a_number 1 --a_boolean', function (err, stdout, stderr) {
       test.ok(!err, 'no error')
 
       var lines = stdout.split('\n').map(function (str) {
         return str.replace(/\W$/, '');
       });
 
-      test.equal(lines[0], 'filter: test_filter');
-      test.equal(lines[1], 'source: test_source');
+      test.equal(lines[0], 'a_string 999');
+      test.equal(lines[1], 'a_number 1');
+      test.equal(lines[2], 'a_boolean true');
       test.done();
     })
     return;
