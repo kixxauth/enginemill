@@ -1,13 +1,13 @@
 {
     "name": "enginemill",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Making it easier to build awesome stuff on the web.",
     "author": "Kris Walker <kris@kixx.name> (http://www.kixx.name/)",
     "bin": {"em": "./bin/em.js"},
     "main": "./enginemill",
     "repository": {
         "typ": "git",
-        "url": "git://github.com/FireworksProject/enginemill.git"
+        "url": "git://github.com/kixxauth/enginemill.git"
     },
     "dependencies": {
         "nodeunit": "0.8.2",
@@ -19,5 +19,6 @@
         "optimist": "0.6.0",
         "request": "2.31.0",
         "ini": "1.1.0"
-    }
+    },
+    "bugs": {"url": "https://github.com/kixxauth/enginemill/issues"}
 }
