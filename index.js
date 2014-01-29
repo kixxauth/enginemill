@@ -62,7 +62,7 @@ function defineGlobals(values) {
 }
 
 function getRootPath(values) {
-  values.define('root', PATH.newPath());
+  values.define('root', LIB.Path.create());
   return values;
 }
 
@@ -88,8 +88,8 @@ function readAppSettings(values) {
 function loadSettingsPath(values) {
   var promise
     , appname = values.settings.name || 'default'
-    , etc = PATH.root().append('etc', 'enginemill', appname, 'configs.ini')
-    , home = PATH.home().append('.enginemill', appname, 'configs.ini')
+    , etc = LIB.Path.root().append('etc', 'enginemill', appname, 'configs.ini')
+    , home = LIB.Path.home().append('.enginemill', appname, 'configs.ini')
 
   function mergeSettings(settings) {
     LIB.extend(values.settings, settings);
@@ -125,7 +125,7 @@ function setProcess(values) {
 
 function loadCommands(values) {
   var commands = require('./lib/commands_factory').newCommands()
-  commands.load(LIB.PATH.newPath(__dirname, 'lib', 'commands'))
+  commands.load(LIB.Path.create(__dirname, 'lib', 'commands'))
   values.define('commands', commands);
   return values;
 }
