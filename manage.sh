@@ -46,7 +46,6 @@ setup () {
 
 run_tests () {
     setup
-    setup_test_configs
     node $BASE/management/run_globals_test.js test/
     node $BASE/management/run_tests.js test/
 }
@@ -54,43 +53,6 @@ run_tests () {
 clean () {
     rm -rf "$BASE/node_modules/"
     echo "removed ./node_modules/"
-}
-
-setup_test_configs () {
-    root_config=/etc/enginemill
-    root_app_config="$root_config/test_webapp"
-    user_config=$HOME/.enginemill
-    user_app_config="$user_config/test_webapp"
-    src=./test/fixtures/settings
-
-    if ! [ -d $root_config ]; then
-        echo "installing global enginemill settings to $root_config/"
-        sudo mkdir $root_config
-        sudo cp "$src/enginemill_global.ini" "$root_config/settings.ini"
-    else
-        echo "global enginemill settings already installed"
-    fi
-    if ! [ -d $root_app_config ]; then
-        echo "installing global test application settings to $root_app_config/"
-        sudo mkdir $root_app_config
-        sudo cp "$src/test_webapp_global.ini" "$root_app_config/settings.ini"
-    else
-        echo "global application settings already installed"
-    fi
-    if ! [ -d $user_config ]; then
-        echo "installing user enginemill settings to $user_config/"
-        mkdir $user_config
-        cp "$src/enginemill_user.ini" "$user_config/settings.ini"
-    else
-        echo "user enginemill settings already installed"
-    fi
-    if ! [ -d $user_config ]; then
-        echo "installing user test application settings to $user_app_config/"
-        mkdir $user_app_config
-        cp "$src/test_webapp_user.ini" "$user_app_config/settings.ini"
-    else
-        echo "user application settings already installed"
-    fi
 }
 
 main "$@"

@@ -77,8 +77,8 @@ function defineSettings(values) {
 function readAppSettings(values) {
   var promise = values.root.append('application.ini').read()
     .then(LIB.parseIni)
-    .then(function (configs) {
-      values.define('settings', LIB.extend(Object.create(null), configs));
+    .then(function (appSettings) {
+      values.define('settings', LIB.extend(Object.create(null), appSettings));
       return values;
     })
 

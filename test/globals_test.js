@@ -75,7 +75,6 @@ var preDefinedGlobals = Object.getOwnPropertyNames(global)
   });
 
 
-
 exports['when environment loaded'] = {
 
   setUp: function (done) {
