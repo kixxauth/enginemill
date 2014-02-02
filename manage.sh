@@ -51,8 +51,19 @@ run_tests () {
 }
 
 clean () {
-    rm -rf "$BASE/node_modules/"
-    echo "removed ./node_modules/"
+    if [ -d "$BASE/node_modules" ]; then
+        rm -rf "$BASE/node_modules"
+        echo "removed ./node_modules/"
+    fi
+    if [ -d /etc/enginemill ]; then
+        sudo rm -rf /etc/enginemill
+        echo "removed /etc/enginemill"
+    fi
+    if [ -d "$HOME/.enginemill" ]; then
+        sudo rm -rf "$HOME/.enginemill"
+        echo "removed $HOME/.enginemill"
+    fi
+    echo "Done. Cleaned."
 }
 
 main "$@"
