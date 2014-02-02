@@ -5,17 +5,8 @@ exports["with environment loaded"] = {
 
   setUp: function (done) {
     setupTestConfigs()
-      .then(function () { return done(); })
-      .catch(function (err) {
-        if (err.code === 'EACCES') {
-          console.error("ERROR: file permission access error during test setup in "+ __filename);
-          console.error("You probably need to run tests as sudo first, to setup the global settings files.");
-          console.error("After the first run, you should run the tests *without* sudo.");
-          done(new Error("File access error in test setup."));
-        } else {
-          done(err);
-        }
-      });
+      .then(function () { return done(); }, handleSettingsFixtureSetupError)
+      .catch(done);
   },
 
   "should not be smoking": function (test) {
@@ -96,4 +87,15 @@ function installFile(opts) {
 
 function loadEnvironment() {
   return require('../').load();
+}
+
+function handleSettingsFixtureSetupError(err) {
+    if (err.code === 'EACCES') {
+      console.error("ERROR: file permission access error during test setup in "+ __filename);
+      console.error("You probably need to run tests as sudo first, to setup the global settings files.");
+      console.error("After the first run, you should run the tests *without* sudo.");
+      return Promise.reject(new Error("File access error in test setup."));
+    } else {
+      return Promise.reject(err);
+    }
 }
