@@ -1,6 +1,30 @@
 var Promise = require('iou').Promise
   , FP = require('filepath')
 
+exports["ensure process.env writable"] = {
+  setUp: function (done) {
+    this.key = 'HOME';
+    this.val = process.env[this.key];
+    return done();
+  },
+
+  tearDown: function (done) {
+    process.env[this.key] = this.val;
+    return done();
+  },
+
+  "update an env var": function (test) {
+    var fixture = '/foo/bar/baz'
+
+    process.env[this.key] = fixture;
+
+    test.notEqual(process.env[this.key], this.val);
+    test.equal(process.env[this.key], fixture);
+    
+    return test.done();
+  }
+};
+
 exports["with environment loaded"] = {
 
   setUp: function (done) {
