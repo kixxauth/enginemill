@@ -20,7 +20,7 @@ exports["ensure process.env writable"] = {
 
     test.notEqual(process.env[this.key], this.val);
     test.equal(process.env[this.key], fixture);
-    
+
     return test.done();
   }
 };
@@ -29,17 +29,70 @@ exports["with environment loaded"] = {
 
   setUp: function (done) {
     setupTestConfigs()
-      .then(function () { return done(); }, handleSettingsFixtureSetupError)
+      .catch(handleSettingsFixtureSetupError)
+      .then(setEnvironmentVars)
+      .then(loadEnvironment)
+      .then(function () { done(); })
       .catch(done);
   },
 
-  "should not be smoking": function (test) {
-    test.ok(true, "not smoking");
+  "loads Enginemill global setting": function (test) {
+    test.strictEqual(SETTINGS.ENGINEMILL_GLOBAL, '1');
     return test.done();
   },
 
-  "and should not be on fire": function (test) {
-    test.ok(true, "not on fire");
+  "loads Enginemill user setting": function (test) {
+    test.strictEqual(SETTINGS.ENGINEMILL_USER, '2');
+    return test.done();
+  },
+
+  "loads application global setting": function (test) {
+    test.strictEqual(SETTINGS.APPLICATION_GLOBAL, '3');
+    return test.done();
+  },
+
+  "loads application user setting": function (test) {
+    test.strictEqual(SETTINGS.APPLICATION_USER, '4');
+    return test.done();
+  },
+
+  "loads application setting": function (test) {
+    test.strictEqual(SETTINGS.APPLICATION_SETTINGS, '5');
+    return test.done();
+  },
+
+  "merges environment vars": function (test) {
+    test.strictEqual(SETTINGS.ENVIRONMENT_VARS, '6');
+    return test.done();
+  },
+
+  "Enginemill global overridden by Enginemill user": function (test) {
+    test.strictEqual(SETTINGS.ENGINEMILL_USER_OVER_ENGINEMILL_GLOBAL, true);
+    return test.done();
+  },
+
+  "Enginemill global overridden by application global": function (test) {
+    test.strictEqual(SETTINGS.APPLICATION_GLOBAL_OVER_ENGINEMILL_GLOBAL, true);
+    return test.done();
+  },
+
+  "Enginemill global overridden by application user": function (test) {
+    test.strictEqual(SETTINGS.APPLICATION_USER_OVER_ENGINEMILL_GLOBAL, true);
+    return test.done();
+  },
+
+  "Enginemill global overridden by application settings": function (test) {
+    test.strictEqual(SETTINGS.APPLICATION_SETTINGS_OVER_ENGINEMILL_GLOBAL, true);
+    return test.done();
+  },
+
+  "Enginemill global overridden by environmment vars": function (test) {
+    test.strictEqual(SETTINGS.ENVIRONMENT_VARS_OVER_ENGINEMILL_GLOBAL, true);
+    return test.done();
+  },
+
+  "Enginemill user overridden by application global": function (test) {
+    test.strictEqual(SETTINGS.APPLICATION_GLOBAL_OVER_ENGINEMILL_USER, true);
     return test.done();
   }
 };
@@ -52,6 +105,21 @@ function setupTestConfigs(done) {
     .then(installApplicationUserSettings)
 
   return promise;
+}
+
+function setEnvironmentVars() {
+  var spec = {
+    ENVIRONMENT_VARS: 6
+  , ENVIRONMENT_VARS_OVER_ENGINEMILL_GLOBAL: true
+  , ENVIRONMENT_VARS_OVER_ENGINEMILL_USER: true
+  , ENVIRONMENT_VARS_OVER_APPLICATION_GLOBAL: true
+  , ENVIRONMENT_VARS_OVER_APPLICATION_USER: true
+  , ENVIRONMENT_VARS_OVER_APPLICATION_SETTINGS: true
+  }
+
+  Object.keys(spec).forEach(function (key) {
+    process.env[key] = spec[key];
+  });
 }
 
 function installEnginemillGlobalSettings() {
@@ -100,7 +168,6 @@ function installFile(opts) {
     , message = opts.message
 
   if (dir.exists()) {
-    console.log(message +" already installed.");
     return Promise.resolve(null);
   }
 
@@ -110,7 +177,8 @@ function installFile(opts) {
 }
 
 function loadEnvironment() {
-  return require('../').load();
+  var root = FP.newPath().append('test/fixtures/test_settings_app')
+  return require('../').load({root: root});
 }
 
 function handleSettingsFixtureSetupError(err) {

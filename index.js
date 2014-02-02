@@ -26,7 +26,13 @@ exports.main = function () {
 };
 
 function loadEnvironment(values) {
-  values = values || LIB.Crystal.create()
+  if (!(values instanceof LIB.Crystal)) {
+    if (values && typeof values === 'object') {
+      values = LIB.Crystal.create(values);
+    } else {
+      values = LIB.Crystal.create();
+    }
+  }
 
   var promise = LIB.Promise.cast(values)
     .then(loadCoffeeScript)
@@ -62,7 +68,9 @@ function defineGlobals(values) {
 }
 
 function getRootPath(values) {
-  values.define('root', LIB.Path.create());
+  if (!values.isDefined('root')) {
+    values.define('root', LIB.Path.create());
+  }
   return values;
 }
 
@@ -70,15 +78,16 @@ function defineSettings(values) {
   var promise = LIB.Promise.cast(values)
     .then(readAppSettings)
     .then(loadSettingsPath)
+    .then(mergeEnvironmentVars)
     .then(setSettings)
   return promise;
 }
 
 function readAppSettings(values) {
-  var promise = values.root.append('application.ini').read()
-    .then(LIB.parseIni)
-    .then(function (appSettings) {
-      values.define('settings', LIB.extend(Object.create(null), appSettings));
+  var promise = values.root.append('package.json').read()
+    .then(JSON.parse)
+    .then(function (meta) {
+      values.define('settings', LIB.extend(Object.create(null), {application: meta}));
       return values;
     })
 
@@ -87,22 +96,49 @@ function readAppSettings(values) {
 
 function loadSettingsPath(values) {
   var promise
-    , appname = values.settings.name || 'default'
-    , etc = LIB.Path.root().append('etc', 'enginemill', appname, 'configs.ini')
-    , home = LIB.Path.home().append('.enginemill', appname, 'configs.ini')
+    , appname                 = values.settings.application.name || 'default'
+    , globalPath              = LIB.Path.root().append('etc', 'enginemill')
+    , globalEnginemillPath    = globalPath.append('settings.ini')
+    , globalApplicationPath   = globalPath.append(appname, 'settings.ini')
+    , userPath                = LIB.Path.home().append('.enginemill')
+    , userEnginemillPath      = userPath.append('settings.ini')
+    , userApplicationPath     = userPath.append(appname, 'settings.ini')
+    , applicationSettingsPath = values.root.append('settings.ini')
+
+  function loadPath(path) {
+    return function () {
+      return path.read().then(LIB.parseIni).then(mergeSettings);
+    };
+  };
 
   function mergeSettings(settings) {
     LIB.extend(values.settings, settings);
-    return;
   }
 
-  promise = etc.read()
-    .then(LIB.parseIni).then(mergeSettings)
-    .then(LIB.bind(home.read, home))
-    .then(LIB.parseIni).then(mergeSettings)
-    .then(LIB.returnValue(values))
+  promise = loadPath(globalEnginemillPath)()
+    .then(loadPath(userEnginemillPath))
+    .then(loadPath(globalApplicationPath))
+    .then(loadPath(userApplicationPath))
+    .then(loadPath(applicationSettingsPath))
 
-  return promise;
+  return promise.then(LIB.returnValue(values));
+}
+
+function mergeEnvironmentVars(values) {
+  LIB.extend(values.settings, process.env);
+  Object.keys(process.env).reduce(function (settings, key) {
+    var val = process.env[key]
+
+    if (val === 'true') {
+      val = true;
+    } else if (val === 'false') {
+      val = false;
+    }
+
+    settings[key] = val;
+    return settings;
+  }, values.settings);
+  return values;
 }
 
 function setSettings(values) {
@@ -111,7 +147,7 @@ function setSettings(values) {
   if (global.SETTINGS === void 0) {
     Object.defineProperty(global, 'SETTINGS', {
       enumerable: true
-    , value: settings.freeze()
+    , value: settings
     })
   }
 
