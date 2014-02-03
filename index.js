@@ -112,7 +112,24 @@ function loadSettingsPath(values) {
   };
 
   function mergeSettings(settings) {
-    LIB.extend(values.settings, settings);
+    if (!LIB.isObject(settings) || LIB.isArray(settings)) {
+      return;
+    }
+
+    Object.keys(settings).reduce(function (acc, key) {
+      var val = settings[key]
+
+      if (!LIB.isObject(val) || LIB.isArray(val)) {
+        acc[key] = val;
+      } else {
+        if (!LIB.isObject(acc[key]) || LIB.isArray(acc[key])) {
+          acc[key] = Object.create(null);
+        }
+        LIB.extend(acc[key], val);
+      }
+
+      return acc;
+    }, values.settings || Object.create(null));
   }
 
   promise = loadPath(globalEnginemillPath)()
