@@ -8,6 +8,7 @@ var LIB = require('../lib/')
 exports["get() without error"] = {
   setUp: function (done) {
     this.originalMethod = REQ.get;
+    
     var options = this.options = Object.create(null)
       , body = this.body = Object.create(null)
       , response = this.response = Object.create(null)
@@ -35,6 +36,27 @@ exports["get() without error"] = {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
+  },
+
+  "returns the request object": function (test) {
+    test.expect(1);
+    var req = HTTP.get('http://www.example.com')
+    req.promise().then(function (res) {
+      return test.done();
+    });
+    test.strictEqual(this.request, req);
+  },
+
+  "promise for response object": function (test) {
+    test.expect(2);
+    var response = this.response
+      , body = this.body
+
+    HTTP.get('http://www.example.com').promise().then(function (res) {
+      test.strictEqual(res, response);
+      test.strictEqual(res.body, body);
+      return test.done();
+    });
   }
 };
 
