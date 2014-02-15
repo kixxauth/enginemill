@@ -8,7 +8,7 @@ var LIB = require('../lib/')
 exports["get() without error"] = {
   setUp: function (done) {
     this.originalMethod = REQ.get;
-    
+
     var options = this.options = Object.create(null)
       , body = this.body = Object.create(null)
       , response = this.response = Object.create(null)
@@ -28,6 +28,11 @@ exports["get() without error"] = {
   tearDown: function (done) {
     REQ.get = this.originalMethod;
     return done();
+  },
+
+  "originalMethod exists": function (test) {
+    test.equal(typeof this.originalMethod, 'function');
+    return test.done();
   },
 
   "passes uri": function (test) {
@@ -53,8 +58,284 @@ exports["get() without error"] = {
       , body = this.body
 
     HTTP.get('http://www.example.com').promise().then(function (res) {
-      test.strictEqual(res, response);
-      test.strictEqual(res.body, body);
+      test.strictEqual(res, response, 'response object');
+      test.strictEqual(res.body, body, 'body object');
+      return test.done();
+    });
+  }
+};
+
+exports["post() without error"] = {
+  setUp: function (done) {
+    this.originalMethod = REQ.post;
+
+    var options = this.options = Object.create(null)
+      , body = this.body = Object.create(null)
+      , response = this.response = Object.create(null)
+      , request = this.request = Object.create(null)
+
+    REQ.post = function (opts) {
+      LIB.extend(options, opts);
+      process.nextTick(function () {
+        return options.callback(null, response, body);
+      });
+      return request;
+    };
+
+    return done();
+  },
+
+  tearDown: function (done) {
+    REQ.post = this.originalMethod;
+    return done();
+  },
+
+  "originalMethod exists": function (test) {
+    test.equal(typeof this.originalMethod, 'function');
+    return test.done();
+  },
+
+  "passes uri": function (test) {
+    test.expect(1);
+    HTTP.post('http://www.example.com').promise().then(function (res) {
+      return test.done();
+    });
+    test.equal(this.options.uri, 'http://www.example.com');
+  },
+
+  "passes form as option": function (test) {
+    test.expect(1);
+    var form = {key: 'value'}
+      , req = HTTP.post('http://www.example.com', {form: form})
+
+    test.strictEqual(this.options.options.form, form);
+
+    req.promise().then(function (res) {
+      return test.done();
+    });
+  },
+
+  "returns the request object": function (test) {
+    test.expect(1);
+    var req = HTTP.post('http://www.example.com')
+    req.promise().then(function (res) {
+      return test.done();
+    });
+    test.strictEqual(this.request, req);
+  },
+
+  "promise for response object": function (test) {
+    test.expect(2);
+    var response = this.response
+      , body = this.body
+
+    HTTP.post('http://www.example.com').promise().then(function (res) {
+      test.strictEqual(res, response, 'response object');
+      test.strictEqual(res.body, body, 'response body');
+      return test.done();
+    });
+  }
+}
+
+exports["put() without error"] = {
+  setUp: function (done) {
+    this.originalMethod = REQ.put;
+
+    var options = this.options = Object.create(null)
+      , body = this.body = Object.create(null)
+      , response = this.response = Object.create(null)
+      , request = this.request = Object.create(null)
+
+    REQ.put = function (opts) {
+      LIB.extend(options, opts);
+      process.nextTick(function () {
+        return options.callback(null, response, body);
+      });
+      return request;
+    };
+
+    return done();
+  },
+
+  tearDown: function (done) {
+    REQ.put = this.originalMethod;
+    return done();
+  },
+
+  "originalMethod exists": function (test) {
+    test.equal(typeof this.originalMethod, 'function');
+    return test.done();
+  },
+
+  "passes uri": function (test) {
+    test.expect(1);
+    HTTP.put('http://www.example.com').promise().then(function (res) {
+      return test.done();
+    });
+    test.equal(this.options.uri, 'http://www.example.com');
+  },
+
+  "passes form as option": function (test) {
+    test.expect(1);
+    var form = {key: 'value'}
+      , req = HTTP.put('http://www.example.com', {form: form})
+
+    test.strictEqual(this.options.options.form, form);
+
+    req.promise().then(function (res) {
+      return test.done();
+    });
+  },
+
+  "returns the request object": function (test) {
+    test.expect(1);
+    var req = HTTP.put('http://www.example.com')
+    req.promise().then(function (res) {
+      return test.done();
+    });
+    test.strictEqual(this.request, req);
+  },
+
+  "promise for response object": function (test) {
+    test.expect(2);
+    var response = this.response
+      , body = this.body
+
+    HTTP.put('http://www.example.com').promise().then(function (res) {
+      test.strictEqual(res, response, 'response object');
+      test.strictEqual(res.body, body, 'response body');
+      return test.done();
+    });
+  }
+};
+
+exports["patch() without error"] = {
+  setUp: function (done) {
+    this.originalMethod = REQ.patch;
+
+    var options = this.options = Object.create(null)
+      , body = this.body = Object.create(null)
+      , response = this.response = Object.create(null)
+      , request = this.request = Object.create(null)
+
+    REQ.patch = function (opts) {
+      LIB.extend(options, opts);
+      process.nextTick(function () {
+        return options.callback(null, response, body);
+      });
+      return request;
+    };
+
+    return done();
+  },
+
+  tearDown: function (done) {
+    REQ.patch = this.originalMethod;
+    return done();
+  },
+
+  "originalMethod exists": function (test) {
+    test.equal(typeof this.originalMethod, 'function');
+    return test.done();
+  },
+
+  "passes uri": function (test) {
+    test.expect(1);
+    HTTP.patch('http://www.example.com').promise().then(function (res) {
+      return test.done();
+    });
+    test.equal(this.options.uri, 'http://www.example.com');
+  },
+
+  "passes form as option": function (test) {
+    test.expect(1);
+    var form = {key: 'value'}
+      , req = HTTP.patch('http://www.example.com', {form: form})
+
+    test.strictEqual(this.options.options.form, form);
+
+    req.promise().then(function (res) {
+      return test.done();
+    });
+  },
+
+  "returns the request object": function (test) {
+    test.expect(1);
+    var req = HTTP.patch('http://www.example.com')
+    req.promise().then(function (res) {
+      return test.done();
+    });
+    test.strictEqual(this.request, req);
+  },
+
+  "promise for response object": function (test) {
+    test.expect(2);
+    var response = this.response
+      , body = this.body
+
+    HTTP.patch('http://www.example.com').promise().then(function (res) {
+      test.strictEqual(res, response, 'response object');
+      test.strictEqual(res.body, body, 'response body');
+      return test.done();
+    });
+  }
+};
+
+exports["del() without error"] = {
+  setUp: function (done) {
+    this.originalMethod = REQ.del;
+
+    var options = this.options = Object.create(null)
+      , body = this.body = Object.create(null)
+      , response = this.response = Object.create(null)
+      , request = this.request = Object.create(null)
+
+    REQ.del = function (opts) {
+      LIB.extend(options, opts);
+      process.nextTick(function () {
+        return options.callback(null, response, body);
+      });
+      return request;
+    };
+
+    return done();
+  },
+
+  tearDown: function (done) {
+    REQ.del = this.originalMethod;
+    return done();
+  },
+
+  "originalMethod exists": function (test) {
+    test.equal(typeof this.originalMethod, 'function');
+    return test.done();
+  },
+
+  "passes uri": function (test) {
+    test.expect(1);
+    HTTP.del('http://www.example.com').promise().then(function (res) {
+      return test.done();
+    });
+    test.equal(this.options.uri, 'http://www.example.com');
+  },
+
+  "returns the request object": function (test) {
+    test.expect(1);
+    var req = HTTP.del('http://www.example.com')
+    req.promise().then(function (res) {
+      return test.done();
+    });
+    test.strictEqual(this.request, req);
+  },
+
+  "promise for response object": function (test) {
+    test.expect(2);
+    var response = this.response
+      , body = this.body
+
+    HTTP.del('http://www.example.com').promise().then(function (res) {
+      test.strictEqual(res, response, 'response object');
+      test.strictEqual(res.body, body, 'body object');
       return test.done();
     });
   }
