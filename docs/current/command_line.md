@@ -1,5 +1,5 @@
-Enginemill Commandline
-======================
+Enginemill Command Line
+=======================
 
 Enginemill Console
 ------------------
@@ -13,7 +13,7 @@ for you to experiment and interact with your applications and scripts. See
 
 Enginemill Help
 ---------------
-To get help from Enginemill for commandline usage, simply enter
+To get help from Enginemill for command line usage, simply enter
 
 	em --help
 
@@ -26,7 +26,7 @@ Both commands are the same thing -- `em -h` is an alias for `em --help`.
 Enginemill Commands
 -------------------
 You can get a list of Enginemill commands by entering `em --help` on the
-commandline.
+command line.
 
 ### *help* Command
 `em help <command>` will print out a help message for the specified Enginemill command. Example:
