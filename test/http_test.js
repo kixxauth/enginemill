@@ -663,3 +663,39 @@ exports["with DELETE request"] = {
     return test.done();
   }
 };
+
+exports["request() with GET"] = {
+  setUp: function (done) {
+    this.req = HTTP.request('http://www.example.com', {method: 'GET'});
+    var self = this;
+
+    this.req.promise().then(function (res) {
+      self.res = res;
+      return done();
+    }).catch(done);
+  },
+
+  "it has a request instance": function (test) {
+    test.ok(this.req instanceof Request, 'Request instance');
+    test.equal(this.req.method, 'GET', 'method');
+    test.equal(this.req.href, 'http://www.example.com/', 'href');
+    return test.done();
+  },
+
+  "its status is 200": function (test) {
+    test.strictEqual(this.res.statusCode, 200);
+    return test.done();
+  },
+
+  "its content-type is text/html": function (test) {
+    var headers = this.res.headers
+    test.equal(headers['content-type'], 'text/html');
+    return test.done();
+  },
+
+  "it has a body": function (test) {
+    test.equal(typeof this.res.body, 'string', 'body is a string');
+    test.ok(this.res.body.length > 0, 'body has length');
+    return test.done();
+  }
+};
