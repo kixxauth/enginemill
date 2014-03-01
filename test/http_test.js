@@ -1,6 +1,4 @@
 var LIB = require('../lib/')
-  , HTTP = LIB.HTTP
-
   , REQ = require('request')
   , Request = REQ.Request
 
@@ -37,7 +35,7 @@ exports["get() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    HTTP.get('http://www.example.com').promise().then(function (res) {
+    LIB.http.get('http://www.example.com').promise().then(function (res) {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -45,7 +43,7 @@ exports["get() without error"] = {
 
   "returns the request object": function (test) {
     test.expect(1);
-    var req = HTTP.get('http://www.example.com')
+    var req = LIB.http.get('http://www.example.com')
     req.promise().then(function (res) {
       return test.done();
     });
@@ -57,7 +55,7 @@ exports["get() without error"] = {
     var response = this.response
       , body = this.body
 
-    HTTP.get('http://www.example.com').promise().then(function (res) {
+    LIB.http.get('http://www.example.com').promise().then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'body object');
       return test.done();
@@ -95,7 +93,7 @@ exports["get() with error"] = {
       return test.done();
     }
 
-    HTTP.get('http://www.example.com').promise()
+    LIB.http.get('http://www.example.com').promise()
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -136,7 +134,7 @@ exports["post() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    HTTP.post('http://www.example.com').promise().then(function (res) {
+    LIB.http.post('http://www.example.com').promise().then(function (res) {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -145,7 +143,7 @@ exports["post() without error"] = {
   "passes form as option": function (test) {
     test.expect(1);
     var form = {key: 'value'}
-      , req = HTTP.post('http://www.example.com', {body: form})
+      , req = LIB.http.post('http://www.example.com', {body: form})
 
     test.strictEqual(this.options.options.body, form);
 
@@ -156,7 +154,7 @@ exports["post() without error"] = {
 
   "returns the request object": function (test) {
     test.expect(1);
-    var req = HTTP.post('http://www.example.com')
+    var req = LIB.http.post('http://www.example.com')
     req.promise().then(function (res) {
       return test.done();
     });
@@ -168,7 +166,7 @@ exports["post() without error"] = {
     var response = this.response
       , body = this.body
 
-    HTTP.post('http://www.example.com').promise().then(function (res) {
+    LIB.http.post('http://www.example.com').promise().then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'response body');
       return test.done();
@@ -206,7 +204,7 @@ exports["post() with error"] = {
       return test.done();
     }
 
-    HTTP.post('http://www.example.com').promise()
+    LIB.http.post('http://www.example.com').promise()
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -247,7 +245,7 @@ exports["put() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    HTTP.put('http://www.example.com').promise().then(function (res) {
+    LIB.http.put('http://www.example.com').promise().then(function (res) {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -256,7 +254,7 @@ exports["put() without error"] = {
   "passes form as option": function (test) {
     test.expect(1);
     var form = {key: 'value'}
-      , req = HTTP.put('http://www.example.com', {body: form})
+      , req = LIB.http.put('http://www.example.com', {body: form})
 
     test.strictEqual(this.options.options.body, form);
 
@@ -267,7 +265,7 @@ exports["put() without error"] = {
 
   "returns the request object": function (test) {
     test.expect(1);
-    var req = HTTP.put('http://www.example.com')
+    var req = LIB.http.put('http://www.example.com')
     req.promise().then(function (res) {
       return test.done();
     });
@@ -279,7 +277,7 @@ exports["put() without error"] = {
     var response = this.response
       , body = this.body
 
-    HTTP.put('http://www.example.com').promise().then(function (res) {
+    LIB.http.put('http://www.example.com').promise().then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'response body');
       return test.done();
@@ -317,7 +315,7 @@ exports["put() with error"] = {
       return test.done();
     }
 
-    HTTP.put('http://www.example.com').promise()
+    LIB.http.put('http://www.example.com').promise()
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -358,7 +356,7 @@ exports["patch() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    HTTP.patch('http://www.example.com').promise().then(function (res) {
+    LIB.http.patch('http://www.example.com').promise().then(function (res) {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -367,7 +365,7 @@ exports["patch() without error"] = {
   "passes form as option": function (test) {
     test.expect(1);
     var form = {key: 'value'}
-      , req = HTTP.patch('http://www.example.com', {body: form})
+      , req = LIB.http.patch('http://www.example.com', {body: form})
 
     test.strictEqual(this.options.options.body, form);
 
@@ -378,7 +376,7 @@ exports["patch() without error"] = {
 
   "returns the request object": function (test) {
     test.expect(1);
-    var req = HTTP.patch('http://www.example.com')
+    var req = LIB.http.patch('http://www.example.com')
     req.promise().then(function (res) {
       return test.done();
     });
@@ -390,7 +388,7 @@ exports["patch() without error"] = {
     var response = this.response
       , body = this.body
 
-    HTTP.patch('http://www.example.com').promise().then(function (res) {
+    LIB.http.patch('http://www.example.com').promise().then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'response body');
       return test.done();
@@ -428,7 +426,7 @@ exports["patch() with error"] = {
       return test.done();
     }
 
-    HTTP.patch('http://www.example.com').promise()
+    LIB.http.patch('http://www.example.com').promise()
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -469,7 +467,7 @@ exports["del() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    HTTP.del('http://www.example.com').promise().then(function (res) {
+    LIB.http.del('http://www.example.com').promise().then(function (res) {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -477,7 +475,7 @@ exports["del() without error"] = {
 
   "returns the request object": function (test) {
     test.expect(1);
-    var req = HTTP.del('http://www.example.com')
+    var req = LIB.http.del('http://www.example.com')
     req.promise().then(function (res) {
       return test.done();
     });
@@ -489,7 +487,7 @@ exports["del() without error"] = {
     var response = this.response
       , body = this.body
 
-    HTTP.del('http://www.example.com').promise().then(function (res) {
+    LIB.http.del('http://www.example.com').promise().then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'body object');
       return test.done();
@@ -527,7 +525,7 @@ exports["del() with error"] = {
       return test.done();
     }
 
-    HTTP.del('http://www.example.com').promise()
+    LIB.http.del('http://www.example.com').promise()
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -538,7 +536,7 @@ exports["del() with error"] = {
 
 exports["with GET request"] = {
   setUp: function (done) {
-    this.req = HTTP.get('http://www.example.com');
+    this.req = LIB.http.get('http://www.example.com');
     var self = this;
 
     this.req.promise().then(function (res) {
@@ -575,7 +573,7 @@ exports["with GET request"] = {
 exports["with POST request"] = {
   setUp: function (done) {
     this.form = {key: 'value'}
-    this.req = HTTP.post('http://www.example.com').form(this.form);
+    this.req = LIB.http.post('http://www.example.com').form(this.form);
     var self = this;
 
     this.req.promise().then(function (res) {
@@ -599,7 +597,7 @@ exports["with POST request"] = {
 
 exports["with PUT request"] = {
   setUp: function (done) {
-    this.req = HTTP.put('http://www.example.com').form({key: 'value'});
+    this.req = LIB.http.put('http://www.example.com').form({key: 'value'});
     var self = this;
 
     this.req.promise().then(function (res) {
@@ -623,7 +621,7 @@ exports["with PUT request"] = {
 
 exports["with PATCH request"] = {
   setUp: function (done) {
-    this.req = HTTP.patch('http://www.example.com').form({key: 'value'});
+    this.req = LIB.http.patch('http://www.example.com').form({key: 'value'});
     var self = this;
 
     this.req.promise().then(function (res) {
@@ -647,7 +645,7 @@ exports["with PATCH request"] = {
 
 exports["with DELETE request"] = {
   setUp: function (done) {
-    this.req = HTTP.del('http://www.example.com');
+    this.req = LIB.http.del('http://www.example.com');
     var self = this;
 
     this.req.promise().then(function (res) {
@@ -666,7 +664,7 @@ exports["with DELETE request"] = {
 
 exports["request() with GET"] = {
   setUp: function (done) {
-    this.req = HTTP.request('http://www.example.com', {method: 'GET'});
+    this.req = LIB.http.request('http://www.example.com', {method: 'GET'});
     var self = this;
 
     this.req.promise().then(function (res) {
