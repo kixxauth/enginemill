@@ -12,10 +12,10 @@ exports["get() without error"] = {
       , response = this.response = Object.create(null)
       , request = this.request = Object.create(null)
 
-    REQ.get = function (opts) {
+    REQ.get = function (opts, callback) {
       LIB.extend(options, opts);
       process.nextTick(function () {
-        return options.callback(null, response, body);
+        return callback(null, response, body);
       });
       return request;
     };
@@ -39,6 +39,14 @@ exports["get() without error"] = {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
+  },
+
+  "passes followRedirect = false": function (test) {
+    test.expect(1);
+    LIB.http.get('http://www.example.com').promise.then(function (res) {
+      return test.done();
+    });
+    test.strictEqual(this.options.followRedirect, false);
   },
 
   "returns the request object": function (test) {
@@ -69,9 +77,9 @@ exports["get() with error"] = {
     var request = this.request = Object.create(null)
       , error = this.error = new Error("POST Error")
 
-    REQ.get = function (options) {
+    REQ.get = function (options, callback) {
       process.nextTick(function () {
-        return options.callback(error);
+        return callback(error);
       });
       return request;
     };
@@ -111,10 +119,10 @@ exports["post() without error"] = {
       , response = this.response = Object.create(null)
       , request = this.request = Object.create(null)
 
-    REQ.post = function (opts) {
+    REQ.post = function (opts, callback) {
       LIB.extend(options, opts);
       process.nextTick(function () {
-        return options.callback(null, response, body);
+        return callback(null, response, body);
       });
       return request;
     };
@@ -140,12 +148,20 @@ exports["post() without error"] = {
     test.equal(this.options.uri, 'http://www.example.com');
   },
 
+  "passes followRedirect = false": function (test) {
+    test.expect(1);
+    LIB.http.post('http://www.example.com').promise.then(function (res) {
+      return test.done();
+    });
+    test.strictEqual(this.options.followRedirect, false);
+  },
+
   "passes form as option": function (test) {
     test.expect(1);
     var form = {key: 'value'}
       , req = LIB.http.post('http://www.example.com', {body: form})
 
-    test.strictEqual(this.options.options.body, form);
+    test.strictEqual(this.options.body, form);
 
     req.promise.then(function (res) {
       return test.done();
@@ -180,9 +196,9 @@ exports["post() with error"] = {
     var request = this.request = Object.create(null)
       , error = this.error = new Error("POST Error")
 
-    REQ.post = function (options) {
+    REQ.post = function (options, callback) {
       process.nextTick(function () {
-        return options.callback(error);
+        return callback(error);
       });
       return request;
     };
@@ -222,10 +238,10 @@ exports["put() without error"] = {
       , response = this.response = Object.create(null)
       , request = this.request = Object.create(null)
 
-    REQ.put = function (opts) {
+    REQ.put = function (opts, callback) {
       LIB.extend(options, opts);
       process.nextTick(function () {
-        return options.callback(null, response, body);
+        return callback(null, response, body);
       });
       return request;
     };
@@ -251,12 +267,20 @@ exports["put() without error"] = {
     test.equal(this.options.uri, 'http://www.example.com');
   },
 
+  "passes followRedirect = false": function (test) {
+    test.expect(1);
+    LIB.http.put('http://www.example.com').promise.then(function (res) {
+      return test.done();
+    });
+    test.strictEqual(this.options.followRedirect, false);
+  },
+
   "passes form as option": function (test) {
     test.expect(1);
     var form = {key: 'value'}
       , req = LIB.http.put('http://www.example.com', {body: form})
 
-    test.strictEqual(this.options.options.body, form);
+    test.strictEqual(this.options.body, form);
 
     req.promise.then(function (res) {
       return test.done();
@@ -291,9 +315,9 @@ exports["put() with error"] = {
     var request = this.request = Object.create(null)
       , error = this.error = new Error("PUT Error")
 
-    REQ.put = function (options) {
+    REQ.put = function (options, callback) {
       process.nextTick(function () {
-        return options.callback(error);
+        return callback(error);
       });
       return request;
     };
@@ -333,10 +357,10 @@ exports["patch() without error"] = {
       , response = this.response = Object.create(null)
       , request = this.request = Object.create(null)
 
-    REQ.patch = function (opts) {
+    REQ.patch = function (opts, callback) {
       LIB.extend(options, opts);
       process.nextTick(function () {
-        return options.callback(null, response, body);
+        return callback(null, response, body);
       });
       return request;
     };
@@ -362,12 +386,20 @@ exports["patch() without error"] = {
     test.equal(this.options.uri, 'http://www.example.com');
   },
 
+  "passes followRedirect = false": function (test) {
+    test.expect(1);
+    LIB.http.patch('http://www.example.com').promise.then(function (res) {
+      return test.done();
+    });
+    test.strictEqual(this.options.followRedirect, false);
+  },
+
   "passes form as option": function (test) {
     test.expect(1);
     var form = {key: 'value'}
       , req = LIB.http.patch('http://www.example.com', {body: form})
 
-    test.strictEqual(this.options.options.body, form);
+    test.strictEqual(this.options.body, form);
 
     req.promise.then(function (res) {
       return test.done();
@@ -402,9 +434,9 @@ exports["patch() with error"] = {
     var request = this.request = Object.create(null)
       , error = this.error = new Error("PATCH Error")
 
-    REQ.patch = function (options) {
+    REQ.patch = function (options, callback) {
       process.nextTick(function () {
-        return options.callback(error);
+        return callback(error);
       });
       return request;
     };
@@ -444,10 +476,10 @@ exports["del() without error"] = {
       , response = this.response = Object.create(null)
       , request = this.request = Object.create(null)
 
-    REQ.del = function (opts) {
+    REQ.del = function (opts, callback) {
       LIB.extend(options, opts);
       process.nextTick(function () {
-        return options.callback(null, response, body);
+        return callback(null, response, body);
       });
       return request;
     };
@@ -471,6 +503,14 @@ exports["del() without error"] = {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
+  },
+
+  "passes followRedirect = false": function (test) {
+    test.expect(1);
+    LIB.http.del('http://www.example.com').promise.then(function (res) {
+      return test.done();
+    });
+    test.strictEqual(this.options.followRedirect, false);
   },
 
   "returns the request object": function (test) {
@@ -501,9 +541,9 @@ exports["del() with error"] = {
     var request = this.request = Object.create(null)
       , error = this.error = new Error("DELETE Error")
 
-    REQ.del = function (options) {
+    REQ.del = function (options, callback) {
       process.nextTick(function () {
-        return options.callback(error);
+        return callback(error);
       });
       return request;
     };
