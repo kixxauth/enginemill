@@ -2,11 +2,10 @@ Making HTTP Requests
 ====================
 
 You might find Enginemill's approach to making HTTP requests a little different
-if you've used Node.js to make HTTP requests, or have some experience with Ajax
-in web browsers. But you'll probably like it even better :smile:. Enginemill
-makes liberal use of Promises to handle asynchronous operations using the built
-in [Promise library](./promises), and that's especially important when working
-with HTTP.
+if you've used Node.js or Ajax before. But you'll probably get to like this
+approach better :smile:. Enginemill makes liberal use of Promises to handle
+asynchronous operations using the built in [Promise library](./promises), and
+that's especially important when working with HTTP.
 
 Here's an example of making a request and either printing out the HTTP headers,
 or reporting a failure.
@@ -31,6 +30,7 @@ that in Enginemill applications.
 The `LIB.http` symbol is a reference to the HTTP request library which is built
 into Enginemill and automatically injected into your program along with
 everything else in the [Enginemill environment](./enginemill_environment).
+That means you don't have to explicitly `reauire()` it.
 
 `LIB.http.get()` does exactly what you think it does: It makes an HTTP GET
 request to "www.example.com".
@@ -51,8 +51,8 @@ If there are any errors in the process of making the HTTP request, or if any
 errors are thrown inside the `printHeaders()` function, they will be caught and
 passed to the `fail()` function which you passed into `.catch()`.
 
-The `.then()` and `.catch()` methods of Promises return a promise instance, so
-you can chain them like this:
+The `.then()` and `.catch()` methods of a Promise instance both return another
+promise instance, so you can chain them like this:
 ```CoffeeScript
 
 printHeaders = (response) ->
@@ -80,10 +80,22 @@ LIB.http.get("www.example.com").promise
 	.catch(fail)
 
 ```
-For more about promises and how you can use them, check out
-the [Promises documentation](./promises).
+To learn more about promises and how you can use them to make asynchronous
+operations much easier to understand, check out the [Promises
+documentation](./promises).
 
 ## API
+
+### Making requests
+
+#### LIB.http.get(uri, opts)
+#### LIB.http.post(uri, opts)
+#### LIB.http.put(uri, opts)
+#### LIB.http.delete(uri, opts)
+#### LIB.http.patch(uri, opts)
+#### LIB.http.request(uri, opts)
+
+#### Options
 
 ### Request
 You get a Request instance when you call an HTTP method:
