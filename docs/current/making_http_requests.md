@@ -1,11 +1,15 @@
 Making HTTP Requests
 ====================
 
-If you've used Node.js to make HTTP requests, or have some experience with Ajax
-in the web browsers, you mind find Enginemill's approach a little different at
-first. That's because Enginemill makes liberal use of Promises to handle
-asynchronous operations using the built in [Promise library](./promises).
+You might find Enginemill's approach to making HTTP requests a little different
+if you've used Node.js to make HTTP requests, or have some experience with Ajax
+in web browsers. But you'll probably like it even better :smile:. Enginemill
+makes liberal use of Promises to handle asynchronous operations using the built
+in [Promise library](./promises), and that's especially important when working
+with HTTP.
 
+Here's an example of making a request and either printing out the HTTP headers,
+or reporting a failure.
 ```CoffeeScript
 printHeaders = (response) ->
 	console.log(response.headers)
@@ -16,27 +20,68 @@ fail = (err) ->
 	process.exit(1)
 	return
 
-LIB.http.get("www.example.com").promise().then(printHeaders).catch(fail)
+LIB.http.get("www.example.com").promise.then(printHeaders).catch(fail)
 ```
 
-Notice that the response and failure handler functions, `printHeaders()` and
-`fail()`, are defined before the actual call to `LIB.http.get()`. That's best
-practice when composing asynchronous operations with Enginemill.
+Notice that the response and failure handler functions (`printHeaders()` and
+`fail()`) are defined before the actual call to `LIB.http.get()`. That's best
+practice when composing asynchronous operations, and you should commonly see
+that in Enginemill applications.
 
-The `LIB.http` symbol is a reference to the HTTP request library built into
-the Enginemill library (`LIB`), which is automatically injected into your program for you as part
-of the [Enginemill environment](./enginemill_environment). `LIB.http.get()` does
-exactly what you think it does: Make an HTTP GET request to "www.example.com".
+The `LIB.http` symbol is a reference to the HTTP request library which is built
+into Enginemill and automatically injected into your program along with
+everything else in the [Enginemill environment](./enginemill_environment).
+
+`LIB.http.get()` does exactly what you think it does: It makes an HTTP GET
+request to "www.example.com".
 
 However, the response to your request is not returned right away. Instead,
 since it takes time to actually fetch the response from www.example.com,
-Enginemill allows your program to go do other things while you wait by handing
-a promise back to you. A Promise is just that: a promise to deliver a result
-after an operation has completed. Once the operation is complete, and the
-result is ready, it is passed to the function you handed to `.then()`.
+Enginemill allows your program to do other things while you wait, by handing
+a promise back to you instead of the actual HTTP response.
+
+A Promise is just that -- A promise to deliver a result to you after an
+operation has completed. Once the operation is complete, and the result is
+ready, it is passed to the function you handed to `.then()`.
 
 In this case, the HTTP response object is handed off to our `printHeaders()`
-function which simply prints out the headers with `console.log()`.
+function which simply prints out the HTTP headers with `console.log()`.
+
+If there are any errors in the process of making the HTTP request, or if any
+errors are thrown inside the `printHeaders()` function, they will be caught and
+passed to the `fail()` function which you passed into `.catch()`.
+
+The `.then()` and `.catch()` methods of Promises return a promise instance, so
+you can chain them like this:
+```CoffeeScript
+
+printHeaders = (response) ->
+	console.log(response.headers)
+	return response
+
+printBody = (response) ->
+	console.log(response.body)
+	return response
+
+printLineCount = (response) ->
+	count = respond.body.split('\n').length
+	console.log("Line Count:", count)
+	return response
+
+fail = (err) ->
+	console.error(err)
+	process.exit(1)
+	return
+
+LIB.http.get("www.example.com").promise
+	.then(printHeaders)
+	.then(printBody)
+	.then(printLineCount)
+	.catch(fail)
+
+```
+For more about promises and how you can use them, check out
+the [Promises documentation](./promises).
 
 ## API
 
@@ -51,31 +96,27 @@ req = LIB.http.get("www.example.com")
 promise = req.promise()
 ```
 
+#### Request properties
+* __promise__  - A [Promise](./promises) instance for the HTTP Response object.
+* __readable__ - Boolean which is true if the Request Stream is still readable.
+* __writable__ - Boolean which is true if the Request Stream is still writable.
+* __method__   - String like 'GET' indicating the HTTP method.
+* __headers__  - An Object dictionary of HTTP headers sent.
+* __agent__    - The Node.js HTTP Agent object used.
+* __uri__      - A Node.js URL Object structured like this:
+	* __uri.href__     - The full URL String, like 'http://www.example.com'.
+	* __uri.protocol__ - The protocol String, like 'http' or 'https'.
+	* __uri.auth__     - The authorization String, like 'username:password'.
+	* __uri.host__     - The full host string, including the port, like 'www.example.com:8080'.
+	* __uri.hostname__ - Only the host name, not the port, like 'www.example.com'.
+	* __uri.port__     - The port number String of the URI, like '8080'.
+	* __uri.path__     - The path String with the query String, like '/customers?id=2'.
+	* __uri.pathname__ - Only the path String, like '/customers'.
+	* __uri.search__   - Query String including the leading '?'.
+	* __uri.query__    - Only the query String, like 'id=2'.
+	* __uri.hash__     - The fragment String including the leading '#'.
+
+### Streaming
 A Request instance is also a Stream instance, and has all the properties and
 methods you would expect a Stream to have.
-
-#### Request properties
-* readable - Boolean which is true if the Request Stream is still readable.
-* writable - Boolean whish is true if the Request Stream is still writable.
-* method   - String like 'GET' indicating the HTTP method.
-* headers  - An Object dictionary of HTTP headers sent.
-* agent    - The Node.js HTTP Agent object used.
-* uri      - A Node.js URL Object structured like this:
-* uri.href     - The full URL String, like 'http://www.example.com'.
-* uri.protocol - The protocol String, like 'http' or 'https'.
-* uri.auth     - The authorization String, like 'username:password'.
-* uri.host     - The full host string, including the port, like 'www.example.com:8080'.
-* uri.hostname - Only the host name, not the port, like 'www.example.com'.
-* uri.port     - The port number String of the URI, like '8080'.
-* uri.path     - The path String with the query String, like '/customers?id=2'.
-* uri.pathname - Only the path String, like '/customers'.
-* uri.search   - Query String including the leading '?'.
-* uri.query    - Only the query String, like 'id=2'.
-* uri.hash     - The fragment String including the leading '#'.
-
-#### Request methods
-* promise() - Returns the Promise for the Response.
-
-#### Request events
-* error -
 
