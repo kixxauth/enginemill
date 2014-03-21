@@ -2,10 +2,9 @@ Making HTTP Requests
 ====================
 
 You might find Enginemill's approach to making HTTP requests a little different
-if you've used Node.js or Ajax before. But you'll probably get to like this
-approach better :smile:. Enginemill makes liberal use of Promises to handle
-asynchronous operations using the built in [Promise library](./promises), and
-that's especially important when working with HTTP.
+if you've used Node.js or Ajax before.  Enginemill makes liberal use of
+Promises to handle asynchronous operations using the built in [Promise
+library](./promises), and that's especially important when working with HTTP.
 
 Here's an example of making a request and either printing out the HTTP headers,
 or reporting a failure.
@@ -24,7 +23,7 @@ LIB.http.get("www.example.com").promise.then(printHeaders).catch(fail)
 
 Notice that the response and failure handler functions (`printHeaders()` and
 `fail()`) are defined before the actual call to `LIB.http.get()`. That's best
-practice when composing asynchronous operations, and you should commonly see
+practice when composing asynchronous operations, and you'll commonly see
 that in Enginemill applications.
 
 The `LIB.http` symbol is a reference to the HTTP request library which is built
