@@ -9,7 +9,7 @@ The simplest Enginemill command is
 
 This will run the Enginemill console, with the Enginemill environment loaded
 for you to experiment and interact with your applications and scripts. See
-[Enginemill environment](./enginemill_environment) for more details.
+[Enginemill environment](./enginemill_environment.md) for more details.
 
 Enginemill Help
 ---------------
@@ -42,4 +42,4 @@ Enginemill environment already loaded into it. Example:
 	em run path/to/script.coffee
 
 runs the `script.coffee` CoffeeScript file.
-See [running scripts](./running_scripts) for more details.
+See [running scripts](./running_scripts.md) for more details.
