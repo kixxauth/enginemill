@@ -8,7 +8,7 @@ There are several methods you can use to make HTTP requests, each corresponding
 to an HTTP request method, and one generic method you can use for any HTTP
 request type.
 
-Each request method returns a Request instance (see Request instances below):
+Each request method returns a Request instance (see [Request](#request) instances below):
 ```
 req = LIB.http.get('http://www.example.com')
 ```
@@ -43,28 +43,28 @@ You can send a buffer or string in the options:
 LIB.http.post('http://localhost:8080/pathname', {body: 'hi'})
 ```
 
-Or send form data:
+You can send form data with an Object hash:
 ```
 LIB.http.post('http://localhost:8080/pathname', {form: {foo: 'bar'}})
 ```
-Encodes the form Object as a URL encoded query String and sets the Content-Type
+which will encode the form Object as a URL encoded query String and set the Content-Type
 header to `application/x-www-form-urlencoded`.
 
-If no options are passed into .post(), it will return a FormData instance (see
-FormData below).
-
-Or send JSON:
+Sending JSON is easy too:
 ```
 LIB.http.post('http://localhost:8080/pathname', {json: {foo: 'bar'}})
 ```
 The Content-Type header will be set to `application/json` and the response body
 will be parsed as JSON.
 
+If no options hash Object is passed into .post(), it will return a FormData
+instance (see FormData below).
+
 
 ### LIB.http.put(uri, opts)
 Send a request using the HTTP 'PUT' method.
 
-See the LIB.http.post() docs above.
+See the LIB.http.post() docs above. The API is the same.
 
 ### LIB.http.del(uri, opts)
 Send a request using the HTTP 'DELETE' method.
@@ -72,32 +72,45 @@ Send a request using the HTTP 'DELETE' method.
 ### LIB.http.patch(uri, opts)
 Send a request using the HTTP 'PATCH' method.
 
+See the LIB.http.post() docs above. The API is the same.
+
 ### LIB.http.request(uri, opts)
 A generic method for sending a request using any HTTP method.
 
 ### Options
+Full list of options which can be passed into request methods.
 
-### Request
+* __uri || url__ - fully qualified uri or a parsed url object from `URL.parse()`
+* __qs__ - object containing querystring values to be appended to the `uri`
+* __method__ - http method (default: `"GET"`)
+* __headers__ - http headers (default: `{}`)
+* __body__ - entity body for PATCH, POST and PUT requests. Must be a `Buffer` or `String`.
+* __form__ - when passed an object, this sets `body` to a querystring representation of value, and adds `Content-type: application/x-www-form-urlencoded; charset=utf-8` header.
+* __json__ - sets `body` but to JSON representation of value and adds `Content-type: application/json` header.  Additionally, parses the response body as JSON.
+* __multipart__ - (experimental) array of objects which contains their own headers and `body` attribute. Sends `multipart/related` request. See example below.
+* __encoding__ - Encoding to be used on `setEncoding` of response data. If `null`, the `body` is returned as a `Buffer`.
+* __auth__ - A hash containing values `user` || `username`, `pass` || `password`, and `sendImmediately` (optional).  See documentation above.
+* __oauth__ - Options for OAuth HMAC-SHA1 signing. See documentation above.
+* __aws__ - Object containing AWS signing information. Should have the properties `key`, `secret`. Also requires the property `bucket`, unless you’re specifying your `bucket` as part of the path, or the request doesn’t use a bucket (i.e. GET Services)
+* __httpSignature__ - Options for the [HTTP Signature Scheme](https://github.com/joyent/node-http-signature/blob/master/http_signing.md) using [Joyent's library](https://github.com/joyent/node-http-signature). The `keyId` and `key` properties must be specified. See the docs for other options.
+* __hawk__ - Options for [Hawk signing](https://github.com/hueniverse/hawk). The `credentials` key must contain the necessary signing info, [see hawk docs for details](https://github.com/hueniverse/hawk#usage-example).
+* __followRedirect__ - follow HTTP 3xx responses as redirects (default: `false`)
+* __followAllRedirects__ - follow non-GET HTTP 3xx responses as redirects (default: `false`)
+* __maxRedirects__ - the maximum number of redirects to follow (default: `10`)
+* __jar__ - If `true`, remember cookies for future use (or define your custom cookie jar; see examples section)
+* __strictSSL__ - If `true`, requires SSL certificates be valid. **Note:** to use your own certificate authority, you need to specify an agent that was created with that CA as an option.
+* __timeout__ - Integer containing the number of milliseconds to wait for a request to respond before aborting the request
+* __proxy__ - An HTTP proxy to be used. Supports proxy Auth with Basic Auth, identical to support for the `url` parameter (by embedding the auth info in the `uri`)
+* __localAddress__ - Local interface to bind for network connections.
+* __pool__ - A hash object containing the agents for these requests. If omitted, the request will use the global pool (which is set to node's default `maxSockets`)
+* __pool.maxSockets__ - Integer containing the maximum amount of sockets in the pool.
+
+### Class: Request
 You get a Request instance when you call an HTTP method:
 
 ```CoffeeScript
 # Request instance:
 req = LIB.http.get("www.example.com")
-
-# Promise instance:
-promise = req.promise()
-```
-
-### Response
-
-### FormData
-Send multipart file data by creating a form object:
-```
-// No .body, .form, or .json options are required.
-form = LIB.http.post('http://localhost:8080/pathname').form()
-form.append('foo', 'bar')
-form.append('a_file', LIB.Path.create('./my_pic.jpg').newReadStream())
-form.append('a_buffer', new Buffer('foobarbaz'))
 ```
 
 #### Request properties
@@ -119,6 +132,22 @@ form.append('a_buffer', new Buffer('foobarbaz'))
 	* __uri.search__   - Query String including the leading '?'.
 	* __uri.query__    - Only the query String, like 'id=2'.
 	* __uri.hash__     - The fragment String including the leading '#'.
+
+#### Request methods
+* __form()__ - Returns a form object which can be used to send various kinds of HTTP form data. See
+[FormData](#formdata) below for more information.
+
+### Response
+
+### FormData
+Send multipart file data by creating a form object with the Request#form() method:
+```
+// No .body, .form, or .json options are required.
+form = LIB.http.post('http://localhost:8080/pathname').form()
+form.append('foo', 'bar')
+form.append('a_file', LIB.Path.create('./my_pic.jpg').newReadStream())
+form.append('a_buffer', new Buffer('foobarbaz'))
+```
 
 ### Streaming
 A Request instance is also a Stream instance, and has all the properties and
