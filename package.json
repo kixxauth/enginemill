@@ -11,7 +11,7 @@
     },
     "dependencies": {
         "nodeunit": "0.8.2",
-        "coffee-script": "1.6.3",
+        "coffee-script": "1.7.1",
         "iou": "2.0.0",
         "crystal_constants": "1.1.0",
         "underscore": "1.5.2",
