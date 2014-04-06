@@ -60,6 +60,19 @@ exports['with script'] = {
     return done();
   },
 
+  'it should print help with --help switch': function (test) {
+    test.expect(3);
+    
+    CP.exec(this.command +' --help', function (err, stdout, stderr) {
+      var lines = err.message.split('\n');
+      test.equal(lines[4], '  --a_string  Expected to be a String                        [required]');
+      test.equal(lines[5], '  --a_number  Expected to be a Number.                       [required]');
+      test.equal(lines[6], '  --a_bool    Expected to be a Boolean.');
+      test.done();
+    })
+    return;
+  },
+
   'it should not run without required args': function (test) {
     test.expect(1);
     
@@ -88,3 +101,4 @@ exports['with script'] = {
     return;
   },
 };
+

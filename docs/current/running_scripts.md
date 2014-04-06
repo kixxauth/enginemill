@@ -38,14 +38,18 @@ exports.main = (opts) ->
 	return
 ```
 
-`exports.usage` gives a usage summary of your script.
+* `exports.usage` gives a usage summary of your script.
+* `exports.options` defines the options your script accepts. Notice how you can
+  create descriptive help text for each option with `description`, indicate
+	required options with `required`, force the parser to keep the value as a
+	string with `forceString`, and indicate boolean options with `boolean`.
+* `exports.help` should give a longer explanation of how to use the script.
+* `exports.main` is the function that Enginemill will call when your script is
+  executed.
 
-`exports.options` defines the options your script accepts. Notice how you can
-create descriptive help text for each option with `description`, indicate
-required options with `required`, force the parser to keep the value as a
-string with `forceString`, and indicate boolean options with `boolean`.
+## Running The Script
+Running your scripts is easy with the Enginemill command `em run`. This is how
+you might run the example above:
 
-`exports.help` should give a longer explanation of how to use the script.
+	em run /path/to/my/script --first_name kristoffer --print_date false
 
-And, of course, `exports.main` is the function that Enginemill will call when
-your script is executed.
