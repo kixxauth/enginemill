@@ -1,5 +1,6 @@
 # HTTP Requests
-```
+```CoffeeScript
+# Global:
 LIB.http
 ```
 
@@ -9,29 +10,33 @@ to an HTTP request method, and one generic method you can use for any HTTP
 request type.
 
 Each request method returns a Request instance (see [Request](#request) instances below):
-```
+```CoffeeScript
 req = LIB.http.get('http://www.example.com')
 ```
 
 And each Request instance has a promise attached to it:
-```
+```CoffeeScript
 promise = LIB.http.get('http://wwww.example.com').promise
 ```
 
 Promises come in really handy for chaining asynchronous operations. Checkout
-the [Making HTTP Requests](../making_http_requests) tutorial for mor info.
+the [Making HTTP Requests](../making_http_requests) tutorial for more info.
+
+
+## HTTP Request Methods
 
 ### LIB.http.get(uri, opts)
 Send a request using the HTTP 'GET' method.
 
 To send URL query parameters, you can just append them on the URL String like
 this:
-```
+```CoffeeScript
 LIB.http.get('http://localhost:8080/pathname?foo=bar')
 ```
 
-Or, you can add the parameters using an Object hash in the options:
-```
+Or, you can add the parameters using an Object hash assigned to `qs` instead
+(which is usually a better idea than manipulating the strings yourself):
+```CoffeeScript
 LIB.http.get('http://localhost:8080/pathname', {qs: {foo: 'bar'})
 ```
 
@@ -39,19 +44,19 @@ LIB.http.get('http://localhost:8080/pathname', {qs: {foo: 'bar'})
 Send a request using the HTTP 'POST' method.
 
 You can send a buffer or string in the options:
-```
+```CoffeeScript
 LIB.http.post('http://localhost:8080/pathname', {body: 'hi'})
 ```
 
 You can send form data with an Object hash:
-```
+```CoffeeScript
 LIB.http.post('http://localhost:8080/pathname', {form: {foo: 'bar'}})
 ```
 which will encode the form Object as a URL encoded query String and set the Content-Type
 header to `application/x-www-form-urlencoded`.
 
 Sending JSON is easy too:
-```
+```CoffeeScript
 LIB.http.post('http://localhost:8080/pathname', {json: {foo: 'bar'}})
 ```
 The Content-Type header will be set to `application/json` and the response body
@@ -66,29 +71,47 @@ Send a request using the HTTP 'PUT' method.
 
 See the LIB.http.post() docs above. The API is the same.
 
+```CoffeeScript
+LIB.http.post('http://localhost:8080/pathname', {form: {foo: 'bar'}})
+```
+
 ### LIB.http.del(uri, opts)
 Send a request using the HTTP 'DELETE' method.
+
+```CoffeeScript
+LIB.http.del('http://localhost:8080/path/resource')
+```
 
 ### LIB.http.patch(uri, opts)
 Send a request using the HTTP 'PATCH' method.
 
 See the LIB.http.post() docs above. The API is the same.
 
+```CoffeeScript
+LIB.http.post('http://localhost:8080/pathname', {form: {foo: 'bar'}})
+```
+
 ### LIB.http.request(uri, opts)
 A generic method for sending a request using any HTTP method.
 
-### Options
+```CoffeeScript
+LIB.http.request('http://localhost:8080/pathname', {method: 'GET'})
+```
+
+When using the `.request()` method you need to remember to supply your own HTTP
+method assigned as `method` on the options Object hash ('GET' in the example
+above).
+
+## Options for HTTP requests
 Full list of options which can be passed into request methods.
 
-* __uri || url__ - fully qualified uri or a parsed url object from `URL.parse()`
 * __qs__ - object containing querystring values to be appended to the `uri`
 * __method__ - http method (default: `"GET"`)
 * __headers__ - http headers (default: `{}`)
 * __body__ - entity body for PATCH, POST and PUT requests. Must be a `Buffer` or `String`.
 * __form__ - when passed an object, this sets `body` to a querystring representation of value, and adds `Content-type: application/x-www-form-urlencoded; charset=utf-8` header.
 * __json__ - sets `body` but to JSON representation of value and adds `Content-type: application/json` header.  Additionally, parses the response body as JSON.
-* __multipart__ - (experimental) array of objects which contains their own headers and `body` attribute. Sends `multipart/related` request. See example below.
-* __encoding__ - Encoding to be used on `setEncoding` of response data. If `null`, the `body` is returned as a `Buffer`.
+* __encoding__ - Encoding to be used on `setEncoding` of response data. If `null`, the `body` is returned as a `Buffer` (default: `undefined`).
 * __auth__ - A hash containing values `user` || `username`, `pass` || `password`, and `sendImmediately` (optional).  See documentation above.
 * __oauth__ - Options for OAuth HMAC-SHA1 signing. See documentation above.
 * __aws__ - Object containing AWS signing information. Should have the properties `key`, `secret`. Also requires the property `bucket`, unless you’re specifying your `bucket` as part of the path, or the request doesn’t use a bucket (i.e. GET Services)
@@ -141,7 +164,7 @@ req = LIB.http.get("www.example.com")
 
 ### FormData
 Send multipart file data by creating a form object with the Request#form() method:
-```
+```CoffeeScript
 // No .body, .form, or .json options are required.
 form = LIB.http.post('http://localhost:8080/pathname').form()
 form.append('foo', 'bar')

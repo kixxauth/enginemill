@@ -2,19 +2,21 @@ Making HTTP Requests
 ====================
 
 You might find Enginemill's approach to making HTTP requests a little different
-if you've used Node.js or Ajax before.  Enginemill makes liberal use of
-Promises to handle asynchronous operations using the built in [Promise
-library](./promises), and that's especially important when working with HTTP.
+compared to what you've been accustomed to when using Node.js or Ajax.
+Enginemill makes use of Promises instead of nested callback functions to handle
+asynchronous operations using the built in [Promise library](./promises).
 
 Here's an example of making a request and either printing out the HTTP headers,
 or reporting a failure.
 ```CoffeeScript
+# Define a function to print the HTTP headers.
 printHeaders = (response) ->
-	console.log(response.headers)
+	print(response.headers)
 	return
 
+# Define a function to print an error and exit.
 fail = (err) ->
-	console.error(err)
+	print(err)
 	process.exit(1)
 	return
 
@@ -26,25 +28,26 @@ Notice that the response and failure handler functions (`printHeaders()` and
 practice when composing asynchronous operations, and you'll commonly see
 that in Enginemill applications.
 
-The `LIB.http` symbol is a reference to the HTTP request library which is built
+`LIB.http` is a reference to the HTTP request library which is built
 into Enginemill and automatically injected into your program along with
 everything else in the [Enginemill environment](./enginemill_environment).
 That means you don't have to explicitly `reauire()` it.
 
-`LIB.http.get()` does exactly what you think it does: It makes an HTTP GET
+`LIB.http.get()` does exactly what you think it does: It makes an HTTP 'GET'
 request to "www.example.com".
 
 However, the response to your request is not returned right away. Instead,
 since it takes time to actually fetch the response from www.example.com,
-Enginemill allows your program to do other things while you wait, by handing
-a promise back to you instead of the actual HTTP response.
+Enginemill allows your program to do other things while you wait. By handing a
+promise back to you instead of the actual HTTP response, you can simply be
+notified when the request succeeds or fails.
 
 A Promise is just that -- A promise to deliver a result to you after an
 operation has completed. Once the operation is complete, and the result is
 ready, it is passed to the function you handed to `.then()`.
 
 In this case, the HTTP response object is handed off to our `printHeaders()`
-function which simply prints out the HTTP headers with `console.log()`.
+function which simply prints out the HTTP headers with `print()`.
 
 If there are any errors in the process of making the HTTP request, or if any
 errors are thrown inside the `printHeaders()` function, they will be caught and
