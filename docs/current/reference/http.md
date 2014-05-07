@@ -105,28 +105,71 @@ above).
 ## Options for HTTP requests
 Full list of options which can be passed into request methods.
 
-* __qs__ - object containing querystring values to be appended to the `uri`
-* __method__ - http method (default: `"GET"`)
-* __headers__ - http headers (default: `{}`)
-* __body__ - entity body for PATCH, POST and PUT requests. Must be a `Buffer` or `String`.
-* __form__ - when passed an object, this sets `body` to a querystring representation of value, and adds `Content-type: application/x-www-form-urlencoded; charset=utf-8` header.
-* __json__ - sets `body` but to JSON representation of value and adds `Content-type: application/json` header.  Additionally, parses the response body as JSON.
-* __encoding__ - Encoding to be used on `setEncoding` of response data. If `null`, the `body` is returned as a `Buffer` (default: `undefined`).
-* __auth__ - A hash containing values `user` || `username`, `pass` || `password`, and `sendImmediately` (optional).  See documentation above.
-* __oauth__ - Options for OAuth HMAC-SHA1 signing. See documentation above.
-* __aws__ - Object containing AWS signing information. Should have the properties `key`, `secret`. Also requires the property `bucket`, unless you’re specifying your `bucket` as part of the path, or the request doesn’t use a bucket (i.e. GET Services)
-* __httpSignature__ - Options for the [HTTP Signature Scheme](https://github.com/joyent/node-http-signature/blob/master/http_signing.md) using [Joyent's library](https://github.com/joyent/node-http-signature). The `keyId` and `key` properties must be specified. See the docs for other options.
-* __hawk__ - Options for [Hawk signing](https://github.com/hueniverse/hawk). The `credentials` key must contain the necessary signing info, [see hawk docs for details](https://github.com/hueniverse/hawk#usage-example).
-* __followRedirect__ - follow HTTP 3xx responses as redirects (default: `false`)
-* __followAllRedirects__ - follow non-GET HTTP 3xx responses as redirects (default: `false`)
-* __maxRedirects__ - the maximum number of redirects to follow (default: `10`)
-* __jar__ - If `true`, remember cookies for future use (or define your custom cookie jar; see examples section)
-* __strictSSL__ - If `true`, requires SSL certificates be valid. **Note:** to use your own certificate authority, you need to specify an agent that was created with that CA as an option.
-* __timeout__ - Integer containing the number of milliseconds to wait for a request to respond before aborting the request
-* __proxy__ - An HTTP proxy to be used. Supports proxy Auth with Basic Auth, identical to support for the `url` parameter (by embedding the auth info in the `uri`)
-* __localAddress__ - Local interface to bind for network connections.
-* __pool__ - A hash object containing the agents for these requests. If omitted, the request will use the global pool (which is set to node's default `maxSockets`)
-* __pool.maxSockets__ - Integer containing the maximum amount of sockets in the pool.
+__qs__ - An Object hash containing querystring values to be appended to the URL
+String before the request is sent.
+```CoffeeScript
+# "Send http://localhost:8080/pathname?foo=bar&baz=true"
+LIB.http.get('http://localhost:8080/pathname', {qs: {foo: 'bar', baz: true}})
+
+# "Send http://localhost:8080/pathname?foo[0]=a&foo[1]=b&foo[2]=c&baz="
+LIB.http.get('http://localhost:8080/pathname', {qs: {foo: ['a', 'b', 'c'], baz: null}})
+```
+
+__method__ - The HTTP method String (default: `"GET"`).
+```CoffeeScript
+# "Send a custom HTTP method (probably not a good idea in practice).
+LIB.http.request('http://localhost:8080/pathname', {method: 'QUACK'})
+```
+
+__headers__ - An Object hash defining HTTP headers to send (default: `{}`).
+```CoffeeScript
+headers =
+	'user-agent': 'Enginemill request library :-)'
+  cookie: 'foo=bar; baz=true'
+
+LIB.http.get('http://localhost:8080/pathname', {headers: headers})
+```
+In most POST, PUT, and PATCH requests the "content-length" and "content-type"
+headers will be set for you.
+
+__body__ - entity body for PATCH, POST and PUT requests. Must be a `Buffer` or `String`.
+
+__form__ - when passed an object, this sets `body` to a querystring representation of value, and adds `Content-type: application/x-www-form-urlencoded; charset=utf-8` header.
+
+__json__ - sets `body` but to JSON representation of value and adds `Content-type: application/json` header.  Additionally, parses the response body as JSON.
+
+__encoding__ - Encoding to be used on `setEncoding` of response data. If `null`, the `body` is returned as a `Buffer` (default: `undefined`).
+
+__auth__ - A hash containing values `user` || `username`, `pass` || `password`, and `sendImmediately` (optional).  See documentation above.
+
+__oauth__ - Options for OAuth HMAC-SHA1 signing. See documentation above.
+
+__aws__ - Object containing AWS signing information. Should have the properties `key`, `secret`. Also requires the property `bucket`, unless you’re specifying your `bucket` as part of the path, or the request doesn’t use a bucket (i.e. GET Services)
+
+__httpSignature__ - Options for the [HTTP Signature Scheme](https://github.com/joyent/node-http-signature/blob/master/http_signing.md) using [Joyent's library](https://github.com/joyent/node-http-signature). The `keyId` and `key` properties must be specified. See the docs for other options.
+
+__hawk__ - Options for [Hawk signing](https://github.com/hueniverse/hawk). The `credentials` key must contain the necessary signing info, [see hawk docs for details](https://github.com/hueniverse/hawk#usage-example).
+
+__followRedirect__ - follow HTTP 3xx responses as redirects (default: `false`)
+
+__followAllRedirects__ - follow non-GET HTTP 3xx responses as redirects (default: `false`)
+
+__maxRedirects__ - the maximum number of redirects to follow (default: `10`)
+
+__jar__ - If `true`, remember cookies for future use (or define your custom cookie jar; see examples section)
+
+__strictSSL__ - If `true`, requires SSL certificates be valid. **Note:** to use your own certificate authority, you need to specify an agent that was created with that CA as an option.
+
+__timeout__ - Integer containing the number of milliseconds to wait for a request to respond before aborting the request
+
+__proxy__ - An HTTP proxy to be used. Supports proxy Auth with Basic Auth, identical to support for the `url` parameter (by embedding the auth info in the `uri`)
+
+__localAddress__ - Local interface to bind for network connections.
+
+__pool__ - A hash object containing the agents for these requests. If omitted, the request will use the global pool (which is set to node's default `maxSockets`)
+
+__pool.maxSockets__ - Integer containing the maximum amount of sockets in the pool.
+
 
 ### Class: Request
 You get a Request instance when you call an HTTP method:
