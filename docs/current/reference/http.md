@@ -108,10 +108,10 @@ Full list of options which can be passed into request methods.
 __qs__ - An Object hash containing querystring values to be appended to the URL
 String before the request is sent.
 ```CoffeeScript
-# "Send http://localhost:8080/pathname?foo=bar&baz=true"
+# Send "http://localhost:8080/pathname?foo=bar&baz=true"
 LIB.http.get('http://localhost:8080/pathname', {qs: {foo: 'bar', baz: true}})
 
-# "Send http://localhost:8080/pathname?foo[0]=a&foo[1]=b&foo[2]=c&baz="
+# Send "http://localhost:8080/pathname?foo[0]=a&foo[1]=b&foo[2]=c&baz="
 LIB.http.get('http://localhost:8080/pathname', {qs: {foo: ['a', 'b', 'c'], baz: null}})
 ```
 
@@ -124,21 +124,47 @@ LIB.http.request('http://localhost:8080/pathname', {method: 'QUACK'})
 __headers__ - An Object hash defining HTTP headers to send (default: `{}`).
 ```CoffeeScript
 headers =
-	'user-agent': 'Enginemill request library :-)'
+  'user-agent': 'Enginemill request library :-)'
   cookie: 'foo=bar; baz=true'
 
 LIB.http.get('http://localhost:8080/pathname', {headers: headers})
 ```
 In most POST, PUT, and PATCH requests the "content-length" and "content-type"
-headers will be set for you.
+headers will be set for you based on your use of `json`, `form`, or `body`.
 
-__body__ - entity body for PATCH, POST and PUT requests. Must be a `Buffer` or `String`.
+__body__ - Buffer or String for PATCH, POST and PUT requests.
+```CoffeeScript
+# Send a Buffer representing a String (defaults to 'utf8' encoding).
+LIB.http.post('http://localhost:8080/pathname', {body: new Buffer('Hi server!')})
+```
+A String or Buffer will cause the 'content-length' header to be set
+automatically, but not the 'content-type' header.
 
-__form__ - when passed an object, this sets `body` to a querystring representation of value, and adds `Content-type: application/x-www-form-urlencoded; charset=utf-8` header.
+__form__ - An Object hash to send PATCH, POST and PUT requests with a URL encoded string.
+```CoffeeScript
+form =
+  email: 'john@example.io'
+	available: ['mon', 'wed', 'fri']
+  after_hours: false
 
-__json__ - sets `body` but to JSON representation of value and adds `Content-type: application/json` header.  Additionally, parses the response body as JSON.
+# Send the URL encoded form data as "email=john%40example.io&available[0]=mon&available[1]=wed&available[2]=fri&after_hours=false".
+LIB.http.post('http://localhost:8080/pathname', {form: form})
+```
+When passed an Object this will add 'content-type:
+application/x-www-form-urlencoded; charset=utf-8' and 'content-length' headers.
 
-__encoding__ - Encoding to be used on `setEncoding` of response data. If `null`, the `body` is returned as a `Buffer` (default: `undefined`).
+__json__ - An Object hash to send PATCH, POST and PUT requests with a JSON encoded string.
+```CoffeeScript
+form =
+  email: 'john@example.io'
+	available: ['mon', 'wed', 'fri']
+  after_hours: false
+
+# Send the URL encoded form data as "{"email":"john@example.io","available":["mon","wed","fri"],"after_hours":false}".
+LIB.http.post('http://localhost:8080/pathname', {json: form})
+```
+When passed an Object this will add 'content-type:
+application/json', 'accept: application/json', and 'content-length' headers.
 
 __auth__ - A hash containing values `user` || `username`, `pass` || `password`, and `sendImmediately` (optional).  See documentation above.
 
