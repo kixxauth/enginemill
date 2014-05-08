@@ -144,7 +144,7 @@ __form__ - An Object hash to send PATCH, POST and PUT requests with a URL encode
 ```CoffeeScript
 form =
   email: 'john@example.io'
-	available: ['mon', 'wed', 'fri']
+  available: ['mon', 'wed', 'fri']
   after_hours: false
 
 # Send the URL encoded form data as "email=john%40example.io&available[0]=mon&available[1]=wed&available[2]=fri&after_hours=false".
@@ -157,10 +157,11 @@ __json__ - An Object hash to send PATCH, POST and PUT requests with a JSON encod
 ```CoffeeScript
 form =
   email: 'john@example.io'
-	available: ['mon', 'wed', 'fri']
+  available: ['mon', 'wed', 'fri']
   after_hours: false
 
-# Send the URL encoded form data as "{"email":"john@example.io","available":["mon","wed","fri"],"after_hours":false}".
+# Send the URL encoded form data as:
+# "{"email":"john@example.io","available":["mon","wed","fri"],"after_hours":false}".
 LIB.http.post('http://localhost:8080/pathname', {json: form})
 ```
 When passed an Object this will add 'content-type:
