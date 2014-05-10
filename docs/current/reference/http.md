@@ -1,4 +1,5 @@
 # HTTP Requests
+The Enginemill HTTP request library:
 ```CoffeeScript
 # Global:
 LIB.http
@@ -75,13 +76,6 @@ See the LIB.http.post() docs above. The API is the same.
 LIB.http.post('http://localhost:8080/pathname', {form: {foo: 'bar'}})
 ```
 
-### LIB.http.del(uri, opts)
-Send a request using the HTTP 'DELETE' method.
-
-```CoffeeScript
-LIB.http.del('http://localhost:8080/path/resource')
-```
-
 ### LIB.http.patch(uri, opts)
 Send a request using the HTTP 'PATCH' method.
 
@@ -89,6 +83,13 @@ See the LIB.http.post() docs above. The API is the same.
 
 ```CoffeeScript
 LIB.http.post('http://localhost:8080/pathname', {form: {foo: 'bar'}})
+```
+
+### LIB.http.del(uri, opts)
+Send a request using the HTTP 'DELETE' method.
+
+```CoffeeScript
+LIB.http.del('http://localhost:8080/path/resource')
 ```
 
 ### LIB.http.request(uri, opts)
@@ -101,6 +102,44 @@ LIB.http.request('http://localhost:8080/pathname', {method: 'GET'})
 When using the `.request()` method you need to remember to supply your own HTTP
 method assigned as `method` on the options Object hash ('GET' in the example
 above).
+
+
+## HTTP Authentication
+Have a look at the Wikipedia article on [Basic Access
+Authentication](http://en.wikipedia.org/wiki/Basic_access_authentication) if
+this concept is not familiar to you. With that said, the Enginmill `LIB.http`
+library includes an easy way of providing HTTP authentication credentials.
+
+```CoffeeScript
+# Send a basic authentication header.
+auth =
+  username: 'john'
+  password: 'firesale'
+
+LIB.http.get('http://localhost:8080/pathname', {auth: auth})
+
+# Retry with a basic authentication header, after receiving a 401 response from
+# the server.
+auth =
+  username: 'john'
+  password: 'firesale'
+  sendImmediately: no
+
+LIB.http.get('http://localhost:8080/pathname', {auth: auth})
+```
+
+The `sendImmediately` parameter defaults to `true` (or `yes` or `on`), which
+causes the basic authentication header to be sent on the first request, which
+is usualy what you want. If you explicitly set `sendImmediately` to `false` (or
+`no` or `off`) then the library will retry the request with a proper
+authentication header after receiving a 401 response from the server, which
+must include a 'WWW-Authenticate' header indicating the required authentication
+method.
+
+Digest authentication is supported, but it only works with `sendImmediately`
+set to false; otherwise the library will send the basic authentication header
+on the initial request, which will probably cause the request to fail.
+
 
 ## Options for HTTP requests
 Full list of options which can be passed into request methods.
@@ -167,7 +206,9 @@ LIB.http.post('http://localhost:8080/pathname', {json: form})
 When passed an Object this will add 'content-type:
 application/json', 'accept: application/json', and 'content-length' headers.
 
-__auth__ - A hash containing values `user` || `username`, `pass` || `password`, and `sendImmediately` (optional).  See documentation above.
+__auth__ - An Object hash containing values `username`, `password`, and
+`sendImmediately` fields.  See HTTP Authentication documentation above for more
+information on how to use this.
 
 __oauth__ - Options for OAuth HMAC-SHA1 signing. See documentation above.
 
