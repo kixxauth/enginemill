@@ -138,7 +138,8 @@ method.
 
 Digest authentication is supported, but it only works with `sendImmediately`
 set to false; otherwise the library will send the basic authentication header
-on the initial request, which will probably cause the request to fail.
+on the initial request, which will probably cause the request to fail if the
+server is expected digest authentication.
 
 
 ## Options for HTTP requests
