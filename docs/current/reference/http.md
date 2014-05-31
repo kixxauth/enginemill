@@ -263,6 +263,32 @@ req = LIB.http.get("www.example.com")
 [FormData](#formdata) below for more information.
 
 ### Response
+You get a Response instance passed to the success handler of the promise
+returned by the request.
+
+```CoffeeScript
+# Request instance:
+req = LIB.http.get("www.example.com")
+
+# Response instance:
+req.promise.then (res) ->
+	print res.headers
+```
+
+#### Response properties
+* __headers__ - Object hash of HTTP response headers.
+* __httpVersion__ - HTTP version String.
+trailers
+url
+method
+statusCode
+client
+httpVersionMajor
+httpVersionMinor
+upgrade
+* __request__ - The original Request instance.
+toJSON
+body
 
 ### FormData
 Send multipart file data by creating a form object with the Request#form() method:
