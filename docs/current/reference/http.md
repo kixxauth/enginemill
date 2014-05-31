@@ -211,14 +211,6 @@ __auth__ - An Object hash containing values `username`, `password`, and
 `sendImmediately` fields.  See HTTP Authentication documentation above for more
 information on how to use this.
 
-__oauth__ - Options for OAuth HMAC-SHA1 signing. See documentation above.
-
-__aws__ - Object containing AWS signing information. Should have the properties `key`, `secret`. Also requires the property `bucket`, unless you’re specifying your `bucket` as part of the path, or the request doesn’t use a bucket (i.e. GET Services)
-
-__httpSignature__ - Options for the [HTTP Signature Scheme](https://github.com/joyent/node-http-signature/blob/master/http_signing.md) using [Joyent's library](https://github.com/joyent/node-http-signature). The `keyId` and `key` properties must be specified. See the docs for other options.
-
-__hawk__ - Options for [Hawk signing](https://github.com/hueniverse/hawk). The `credentials` key must contain the necessary signing info, [see hawk docs for details](https://github.com/hueniverse/hawk#usage-example).
-
 __followRedirect__ - follow HTTP 3xx responses as redirects (default: `false`)
 
 __followAllRedirects__ - follow non-GET HTTP 3xx responses as redirects (default: `false`)
@@ -230,8 +222,6 @@ __jar__ - If `true`, remember cookies for future use (or define your custom cook
 __strictSSL__ - If `true`, requires SSL certificates be valid. **Note:** to use your own certificate authority, you need to specify an agent that was created with that CA as an option.
 
 __timeout__ - Integer containing the number of milliseconds to wait for a request to respond before aborting the request
-
-__proxy__ - An HTTP proxy to be used. Supports proxy Auth with Basic Auth, identical to support for the `url` parameter (by embedding the auth info in the `uri`)
 
 __localAddress__ - Local interface to bind for network connections.
 
