@@ -1,16 +1,12 @@
 # HTTP Requests
-The Enginemill HTTP request library:
-```CoffeeScript
-# Global:
-LIB.http
-```
+The Enginemill HTTP request library.
 
 ## Making requests
 There are several methods you can use to make HTTP requests, each corresponding
 to an HTTP request method, and one generic method you can use for any HTTP
 request type.
 
-Each request method returns a Request instance (see [Request](#request) instances below):
+Each request method returns a Request instance (see [Request](#class-request) instances below):
 ```CoffeeScript
 req = LIB.http.get('http://www.example.com')
 ```
@@ -20,8 +16,8 @@ And each Request instance has a promise attached to it:
 promise = LIB.http.get('http://wwww.example.com').promise
 ```
 
-Promises come in really handy for chaining asynchronous operations. Checkout
-the [Making HTTP Requests](../making_http_requests) tutorial for more info.
+Promises come in really handy for chaining asynchronous operations. Check out
+the [Making HTTP Requests](../making_http_requests.md) tutorial for more info.
 
 
 ## HTTP Request Methods
@@ -70,10 +66,10 @@ instance (see FormData below).
 ### LIB.http.put(uri, opts)
 Send a request using the HTTP 'PUT' method.
 
-See the LIB.http.post() docs above. The API is the same.
+See the LIB.http.post() docs above; the API is the same.
 
 ```CoffeeScript
-LIB.http.post('http://localhost:8080/pathname', {form: {foo: 'bar'}})
+LIB.http.put('http://localhost:8080/pathname', {form: {foo: 'bar'}})
 ```
 
 ### LIB.http.patch(uri, opts)
@@ -82,7 +78,7 @@ Send a request using the HTTP 'PATCH' method.
 See the LIB.http.post() docs above. The API is the same.
 
 ```CoffeeScript
-LIB.http.post('http://localhost:8080/pathname', {form: {foo: 'bar'}})
+LIB.http.patch('http://localhost:8080/pathname', {form: {foo: 'bar'}})
 ```
 
 ### LIB.http.del(uri, opts)
@@ -104,49 +100,10 @@ method assigned as `method` on the options Object hash ('GET' in the example
 above).
 
 
-## HTTP Authentication
-Have a look at the Wikipedia article on [Basic Access
-Authentication](http://en.wikipedia.org/wiki/Basic_access_authentication) if
-this concept is not familiar to you. With that said, the Enginmill `LIB.http`
-library includes an easy way of providing HTTP authentication credentials.
-
-```CoffeeScript
-# Send a basic authentication header.
-auth =
-  username: 'john'
-  password: 'firesale'
-
-LIB.http.get('http://localhost:8080/pathname', {auth: auth})
-
-# Retry with a basic authentication header, after receiving a 401 response from
-# the server.
-auth =
-  username: 'john'
-  password: 'firesale'
-  sendImmediately: no
-
-LIB.http.get('http://localhost:8080/pathname', {auth: auth})
-```
-
-The `sendImmediately` parameter defaults to `true` (or `yes` or `on`), which
-causes the basic authentication header to be sent on the first request, which
-is usualy what you want. If you explicitly set `sendImmediately` to `false` (or
-`no` or `off`) then the library will retry the request with a proper
-authentication header after receiving a 401 response from the server, which
-must include a 'WWW-Authenticate' header indicating the required authentication
-method.
-
-Digest authentication is supported, but it only works with `sendImmediately`
-set to false; otherwise the library will send the basic authentication header
-on the initial request, which will probably cause the request to fail if the
-server is expected digest authentication.
-
-
 ## Options for HTTP requests
-Full list of options which can be passed into request methods.
+A full list of options which can be passed into request methods.
 
-__qs__ - An Object hash containing querystring values to be appended to the URL
-String before the request is sent.
+__qs__ - An Object hash containing query string values to be appended to the URL String before the request is sent.
 ```CoffeeScript
 # Send "http://localhost:8080/pathname?foo=bar&baz=true"
 LIB.http.get('http://localhost:8080/pathname', {qs: {foo: 'bar', baz: true}})
@@ -190,7 +147,7 @@ form =
 # Send the URL encoded form data as "email=john%40example.io&available[0]=mon&available[1]=wed&available[2]=fri&after_hours=false".
 LIB.http.post('http://localhost:8080/pathname', {form: form})
 ```
-When passed an Object this will add 'content-type:
+This will add 'content-type:
 application/x-www-form-urlencoded; charset=utf-8' and 'content-length' headers.
 
 __json__ - An Object hash to send PATCH, POST and PUT requests with a JSON encoded string.
@@ -200,22 +157,21 @@ form =
   available: ['mon', 'wed', 'fri']
   after_hours: false
 
-# Send the URL encoded form data as:
+# Send the JSON encoded data as:
 # "{"email":"john@example.io","available":["mon","wed","fri"],"after_hours":false}".
 LIB.http.post('http://localhost:8080/pathname', {json: form})
 ```
-When passed an Object this will add 'content-type:
+This will add 'content-type:
 application/json', 'accept: application/json', and 'content-length' headers.
 
 __auth__ - An Object hash containing values `username`, `password`, and
-`sendImmediately` fields.  See HTTP Authentication documentation above for more
-information on how to use this.
+`sendImmediately` fields.  See [HTTP Authentication](#http-authentication) documentation below for more information on how to use this.
 
-__followRedirect__ - follow HTTP 3xx responses as redirects (default: `false`)
+__followRedirect__ - A Boolean indicating that GET requests should automatically follow HTTP 3xx responses as redirects (default: `false`).
 
-__followAllRedirects__ - follow non-GET HTTP 3xx responses as redirects (default: `false`)
+__followAllRedirects__ - A Boolean indicating that *non* GET requests should automatically follow HTTP 3xx responses as redirects (default: `false`).
 
-__maxRedirects__ - the maximum number of redirects to follow (default: `10`)
+__maxRedirects__ - A Number indicating the maximum number of redirects to follow (default: `10`). If this number is exceeded the request will eventually fail with "Error: Exceeded maxRedirects".
 
 __jar__ - If `true`, remember cookies for future use (or define your custom cookie jar; see examples section)
 
@@ -303,4 +259,36 @@ form.append('a_buffer', new Buffer('foobarbaz'))
 ### Streaming
 A Request instance is also a Stream instance, and has all the properties and
 methods you would expect a Stream to have.
+
+
+## HTTP Authentication
+Have a look at the Wikipedia article on [Basic Access
+Authentication](http://en.wikipedia.org/wiki/Basic_access_authentication) if
+this concept is not familiar to you. With that said, the Enginmill `LIB.http`
+library includes an easy way of providing HTTP authentication credentials.
+
+```CoffeeScript
+# Send a basic authentication header.
+auth =
+  username: 'john'
+  password: 'firesale'
+
+LIB.http.get('http://localhost:8080/pathname', {auth: auth})
+
+# Retry with a basic authentication header, after receiving a 401 response from
+# the server.
+auth =
+  username: 'john'
+  password: 'firesale'
+  sendImmediately: no
+
+LIB.http.get('http://localhost:8080/pathname', {auth: auth})
+```
+
+The `sendImmediately` parameter defaults to `true` (or `yes` or `on` in CoffeeScript), which causes the basic authentication header to be sent on the first request, which is usualy what you want. If you explicitly set `sendImmediately` to `false` (or `no` or `off` in CoffeeScript) then the library will retry the request with a proper authentication header after receiving a 401 response from the server, which must include a 'WWW-Authenticate' header indicating the required authentication method.
+
+Digest authentication is supported, but it only works with `sendImmediately`
+set to false; otherwise the library will send the basic authentication header
+on the initial request, which will probably cause the request to fail when the
+server is expecting digest authentication.
 
