@@ -4,7 +4,7 @@ Making HTTP Requests
 You might find Enginemill's approach to making HTTP requests a little different
 compared to what you've been accustomed to when using Node.js or Ajax.
 Enginemill makes use of Promises instead of nested callback functions to handle
-asynchronous operations using the built in [Promise library](./promises).
+asynchronous operations using the built in Promise library.
 
 Here's an example of making a request and either printing out the HTTP headers,
 or reporting a failure.
@@ -28,26 +28,13 @@ Notice that the response and failure handler functions (`printHeaders()` and
 practice when composing asynchronous operations, and you'll commonly see
 that in Enginemill applications.
 
-`LIB.http` is a reference to the HTTP request library which is built
-into Enginemill and automatically injected into your program along with
-everything else in the [Enginemill environment](./enginemill_environment).
-That means you don't have to explicitly `reauire()` it.
+`LIB.http` is a reference to the HTTP request library which is built into Enginemill along with everything else in the Enginemill environment.
 
-`LIB.http.get()` does exactly what you think it does: It makes an HTTP 'GET'
-request to "www.example.com".
+`LIB.http.get("www.example.com")` does exactly what you think it does: It makes an HTTP 'GET' request to "www.example.com".
 
-However, the response to your request is not returned right away. Instead,
-since it takes time to actually fetch the response from www.example.com,
-Enginemill allows your program to do other things while you wait. By handing a
-promise back to you instead of the actual HTTP response, you can simply be
-notified when the request succeeds or fails.
+However, instead of a response to your request you get a reference to a Promise with `LIB.http.get("www.example.com").promise`. Since it takes time to fetch the response from www.example.com over the network, Enginemill allows your program to do other things while you wait. So, by handing a Promise back to you instead of the actual HTTP response, you can be notified when the request succeeds or fails using the `then()` and `catch()` handlers.
 
-A Promise is just that -- A promise to deliver a result to you after an
-operation has completed. Once the operation is complete, and the result is
-ready, it is passed to the function you handed to `.then()`.
-
-In this case, the HTTP response object is handed off to our `printHeaders()`
-function which simply prints out the HTTP headers with `print()`.
+In the example above, the HTTP response object is handed off to our `printHeaders()` function which simply prints out the HTTP headers with `print()`.
 
 If there are any errors in the process of making the HTTP request, or if any
 errors are thrown inside the `printHeaders()` function, they will be caught and
@@ -82,6 +69,5 @@ LIB.http.get("www.example.com").promise
 	.catch(fail)
 
 ```
-To learn more about promises and how you can use them to make asynchronous
-operations much easier to understand, check out the [Promises
-documentation](./promises).
+
+To learn more about sending HTTP requests from your Enginemill application, check out the [HTTP docs](./reference/http.md).
