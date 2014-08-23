@@ -2,9 +2,7 @@
 The Enginemill HTTP request library.
 
 ## Making requests
-There are several methods you can use to make HTTP requests, each corresponding
-to an HTTP request method, and one generic method you can use for any HTTP
-request type.
+There are several methods you can use to make HTTP requests, each corresponding to an HTTP request method. There is also one generic method you can use for any HTTP request type.
 
 Each request method returns a Request instance (see [Request](#class-request) instances below):
 ```CoffeeScript
@@ -173,17 +171,11 @@ __followAllRedirects__ - A Boolean indicating that *non* GET requests should aut
 
 __maxRedirects__ - A Number indicating the maximum number of redirects to follow (default: `10`). If this number is exceeded the request will eventually fail with "Error: Exceeded maxRedirects".
 
-__jar__ - If `true`, remember cookies for future use (or define your custom cookie jar; see examples section)
+__strictSSL__ - Boolean if `true` the SSL certificate from the server must be valid.
 
-__strictSSL__ - If `true`, requires SSL certificates be valid. **Note:** to use your own certificate authority, you need to specify an agent that was created with that CA as an option.
+**Note:** to use your own certificate authority, you need to specify an agent that was created with that CA as an option.
 
-__timeout__ - Integer containing the number of milliseconds to wait for a request to respond before aborting the request
-
-__localAddress__ - Local interface to bind for network connections.
-
-__pool__ - A hash object containing the agents for these requests. If omitted, the request will use the global pool (which is set to node's default `maxSockets`)
-
-__pool.maxSockets__ - Integer containing the maximum amount of sockets in the pool.
+__timeout__ - Integer indicating the number of milliseconds to wait for a request to respond before aborting the request. If a request times out it will raise an [Error: ETIMEDOUT] Error.
 
 
 ### Class: Request
