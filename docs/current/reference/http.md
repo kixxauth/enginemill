@@ -186,6 +186,8 @@ You get a Request instance when you call an HTTP method:
 req = LIB.http.get("www.example.com")
 ```
 
+*Remember:* A request instance is a Node.js Stream object, and has all the properties and methods you would expect a Writable Stream to have.
+
 #### Request properties
 * __promise__  - A [Promise](./promises) instance for the HTTP Response object.
 * __readable__ - Boolean which is true if the Request Stream is still readable.
