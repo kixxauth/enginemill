@@ -62,9 +62,10 @@ exports['with script'] = {
 
   'it should print help with --help switch': function (test) {
     test.expect(3);
-    
+
     CP.exec(this.command +' --help', function (err, stdout, stderr) {
       var lines = err.message.split('\n');
+
       test.equal(lines[4], '  --a_string  Expected to be a String                        [required]');
       test.equal(lines[5], '  --a_number  Expected to be a Number.                       [required]');
       test.equal(lines[6], '  --a_bool    Expected to be a Boolean.                    ');
@@ -75,7 +76,7 @@ exports['with script'] = {
 
   'it should not run without required args': function (test) {
     test.expect(1);
-    
+
     CP.exec(this.command, function (err, stdout, stderr) {
       test.ok(/Missing required arguments:/.test(stderr), "Error message")
       test.done();
@@ -92,6 +93,9 @@ exports['with script'] = {
       var lines = stdout.split('\n').map(function (str) {
         return str.replace(/\W$/, '');
       });
+
+      // Remove the first log statement.
+      lines.shift();
 
       test.equal(lines[0], 'a_string 999');
       test.equal(lines[1], 'a_number 1');
