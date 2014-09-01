@@ -604,7 +604,7 @@ exports["with GET request"] = {
   },
 
   "it has a body": function (test) {
-    test.equal(typeof this.res.body, 'string', 'body is a string');
+    test.ok(Buffer.isBuffer(this.res.body), 'body is a Buffer');
     test.ok(this.res.body.length > 0, 'body has length');
     return test.done();
   }
@@ -732,7 +732,7 @@ exports["request() with GET"] = {
   },
 
   "it has a body": function (test) {
-    test.equal(typeof this.res.body, 'string', 'body is a string');
+    test.ok(Buffer.isBuffer(this.res.body), 'body is a Buffer');
     test.ok(this.res.body.length > 0, 'body has length');
     return test.done();
   }

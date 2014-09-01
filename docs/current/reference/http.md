@@ -19,6 +19,7 @@ the [Making HTTP Requests](../making_http_requests.md) tutorial for more info.
 
 
 ## HTTP Request Methods
+Note: When making a request the response body will be a Buffer by default. You can change that by setting the encoding option on your request to something other than null, like 'utf8' for example, would be good for setting an HTML document body to a String on the response. See the [request options](#options-for-http-requests) below for more information.
 
 ### LIB.http.get(uri, opts)
 Send a request using the HTTP 'GET' method.
@@ -126,6 +127,8 @@ LIB.http.get('http://localhost:8080/pathname', {headers: headers})
 ```
 In most POST, PUT, and PATCH requests the "content-length" and "content-type"
 headers will be set for you based on your use of `json`, `form`, or `body`.
+
+__encoding__ - A String or null indicating the encoding to use when parsing the response. A null value will cause the HTTP body to be set as a Buffer. A string like 'utf8' will cause the HTTP body to be set as a String. (default: null)
 
 __body__ - Buffer or String for PATCH, POST and PUT requests.
 ```CoffeeScript
