@@ -189,14 +189,14 @@ You get a Request instance when you call an HTTP method:
 req = LIB.http.get("www.example.com")
 ```
 
-*Remember:* A request instance is a Node.js Stream object, and has all the properties and methods you would expect a Writable Stream to have.
+*Remember:* A Request instance is a Node.js Stream object, and has all the properties and methods you would expect a Writable Stream to have.
 
 #### Request properties
 * __promise__  - A [Promise](./promises) instance for the HTTP Response object.
 * __readable__ - Boolean which is true if the Request Stream is still readable.
 * __writable__ - Boolean which is true if the Request Stream is still writable.
 * __method__   - String like 'GET' indicating the HTTP method.
-* __headers__  - An Object dictionary of HTTP headers sent.
+* __headers__  - An dictionary Object of HTTP headers sent.
 * __agent__    - The Node.js HTTP Agent object used.
 * __uri__      - A Node.js URL Object structured like this:
 	* __uri.href__     - The full URL String, like 'http://www.example.com'.
@@ -228,20 +228,16 @@ req.promise.then (res) ->
 	print res.headers
 ```
 
+*Remember:* A Response instance is a Node.js Stream object, and has all the properties and methods you would expect a Readable Stream to have.
+
 #### Response properties
-* __headers__ - Object hash of HTTP response headers.
 * __httpVersion__ - HTTP version String.
-trailers
-url
-method
-statusCode
-client
-httpVersionMajor
-httpVersionMinor
-upgrade
-* __request__ - The original Request instance.
-toJSON
-body
+* __httpVersionMajor__ - HTTP major version Number (easier to detect than httpVersion String).
+* __httpVersionMinor__ - HTTP minor version Number (easier to detect than httpVersion String).
+* __headers__ - Object hash of HTTP response headers.
+* __statusCode__ - The HTTP status code of the response. See the [original RFC document](http://tools.ietf.org/html/rfc2616#section-10) as an authoritative reference.
+* __body__ - The HTTP response body as a Buffer by default. If you would like a String returned, set the encoding option on your request to 'utf8'.
+* __request__ - The Request instance that resulted in this Response instance.
 
 ### FormData
 Send multipart file data by creating a form object with the Request#form() method:
