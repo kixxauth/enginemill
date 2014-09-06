@@ -1,6 +1,6 @@
 var LIB = require('./lib/')
 
-  , OPT = require('optimist')
+  , OPT = require('yargs')
 
   , ENV = require('./lib/enginemill_environment')
   , EPR = require('./lib/enginemill_process')
