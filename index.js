@@ -1,11 +1,10 @@
-var LIB = require('./lib/')
+var OPT = require('yargs')
 
-  , OPT = require('yargs')
+  , LIB = require('./lib/library/')
 
-  , ENV = require('./lib/enginemill_environment')
-  , EPR = require('./lib/enginemill_process')
+  , ENV = require('./lib/enginemill/environment')
+  , EPR = require('./lib/enginemill/process')
 
-exports.load = ENV.load;
 
 exports.main = function () {
   var promise = LIB.Promise.cast(LIB.Crystal.create())
@@ -16,6 +15,17 @@ exports.main = function () {
 
   return promise;
 };
+
+
+exports.load = function () {
+  var promise = LIB.Promise.cast(LIB.Crystal.create())
+    .then(ENV.load)
+    .then(LIB.build)
+    .catch(LIB.fail)
+
+  return promise;
+};
+
 
 function buildCommandLineOpts(values) {
   var opts = OPT

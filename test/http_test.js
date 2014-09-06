@@ -1,4 +1,4 @@
-var LIB = require('../lib/')
+var LIB = require('../lib/library/')
   , REQ = require('request')
   , Request = REQ.Request
 
@@ -575,15 +575,24 @@ exports["del() with error"] = {
 };
 
 exports["with GET request"] = {
-  setUp: function (done) {
-    this.req = LIB.http.get('http://www.example.com');
-    var self = this;
+  setUp: (function () {
+    var req, res
+    return function (done) {
+      if (!req) {
+        this.req = req = LIB.http.get('http://www.example.com');
+        var self = this;
 
-    this.req.promise.then(function (res) {
-      self.res = res;
-      return done();
-    }).catch(done);
-  },
+        this.req.promise.then(function (response) {
+          self.res = res = response;
+          return done();
+        }).catch(done);
+      } else {
+        this.req = req;
+        this.res = res;
+        return done();
+      }
+    }
+  }()),
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
@@ -611,16 +620,24 @@ exports["with GET request"] = {
 };
 
 exports["with POST request"] = {
-  setUp: function (done) {
-    this.form = {key: 'value'}
-    this.req = LIB.http.post('http://www.example.com').form(this.form);
-    var self = this;
+  setUp: (function () {
+    var req, res
+    return function (done) {
+      if (!req) {
+        this.req = req = LIB.http.post('http://www.example.com').form({key: 'value'});
+        var self = this;
 
-    this.req.promise.then(function (res) {
-      self.res = res;
-      return done();
-    }).catch(done);
-  },
+        this.req.promise.then(function (response) {
+          self.res = res = response;
+          return done();
+        }).catch(done);
+      } else {
+        this.req = req;
+        this.res = res;
+        return done();
+      }
+    }
+  }()),
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
@@ -636,15 +653,24 @@ exports["with POST request"] = {
 };
 
 exports["with PUT request"] = {
-  setUp: function (done) {
-    this.req = LIB.http.put('http://www.example.com').form({key: 'value'});
-    var self = this;
+  setUp: (function () {
+    var req, res
+    return function (done) {
+      if (!req) {
+        this.req = req = LIB.http.put('http://www.example.com').form({key: 'value'});
+        var self = this;
 
-    this.req.promise.then(function (res) {
-      self.res = res;
-      return done();
-    }).catch(done);
-  },
+        this.req.promise.then(function (response) {
+          self.res = res = response;
+          return done();
+        }).catch(done);
+      } else {
+        this.req = req;
+        this.res = res;
+        return done();
+      }
+    }
+  }()),
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
@@ -660,15 +686,24 @@ exports["with PUT request"] = {
 };
 
 exports["with PATCH request"] = {
-  setUp: function (done) {
-    this.req = LIB.http.patch('http://www.example.com').form({key: 'value'});
-    var self = this;
+  setUp: (function () {
+    var req, res
+    return function (done) {
+      if (!req) {
+        this.req = req = LIB.http.patch('http://www.example.com').form({key: 'value'});
+        var self = this;
 
-    this.req.promise.then(function (res) {
-      self.res = res;
-      return done();
-    }).catch(done);
-  },
+        this.req.promise.then(function (response) {
+          self.res = res = response;
+          return done();
+        }).catch(done);
+      } else {
+        this.req = req;
+        this.res = res;
+        return done();
+      }
+    }
+  }()),
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
@@ -684,15 +719,24 @@ exports["with PATCH request"] = {
 };
 
 exports["with DELETE request"] = {
-  setUp: function (done) {
-    this.req = LIB.http.del('http://www.example.com');
-    var self = this;
+  setUp: (function () {
+    var req, res
+    return function (done) {
+      if (!req) {
+        this.req = req = LIB.http.del('http://www.example.com');
+        var self = this;
 
-    this.req.promise.then(function (res) {
-      self.res = res;
-      return done();
-    }).catch(done);
-  },
+        this.req.promise.then(function (response) {
+          self.res = res = response;
+          return done();
+        }).catch(done);
+      } else {
+        this.req = req;
+        this.res = res;
+        return done();
+      }
+    }
+  }()),
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
@@ -703,15 +747,24 @@ exports["with DELETE request"] = {
 };
 
 exports["request() with GET"] = {
-  setUp: function (done) {
-    this.req = LIB.http.request('http://www.example.com', {method: 'GET'});
-    var self = this;
+  setUp: (function () {
+    var req, res
+    return function (done) {
+      if (!req) {
+        this.req = req = LIB.http.request('http://www.example.com', {method: 'GET'});
+        var self = this;
 
-    this.req.promise.then(function (res) {
-      self.res = res;
-      return done();
-    }).catch(done);
-  },
+        this.req.promise.then(function (response) {
+          self.res = res = response;
+          return done();
+        }).catch(done);
+      } else {
+        this.req = req;
+        this.res = res;
+        return done();
+      }
+    }
+  }()),
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');

@@ -298,7 +298,7 @@ function installFile(opts) {
 
 function loadEnvironment() {
   var root = FP.newPath().append('test/fixtures/test_settings_app')
-  return require('../').load({root: root});
+  return require('../lib/enginemill/environment').load({root: root});
 }
 
 function handleSettingsFixtureSetupError(err) {

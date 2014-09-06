@@ -1,6 +1,6 @@
 var UTIL = require('util')
 
-  , LIB = require('../lib/')
+  , LIB = require('../lib/library/')
 
 
 exports["stringify"] = {

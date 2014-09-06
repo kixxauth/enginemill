@@ -135,7 +135,12 @@ function processCache(args) {
     } else {
       CP.exec(command, function (err, stdout, stderr) {
         self.lines = cache[key] = stderr.split('\n');
-        done();
+        if (/Error/.test(self.lines[0])) {
+          console.error('Process execution error:', stderr);
+          return done(new Error("Process execution error. See stack dump above."));
+        } else {
+          return done();
+        }
       });
     }
   };
