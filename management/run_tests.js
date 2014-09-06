@@ -9,21 +9,21 @@ var NFS = require('fs')
 
 
 function readTree(dir) {
-	var collection = []
-	  , list = NFS.readdirSync(dir)
+  var collection = []
+    , list = NFS.readdirSync(dir)
 
-	list.forEach(function (item) {
-		var filepath = NPATH.join(dir, item)
-		  , stats = NFS.statSync(filepath)
+  list.forEach(function (item) {
+    var filepath = NPATH.join(dir, item)
+      , stats = NFS.statSync(filepath)
 
-		if (stats.isDirectory()) {
-			collection = collection.concat(readTree(filepath))
-		} else if (stats.isFile() && fileMatcher.test(filepath)) {
-			collection.push(NPATH.relative(process.cwd(), filepath));
-		}
-	})
+    if (stats.isDirectory()) {
+      collection = collection.concat(readTree(filepath))
+    } else if (stats.isFile() && fileMatcher.test(filepath)) {
+      collection.push(NPATH.relative(process.cwd(), filepath));
+    }
+  })
 
-	return collection;
+  return collection;
 }
 
 // Filter out the globals_test.js file.
