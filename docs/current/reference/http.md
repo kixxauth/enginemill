@@ -19,7 +19,7 @@ the [Making HTTP Requests](../making_http_requests.md) tutorial for more info.
 
 
 ## HTTP Request Methods
-Note: When making a request the response body will be a Buffer by default. You can change that by setting the encoding option on your request to something other than null, like 'utf8' for example, would be good for setting an HTML document body to a String on the response. See the [request options](#options-for-http-requests) below for more information.
+__Note:__ When making a request the response body will be a Buffer by default. You can change that by setting the encoding option on your request to something other than null, like 'utf8' for example, would be good for setting an HTML document body to a String on the response. See the [request options](#options-for-http-requests) below for more information.
 
 ### LIB.http.get(uri, opts)
 Send a request using the HTTP 'GET' method.
@@ -174,9 +174,7 @@ __followAllRedirects__ - A Boolean indicating that *non* GET requests should aut
 
 __maxRedirects__ - A Number indicating the maximum number of redirects to follow (default: `10`). If this number is exceeded the request will eventually fail with "Error: Exceeded maxRedirects".
 
-__strictSSL__ - Boolean if `true` the SSL certificate from the server must be valid.
-
-**Note:** to use your own certificate authority, you need to specify an agent that was created with that CA as an option.
+__strictSSL__ - Boolean if `true` the SSL certificate from the server must be valid. **Note:** to use your own certificate authority, you need to specify an agent that was created with that CA as an option.
 
 __timeout__ - Integer indicating the number of milliseconds to wait for a request to respond before aborting the request. If a request times out it will raise an [Error: ETIMEDOUT] Error.
 
@@ -250,8 +248,7 @@ form.append('a_buffer', new Buffer('foobarbaz'))
 ```
 
 ### Streaming
-A Request instance is also a Stream instance, and has all the properties and
-methods you would expect a Stream to have.
+Request and Response instances are also a Stream instances, and have all the properties and methods you would expect a Stream to have. However, if you want to stream data to a server via HTTP, the Form API referenced above is probably the way to go.
 
 
 ## HTTP Authentication
