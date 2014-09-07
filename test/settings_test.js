@@ -27,14 +27,32 @@ exports["ensure process.env writable"] = {
 
 exports["with environment loaded"] = {
 
-  setUp: function (done) {
-    setupTestConfigs()
-      .catch(handleSettingsFixtureSetupError)
-      .then(setEnvironmentVars)
-      .then(loadEnvironment)
-      .then(function () { done(); })
-      .catch(done);
-  },
+  setUp: (function () {
+    var enginemill
+    return function (done) {
+      var self = this
+
+      function load() {
+        var root = FP.FilePath.create().append('test/fixtures/test_settings_app')
+
+        self.enginemill = enginemill = require('../');
+        enginemill.load({root: root}).then(function (application) {
+          self.app = app = application;
+          return done();
+        }).catch(done);
+      }
+
+      if (!enginemill) {
+        setupTestConfigs()
+          .then(load)
+          .catch(done);
+      } else {
+        self.enginemill = enginemill;
+        self.app = app;
+        return done();
+      }
+    };
+  }()),
 
   "loads Enginemill global setting": function (test) {
     test.strictEqual(SETTINGS.ENGINEMILL_GLOBAL, '1');
@@ -92,137 +110,163 @@ exports["with environment loaded"] = {
   },
 
   "Enginemill global overridden by Enginemill user": function (test) {
-    test.strictEqual(SETTINGS.ENGINEMILL_USER_OVER_ENGINEMILL_GLOBAL, true);
+    var val = this.app.settings.ENGINEMILL_USER_OVER_ENGINEMILL_GLOBAL
+    test.strictEqual(val, true, 'ENGINEMILL_USER_OVER_ENGINEMILL_GLOBAL');
     return test.done();
   },
 
   "Enginemill global section overridden by Enginemill user": function (test) {
-    test.strictEqual(SETTINGS.test_section.enginemill_user_over_enginemill_global, true);
+    var val = this.app.settings.test_section.enginemill_user_over_enginemill_global
+    test.strictEqual(val, true, 'test_section.enginemill_user_over_enginemill_global');
     return test.done();
   },
 
   "Enginemill global overridden by application global": function (test) {
-    test.strictEqual(SETTINGS.APPLICATION_GLOBAL_OVER_ENGINEMILL_GLOBAL, true);
+    var val = this.app.settings.APPLICATION_GLOBAL_OVER_ENGINEMILL_GLOBAL
+    test.strictEqual(val, true, 'APPLICATION_GLOBAL_OVER_ENGINEMILL_GLOBAL');
     return test.done();
   },
 
   "Enginemill global section overridden by application global": function (test) {
-    test.strictEqual(SETTINGS.test_section.application_global_over_enginemill_global, true);
+    var val = this.app.settings.test_section.application_global_over_enginemill_global
+    test.strictEqual(val, true, 'test_section.application_global_over_enginemill_global');
     return test.done();
   },
 
   "Enginemill global overridden by application user": function (test) {
-    test.strictEqual(SETTINGS.APPLICATION_USER_OVER_ENGINEMILL_GLOBAL, true);
+    var val = this.app.settings.APPLICATION_USER_OVER_ENGINEMILL_GLOBAL
+    test.strictEqual(val, true, 'APPLICATION_USER_OVER_ENGINEMILL_GLOBAL');
     return test.done();
   },
 
   "Enginemill section global overridden by application user": function (test) {
-    test.strictEqual(SETTINGS.test_section.application_user_over_enginemill_global, true);
+    var val = this.app.settings.test_section.application_user_over_enginemill_global
+    test.strictEqual(val, true, 'test_section.application_user_over_enginemill_global');
     return test.done();
   },
 
   "Enginemill global overridden by application settings": function (test) {
-    test.strictEqual(SETTINGS.APPLICATION_SETTINGS_OVER_ENGINEMILL_GLOBAL, true);
+    var val = this.app.settings.APPLICATION_SETTINGS_OVER_ENGINEMILL_GLOBAL
+    test.strictEqual(val, true, 'APPLICATION_SETTINGS_OVER_ENGINEMILL_GLOBAL');
     return test.done();
   },
 
   "Enginemill section global overridden by application settings": function (test) {
-    test.strictEqual(SETTINGS.test_section.application_settings_over_enginemill_global, true);
+    var val = this.app.settings.test_section.application_settings_over_enginemill_global
+    test.strictEqual(val, true, 'test_section.application_settings_over_enginemill_global');
     return test.done();
   },
 
   "Enginemill global overridden by environmment vars": function (test) {
-    test.strictEqual(SETTINGS.ENVIRONMENT_VARS_OVER_ENGINEMILL_GLOBAL, true);
+    var val = this.app.settings.ENVIRONMENT_VARS_OVER_ENGINEMILL_GLOBAL
+    test.strictEqual(val, true, 'ENVIRONMENT_VARS_OVER_ENGINEMILL_GLOBAL');
     return test.done();
   },
 
   "Enginemill user overridden by application global": function (test) {
-    test.strictEqual(SETTINGS.APPLICATION_GLOBAL_OVER_ENGINEMILL_USER, true);
+    var val = this.app.settings.APPLICATION_GLOBAL_OVER_ENGINEMILL_USER
+    test.strictEqual(val, true, 'APPLICATION_GLOBAL_OVER_ENGINEMILL_USER');
     return test.done();
   },
 
   "Enginemill section user overridden by application global": function (test) {
-    test.strictEqual(SETTINGS.test_section.application_global_over_enginemill_user, true);
+    var val = this.app.settings.test_section.application_global_over_enginemill_user
+    test.strictEqual(val, true, 'test_section.application_global_over_enginemill_user');
     return test.done();
   },
 
   "Enginemill user overridden by application user": function (test) {
-    test.strictEqual(SETTINGS.APPLICATION_USER_OVER_ENGINEMILL_USER, true);
+    var val = this.app.settings.APPLICATION_USER_OVER_ENGINEMILL_USER
+    test.strictEqual(val, true, 'APPLICATION_USER_OVER_ENGINEMILL_USER');
     return test.done();
   },
 
   "Enginemill section user overridden by application user": function (test) {
-    test.strictEqual(SETTINGS.test_section.application_user_over_enginemill_user, true);
+    var val = this.app.settings.test_section.application_user_over_enginemill_user
+    test.strictEqual(val, true, 'test_section.application_user_over_enginemill_user');
     return test.done();
   },
 
   "Enginemill user overridden by application settings": function (test) {
-    test.strictEqual(SETTINGS.APPLICATION_SETTINGS_OVER_ENGINEMILL_USER, true);
+    var val = this.app.settings.APPLICATION_SETTINGS_OVER_ENGINEMILL_USER
+    test.strictEqual(val, true, 'APPLICATION_SETTINGS_OVER_ENGINEMILL_USER');
     return test.done();
   },
 
   "Enginemill section user overridden by application settings": function (test) {
-    test.strictEqual(SETTINGS.test_section.application_settings_over_enginemill_user, true);
+    var val = this.app.settings.test_section.application_settings_over_enginemill_user
+    test.strictEqual(val, true, 'test_section.application_settings_over_enginemill_user');
     return test.done();
   },
 
   "Enginemill user overridden by environment vars": function (test) {
-    test.strictEqual(SETTINGS.ENVIRONMENT_VARS_OVER_ENGINEMILL_USER, true);
+    var val = this.app.settings.ENVIRONMENT_VARS_OVER_ENGINEMILL_USER
+    test.strictEqual(val, true, 'ENVIRONMENT_VARS_OVER_ENGINEMILL_USER');
     return test.done();
   },
 
   "Application global overridden by application user": function (test) {
-    test.strictEqual(SETTINGS.APPLICATION_USER_OVER_APPLICATION_GLOBAL, true);
+    var val = this.app.settings.APPLICATION_USER_OVER_APPLICATION_GLOBAL
+    test.strictEqual(val, true, 'APPLICATION_USER_OVER_APPLICATION_GLOBAL');
     return test.done();
   },
 
   "Application global section overridden by application user": function (test) {
-    test.strictEqual(SETTINGS.test_section.application_user_over_application_global, true);
+    var val = this.app.settings.test_section.application_user_over_application_global
+    test.strictEqual(val, true, 'test_section.application_user_over_application_global');
     return test.done();
   },
 
   "Application global overridden by application settings": function (test) {
-    test.strictEqual(SETTINGS.APPLICATION_SETTINGS_OVER_APPLICATION_GLOBAL, true);
+    var val = this.app.settings.APPLICATION_SETTINGS_OVER_APPLICATION_GLOBAL
+    test.strictEqual(val, true, 'APPLICATION_SETTINGS_OVER_APPLICATION_GLOBAL');
     return test.done();
   },
 
   "Application global section overridden by application settings": function (test) {
-    test.strictEqual(SETTINGS.test_section.application_settings_over_application_global, true);
+    var val = this.app.settings.test_section.application_settings_over_application_global
+    test.strictEqual(val, true, 'test_section.application_settings_over_application_global');
     return test.done();
   },
 
   "Application global overridden by environment vars": function (test) {
-    test.strictEqual(SETTINGS.ENVIRONMENT_VARS_OVER_APPLICATION_GLOBAL, true);
+    var val = this.app.settings.ENVIRONMENT_VARS_OVER_APPLICATION_GLOBAL
+    test.strictEqual(val, true, 'ENVIRONMENT_VARS_OVER_APPLICATION_GLOBAL');
     return test.done();
   },
 
   "Application user overridden by application settings": function (test) {
-    test.strictEqual(SETTINGS.APPLICATION_SETTINGS_OVER_APPLICATION_USER, true);
+    var val = this.app.settings.APPLICATION_SETTINGS_OVER_APPLICATION_USER
+    test.strictEqual(val, true, 'APPLICATION_SETTINGS_OVER_APPLICATION_USER');
     return test.done();
   },
 
   "Application user section overridden by application settings": function (test) {
-    test.strictEqual(SETTINGS.test_section.application_settings_over_application_user, true);
+    var val = this.app.settings.test_section.application_settings_over_application_user
+    test.strictEqual(val, true, 'test_section.application_settings_over_application_user');
     return test.done();
   },
 
   "Application user overridden by environment vars": function (test) {
-    test.strictEqual(SETTINGS.ENVIRONMENT_VARS_OVER_APPLICATION_USER, true);
+    var val = this.app.settings.ENVIRONMENT_VARS_OVER_APPLICATION_USER
+    test.strictEqual(val, true, 'ENVIRONMENT_VARS_OVER_APPLICATION_USER');
     return test.done();
   },
 
   "Application settings overridden by environment vars": function (test) {
-    test.strictEqual(SETTINGS.ENVIRONMENT_VARS_OVER_APPLICATION_SETTINGS, true);
+    var val = this.app.settings.ENVIRONMENT_VARS_OVER_APPLICATION_SETTINGS
+    test.strictEqual(val, true, 'ENVIRONMENT_VARS_OVER_APPLICATION_SETTINGS');
     return test.done();
   }
 };
-
 
 function setupTestConfigs(done) {
   var promise = installEnginemillGlobalSettings()
     .then(installApplicationGlobalSettings)
     .then(installEnginemillUserSettings)
     .then(installApplicationUserSettings)
+    .catch(handleSettingsFixtureSetupError)
+    .then(setEnvironmentVars)
 
   return promise;
 }
@@ -294,11 +338,6 @@ function installFile(opts) {
   console.log("Installing "+ message +" to "+ dir);
   dir.mkdir();
   return file.copy(dir.append('settings.ini'));
-}
-
-function loadEnvironment() {
-  var root = FP.newPath().append('test/fixtures/test_settings_app')
-  return require('../lib/enginemill/environment').load({root: root});
 }
 
 function handleSettingsFixtureSetupError(err) {
