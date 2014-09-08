@@ -46,7 +46,7 @@ setup () {
 
 run_tests () {
     setup
-    node $BASE/management/run_globals_test.js test/
+    node $BASE/management/run_environment_tests.js test/
     node $BASE/management/run_tests.js test/
 }
 
