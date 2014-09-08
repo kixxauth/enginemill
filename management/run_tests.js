@@ -26,9 +26,9 @@ function readTree(dir) {
   return collection;
 }
 
-// Filter out the globals_test.js file.
+// Filter out the environment_test.js file.
 files = readTree(testPath).filter(function (path) {
-  if (/globals/.test(path)) return false;
+  if (/environment_test.js/.test(path)) return false;
   return true;
 });
 
