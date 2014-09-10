@@ -1,4 +1,6 @@
-var OPT = require('yargs')
+var EM = exports
+
+  , OPT = require('yargs')
 
   , LIB = require('./lib/library/')
 
@@ -7,9 +9,11 @@ var OPT = require('yargs')
   , APP = require('./lib/enginemill/application')
 
 
-exports.main = function () {
-  var promise = LIB.Promise.cast(LIB.Crystal.create())
-    .then(ENV.load)
+exports.main = function (values) {
+  values = LIB.crystalize(values);
+
+  var promise = LIB.Promise.cast(values)
+    .then(EM.load)
     .then(buildCommandLineOpts)
     .then(EPR.run)
     .catch(LIB.fail)
@@ -19,13 +23,7 @@ exports.main = function () {
 
 
 exports.load = function (values) {
-  if (!(values instanceof LIB.Crystal)) {
-    if (values && typeof values === 'object') {
-      values = LIB.Crystal.create(values);
-    } else {
-      values = LIB.Crystal.create();
-    }
-  }
+  values = LIB.crystalize(values);
 
   var promise = LIB.Promise.cast(values)
     .then(ENV.load)
@@ -36,15 +34,15 @@ exports.load = function (values) {
 };
 
 
-function buildCommandLineOpts(values) {
+function buildCommandLineOpts(app) {
   var opts = OPT
               .usage('Enginemill -- Making it easier to build awesome stuff on the web.')
               .boolean('help')
               .describe('help', "Print out this helpful help message and exit.")
               .alias('help', 'h')
 
-  values.define('commandLine', opts);
-  values.define('argv', opts.argv);
-  values.define('commandName', opts.argv._[0]);
-  return values;
+  app.define('commandLine', opts);
+  app.define('argv', opts.argv);
+  app.define('commandName', opts.argv._[0]);
+  return app;
 }

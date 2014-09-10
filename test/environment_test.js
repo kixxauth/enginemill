@@ -1,81 +1,11 @@
-// Expected globals in native JavaScript.
-var javaScriptGlobals = [
-  'JSON',
-  'escape',
-  'Math',
-  'EvalError',
-  'encodeURI',
-  'encodeURIComponent',
-  'RangeError',
-  'RegExp',
-  'Infinity',
-  'eval',
-  'URIError',
-  'parseInt',
-  'parseFloat',
-  'SyntaxError',
-  'Date',
-  'isFinite',
-  'NaN',
-  'Number',
-  'Object',
-  'Function',
-  'Boolean',
-  'Error',
-  'TypeError',
-  'decodeURIComponent',
-  'decodeURI',
-  'ReferenceError',
-  'undefined',
-  'isNaN',
-  'Array',
-  'Uint8ClampedArray',
-  'String',
-  'unescape'
-]
-
-// Expected globals in Node.js.
-var nodejsGlobals = [
-  'ArrayBuffer',
-  'Int8Array',
-  'Uint8Array',
-  'Uint8ClampedArray',
-  'Int16Array',
-  'Uint16Array',
-  'Int32Array',
-  'Uint32Array',
-  'Float32Array',
-  'Float64Array',
-  'DataView',
-  'global',
-  'process',
-  'GLOBAL',
-  'root',
-  'Buffer',
-  'setTimeout',
-  'setInterval',
-  'clearTimeout',
-  'clearInterval',
-  'console'
-]
-
-// Expected globals introduced by Enginemill.
-var enginemillGlobals = [
-  'fail',
-  'LIB',
-  'print',
-  'Promise',
-  'SETTINGS'
-]
+var PROMISE = require('iou').Promise
+  , FP = require('filepath')
 
 // Get a list of all the globals in our current space.
 var preDefinedGlobals = Object.getOwnPropertyNames(global)
   .map(function (key) {
     return {key: key, ref: global[key]};
   });
-
-var PROMISE = require('iou').Promise
-  , FP = require('filepath')
 
 exports["ensure process.env writable"] = {
   setUp: function (done) {
@@ -162,8 +92,6 @@ exports['when environment loaded'] = {
         return g.key;
       });
 
-      expected = expected.concat(enginemillGlobals);
-
       var actual = Object.getOwnPropertyNames(global)
       test.expect(actual.length);
 
@@ -173,134 +101,73 @@ exports['when environment loaded'] = {
 
       test.done();
     },
-
-    'it should keep all JavaScript globals': function (test) {
-      test.expect(javaScriptGlobals.length);
-
-      var globalKeys = Object.getOwnPropertyNames(global)
-
-      javaScriptGlobals.forEach(function (key) {
-        test.ok(globalKeys.indexOf(key) > -1, key);
-      });
-
-      test.done();
-    },
-
-    'it should keep all Node.js globals': function (test) {
-      test.expect(nodejsGlobals.length);
-
-      var globalKeys = Object.getOwnPropertyNames(global)
-
-      nodejsGlobals.forEach(function (key) {
-        test.ok(globalKeys.indexOf(key) > -1, key);
-      });
-
-      test.done();
-    },
-
-    'it should merge in all Enginemill globals': function (test) {
-      test.expect(enginemillGlobals.length);
-
-      var globalKeys = Object.getOwnPropertyNames(global)
-
-      enginemillGlobals.forEach(function (key) {
-        test.ok(globalKeys.indexOf(key) > -1, key);
-      });
-
-      test.done();
-    },
-
-    'it should make Enginemill globals unwritable': function (test) {
-      test.expect(enginemillGlobals.length);
-
-      enginemillGlobals.forEach(function (key) {
-        var x = {};
-        global[key] = x;
-        test.notStrictEqual(global[key], x, key);
-      });
-
-      test.done();
-    },
-
-    'it should make Enginemill globals unconfigurable': function (test) {
-      test.expect(enginemillGlobals.length);
-
-      enginemillGlobals.forEach(function (key) {
-        test.throws(function () {
-          Object.defineProperty(global, key, {value: 'foo'});
-        }, 'Cannot redefine property: '+ key, key + ' should throw');
-      });
-
-      test.done();
-    },
-
-    'it should make Enginemill globals enumerable': function (test) {
-      test.expect(enginemillGlobals.length);
-
-      var enumerables = Object.keys(global);
-
-      enginemillGlobals.forEach(function (key) {
-        test.ok(enumerables.indexOf(key) > 1, key);
-      });
-
-      test.done();
-    }
   },
 
   'settings': {
 
     "loads Enginemill global setting": function (test) {
-      test.strictEqual(SETTINGS.ENGINEMILL_GLOBAL, '1');
+      var val = this.app.settings.ENGINEMILL_GLOBAL
+      test.strictEqual(val, '1', 'ENGINEMILL_GLOBAL');
       return test.done();
     },
 
     "loads Enginemill global section setting": function (test) {
-      test.strictEqual(SETTINGS.test_section.enginemill_global, '1');
+      var val = this.app.settings.test_section.enginemill_global
+      test.strictEqual(val, '1', 'test_section.enginemill_global');
       return test.done();
     },
 
     "loads Enginemill user setting": function (test) {
-      test.strictEqual(SETTINGS.ENGINEMILL_USER, '2');
+      var val = this.app.settings.ENGINEMILL_USER
+      test.strictEqual(val, '2', 'ENGINEMILL_USER');
       return test.done();
     },
 
     "loads Enginemill user section setting": function (test) {
-      test.strictEqual(SETTINGS.test_section.enginemill_user, '2');
+      var val = this.app.settings.test_section.enginemill_user
+      test.strictEqual(val, '2', 'test_section.enginemill_user');
       return test.done();
     },
 
     "loads application global setting": function (test) {
-      test.strictEqual(SETTINGS.APPLICATION_GLOBAL, '3');
+      var val = this.app.settings.APPLICATION_GLOBAL
+      test.strictEqual(val, '3', 'APPLICATION_GLOBAL');
       return test.done();
     },
 
     "loads application global section setting": function (test) {
-      test.strictEqual(SETTINGS.test_section.application_global, '3');
+      var val = this.app.settings.test_section.application_global
+      test.strictEqual(val, '3', 'test_section.application_global');
       return test.done();
     },
 
     "loads application user setting": function (test) {
-      test.strictEqual(SETTINGS.APPLICATION_USER, '4');
+      var val = this.app.settings.APPLICATION_USER
+      test.strictEqual(val, '4', 'test_section.application_user');
       return test.done();
     },
 
     "loads application user section setting": function (test) {
-      test.strictEqual(SETTINGS.test_section.application_user, '4');
+      var val = this.app.settings.test_section.application_user
+      test.strictEqual(val, '4', 'test_section.application_user');
       return test.done();
     },
 
     "loads application setting": function (test) {
-      test.strictEqual(SETTINGS.APPLICATION_SETTINGS, '5');
+      var val = this.app.settings.APPLICATION_SETTINGS
+      test.strictEqual(val, '5', 'APPLICATION_SETTINGS');
       return test.done();
     },
 
     "loads application section setting": function (test) {
-      test.strictEqual(SETTINGS.test_section.application_settings, '5');
+      var val = this.app.settings.test_section.application_settings
+      test.strictEqual(val, '5', 'test_section.application_settings');
       return test.done();
     },
 
     "merges environment vars": function (test) {
-      test.strictEqual(SETTINGS.ENVIRONMENT_VARS, '6');
+      var val = this.app.settings.ENVIRONMENT_VARS
+      test.strictEqual(val, '6', 'ENVIRONMENT_VARS');
       return test.done();
     },
 
