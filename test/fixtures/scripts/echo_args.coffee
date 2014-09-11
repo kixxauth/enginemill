@@ -27,15 +27,17 @@ exports.main = (opts) ->
   else if typeof opts.a_boolean isnt 'boolean'
     exitWith('`a_boolean` is not a Boolean')
 
-  console.assert(typeof fail is 'function', 'fail() is a Function')
-  console.assert(typeof print is 'function', 'print() is a Function')
-  console.assert(typeof Promise is 'function', 'Promise() is a Function')
-  console.assert(typeof LIB is 'object', 'LIB is an Object')
-  console.assert(typeof SETTINGS is 'object', 'SETTINGS is an Object')
-
+  # Test arguments
   console.log('a_string', opts.a_string)
   console.log('a_number', opts.a_number)
   console.log('a_boolean', opts.a_boolean)
+
+  # Test expected globals
+  console.log('LIB', LIB is require('../../../lib/library/'))
+  console.log('fail', fail is LIB.fail)
+  console.log('print', print is LIB.print)
+  console.log('Promise', Promise is LIB.Promise)
+  console.log('SETTINGS', typeof SETTINGS)
   return
 
 exitWith = (message) ->

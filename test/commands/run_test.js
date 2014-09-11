@@ -104,5 +104,28 @@ exports['with script'] = {
     })
     return;
   },
+
+  'it should load expected globals': function (test) {
+    test.expect(6);
+
+    CP.exec(this.command +' --a_string 999 --a_number 1 --a_boolean', function (err, stdout, stderr) {
+      test.ok(!err, 'no error')
+
+      var lines = stdout.split('\n').map(function (str) {
+        return str.replace(/\W$/, '');
+      });
+
+      // Remove the first log statement.
+      lines.shift();
+
+      test.equal(lines[3], 'LIB true');
+      test.equal(lines[4], 'fail true');
+      test.equal(lines[5], 'print true');
+      test.equal(lines[6], 'Promise true');
+      test.equal(lines[7], 'SETTINGS object');
+      test.done();
+    })
+    return;
+  }
 };
 
