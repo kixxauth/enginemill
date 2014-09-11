@@ -122,7 +122,7 @@ exports['with script'] = {
       test.equal(lines[4], 'fail true');
       test.equal(lines[5], 'print true');
       test.equal(lines[6], 'Promise true');
-      test.equal(lines[7], 'SETTINGS object');
+      test.equal(lines[7], 'application true');
       test.done();
     })
     return;

@@ -37,7 +37,7 @@ exports.main = (opts) ->
   console.log('fail', fail is LIB.fail)
   console.log('print', print is LIB.print)
   console.log('Promise', Promise is LIB.Promise)
-  console.log('SETTINGS', typeof SETTINGS)
+  console.log('application', application instanceof require('../../../lib/enginemill/application').Application)
   return
 
 exitWith = (message) ->
