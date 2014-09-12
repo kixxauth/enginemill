@@ -103,6 +103,27 @@ exports['when environment loaded'] = {
     },
   },
 
+  'application': {
+
+    "should have a name property": function (test) {
+      test.equal(this.app.name, 'test_settings_app');
+      return test.done();
+    },
+
+    "should have a root property": function (test) {
+      var root = FP.FilePath.create().append('test/fixtures/test_settings_app');
+      test.ok(this.app.root instanceof FP.FilePath, 'instanceof FilePath');
+      test.equal(this.app.root.toString(), root.toString());
+      return test.done();
+    },
+
+    "should have a settings property": function (test) {
+      test.strictEqual(!!this.app.settings, true);
+      test.equal(typeof this.app.settings, 'object');
+      return test.done();
+    }
+  },
+
   'settings': {
 
     "loads Enginemill global setting": function (test) {
