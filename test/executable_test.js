@@ -1,4 +1,8 @@
 var CP = require('child_process')
+  , FS = require('fs')
+
+  , FP = require('filepath')
+
   , cache = {}
 
 
@@ -123,6 +127,56 @@ exports['with -h switch'] = {
 };
 
 
+exports['outside of an Enginemill directory'] = {
+  setUp: (function () {
+    var command
+
+    return function (done) {
+      if (command) {
+        this.command = command;
+        return done();
+      }
+
+      var packageJSON = FP.root().append('tmp', 'package.json')
+        , execPath
+
+      this.cwd = FP.newPath();
+      execPath = this.cwd.append('bin', 'em.js');
+
+      if (packageJSON.isFile()) {
+        FS.unlinkSync(packageJSON.toString());
+      }
+
+      try {
+        process.chdir(FP.root().append('tmp').toString());
+      } catch (err) {
+        console.error("Error attempting to change directories")
+        return done(err);
+      }
+
+      this.command = command = execPath.toString() + ' -h';
+      return done();
+    };
+  }()),
+
+  "it uses default application info to run": function (test) {
+    test.expect(1);
+    CP.exec(this.command, function (err, stdout, stderr) {
+      var lines = stderr.split('\n');
+      test.ok(!/error/i.test(lines[0]), 'runtime error');
+      return test.done();
+    });
+  },
+
+  tearDown: function (done) {
+    if (this.cwd) {
+      process.chdir(this.cwd.toString());
+    }
+    return done();
+  }
+};
+
+
 function processCache(args) {
   var key = args.key
     , command = args.command
@@ -136,7 +190,7 @@ function processCache(args) {
       CP.exec(command, function (err, stdout, stderr) {
         self.lines = cache[key] = stderr.split('\n');
         if (/Error/.test(self.lines[0])) {
-          console.error('Process execution error:', stderr);
+          console.error('Process execution error:\n', stderr);
           return done(new Error("Process execution error. See stack dump above."));
         } else {
           return done();
