@@ -34,6 +34,11 @@ exports.load = function (values) {
 };
 
 
+exports.lib = function () {
+  return LIB;
+};
+
+
 function buildCommandLineOpts(app) {
   var opts = OPT
               .usage('Enginemill -- Making it easier to build awesome stuff on the web.')

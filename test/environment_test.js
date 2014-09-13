@@ -32,6 +32,28 @@ exports["ensure process.env writable"] = {
 };
 
 
+exports['library reference'] = {
+
+  setUp: (function () {
+    var em = null
+
+    return function (done) {
+      if (!em) {
+        em = require('../');
+      }
+      this.enginemill = em;
+      return done();
+    };
+  }()),
+
+  'should reference the Enginemill Library': function (test) {
+    var lib = require('../lib/library/')
+    test.strictEqual(this.enginemill.lib(), lib);
+    return test.done();
+  }
+};
+
+
 exports['when environment loaded'] = {
 
   setUp: (function () {
