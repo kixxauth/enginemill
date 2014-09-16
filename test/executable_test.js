@@ -177,6 +177,49 @@ exports['outside of an Enginemill directory'] = {
 };
 
 
+exports['with invalid package.json JSON'] = {
+  setUp: (function () {
+    var command
+
+    return function (done) {
+      if (command) {
+        this.command = command;
+        return done();
+      }
+
+      this.cwd = FP.newPath();
+      var execPath = this.cwd.append('bin', 'em.js');
+
+      try {
+        process.chdir(FP.newPath(__dirname).append('fixtures', 'json').toString());
+      } catch (err) {
+        console.error("Error attempting to change directories")
+        return done(err);
+      }
+
+      this.command = command = execPath.toString() + ' -h';
+      return done();
+    };
+  }()),
+
+  "it prints an informative error message": function (test) {
+    test.expect(1);
+    CP.exec(this.command, function (err, stdout, stderr) {
+      var lines = stderr.split('\n')
+      test.ok(/^Error: JSON SyntaxError:/.test(lines[0]));
+      return test.done();
+    });
+  },
+
+  tearDown: function (done) {
+    if (this.cwd) {
+      process.chdir(this.cwd.toString());
+    }
+    return done();
+  }
+};
+
+
 function processCache(args) {
   var key = args.key
     , command = args.command
