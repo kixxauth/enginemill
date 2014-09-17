@@ -1,10 +1,11 @@
 Running Your Own Scripts
 ========================
 You can easily write and run your own scripts with the Enginemill environment
-preloaded into them!
+preloaded into them, which makes your scripting tasks easier than ever.
 
-CoffeeScript is the preferred language for Enginemill programming. So, using
-CoffeeScript, just compose a script file with the following structure:
+CoffeeScript is the preferred language for Enginemill programming, and it is assumed that all your scripts will be written in [CoffeeScript](http://coffeescript.org/).
+
+To create an Enginemill script just compose a CoffeeScript file with the following structure:
 
 ```CoffeeScript
 exports.usage = "myscript.coffee --first_name <First Name> --age <Age> --print_date"
@@ -38,18 +39,21 @@ exports.main = (opts) ->
 	return
 ```
 
-* `exports.usage` gives a usage summary of your script.
-* `exports.options` defines the options your script accepts. Notice how you can
-  create descriptive help text for each option with `description`, indicate
-	required options with `required`, force the parser to keep the value as a
-	string with `forceString`, and indicate boolean options with `boolean`.
-* `exports.help` should give a longer explanation of how to use the script.
+Here's what is going on in that script:
+* `exports.usage` provides a usage summary of your script which you would see if you ran `em run ./myscript.coffee --help`.
+* `exports.options` defines the options your script accepts. Notice how you can create descriptive help text for each option with `description`, indicate
+required options with `required`, indicate boolean options with `boolean`, and force the parser to keep the value as a string with `forceString`.
+* `exports.help` should give a longer explanation of how to use the script which you would see if you ran `em run ./myscript.coffee --help`.
 * `exports.main` is the function that Enginemill will call when your script is
-  executed.
+ executed, passing it the parse command line options.
 
 ## Running The Script
 Running your scripts is easy with the Enginemill command `em run`. This is how
 you might run the example above:
 
-	em run /path/to/my/script --first_name kristoffer --print_date false
+    em run /path/to/my/script --first_name kristoffer --print_date false
+
+To print the usage and help strings from your script run it with the `--help` switch like this:
+
+    em run /path/to/my/script --help
 
