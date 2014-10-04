@@ -28,7 +28,7 @@ So, at this point, your plugin should have a package.json file and an index.coff
 ```CoffeeScript
 # index.coffee
 
-exports.initialize = ->
+exports.initialize = (plugin) ->
     console.log('My plugin is initialized!');
 
 ```
@@ -36,3 +36,26 @@ exports.initialize = ->
 If the `initialize()` method is found, Enginemill will call it with a special Plugin object passed in as the only parameter.
 
 ### The Plugin Object
+The plugin API object passed into `initialize()` is an event emitter which your plugin can attach listeners to take action on certain events as well as some methods to you can use to hook into Enginemill.
+
+These events include 'beforeload', 'loaded', and 'running'.
+
+* 'beforeload' - Fires just before Enginemill loads. No arguments are passed into handlers for `beforeload`.
+* 'loaded' - Fires after Enginemill has loaded and just before a command is run. The Enginemill Application object is passed into 'loaded' event handlers as the single parameter.
+* 'running' - Fires after Enginemill has run a command. The Enginemill Application object is passed into 'running' event handlers as the single parameter.
+
+It's worth noting that the 'running' event will not fire if Enginemill is required and loaded from another program without actually being run. Also, the Enginemill globals will not be available to the plugin until the 'running' event fires.
+
+### Register Commands
+Your plugin can register commands into the Enginemill command runner. If you were to register a command named 'mycommand', for example,  when the user enters `em mycommand` on the command line, your command will be executed.
+
+You register a command with Enginemill by calling the Application.registerCommand() method with the name of your command and a special command definition object. Your command should only contain numbers letters, underscores, or hyphens. Spaces, in particular, will cause unexpected behavior. Enginemill checks your command name when you register it and will throw an error if your command name will not work on the command line.
+
+Your command object should have 2 properties and 1 method:
+
+* usageString - The usage string for your command like 'mycommand <firstarg>'.
+* helpString - The help string for your command like "A little plugin command I wrote.".
+* run - The run method will be called by enginemill when your program is invoked. It is passed the parsed command line arguments and options as the single argument.
+
+Note that the Enginemill globals will be available by the time your run method is called. The `this` object referenced when your run method is invoked represents the special Enginemill command object. This object has a useful helper method called 'parseOptions()' which you can use to parse the command line options according to a set of rules you pass in.
+
