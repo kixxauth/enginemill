@@ -606,7 +606,7 @@ exports["with GET request"] = {
     return test.done();
   },
 
-  "its content-type is text/html": function (test) {
+  "its content-type is text/plain": function (test) {
     var headers = this.res.headers
     test.equal(headers['content-type'], 'text/plain');
     return test.done();
@@ -622,12 +622,18 @@ exports["with GET request"] = {
 exports["with POST request"] = {
   setUp: function (done) {
     var self = this
-    this.server = SERVER.createServer(null, function (err, address) {
+      , opts = {
+          echo: true
+        , responseStatus: 201
+        }
+
+    this.server = SERVER.createServer(opts, function (err, address) {
       if (err) return done(err);
       self.address = address;
       self.req = LIB.http.post(address).form({key: 'value'});
       self.req.promise.then(function (response) {
         self.res = response;
+        self.echo = JSON.parse(response.body.toString());
         return done();
       }).catch(done);
     });
@@ -648,18 +654,38 @@ exports["with POST request"] = {
   "it has a request body": function (test) {
     test.equal(this.req.body, 'key=value');
     return test.done();
+  },
+
+  "its method was POST": function (test) {
+    test.equal(this.echo.method, 'POST');
+    return test.done();
+  },
+
+  "its status is 201": function (test) {
+    test.strictEqual(this.res.statusCode, 201);
+    return test.done();
+  },
+
+  "its POST body was correct": function (test) {
+    test.equal(this.echo.body, 'key=value');
+    return test.done();
   }
 };
 
 exports["with PUT request"] = {
   setUp: function (done) {
     var self = this
-    this.server = SERVER.createServer(null, function (err, address) {
+      , opts = {
+          echo: true
+        }
+
+    this.server = SERVER.createServer(opts, function (err, address) {
       if (err) return done(err);
       self.address = address;
       self.req = LIB.http.put(address).form({key: 'value'});
       self.req.promise.then(function (response) {
         self.res = response;
+        self.echo = JSON.parse(response.body.toString());
         return done();
       }).catch(done);
     });
@@ -677,6 +703,11 @@ exports["with PUT request"] = {
     return test.done();
   },
 
+  "its method was PUT": function (test) {
+    test.equal(this.echo.method, 'PUT');
+    return test.done();
+  },
+
   "it has a request body": function (test) {
     test.equal(this.req.body, 'key=value');
     return test.done();
@@ -686,12 +717,17 @@ exports["with PUT request"] = {
 exports["with PATCH request"] = {
   setUp: function (done) {
     var self = this
-    this.server = SERVER.createServer(null, function (err, address) {
+      , opts = {
+          echo: true
+        }
+
+    this.server = SERVER.createServer(opts, function (err, address) {
       if (err) return done(err);
       self.address = address;
       self.req = LIB.http.patch(address).form({key: 'value'});
       self.req.promise.then(function (response) {
         self.res = response;
+        self.echo = JSON.parse(response.body.toString());
         return done();
       }).catch(done);
     });
@@ -709,6 +745,11 @@ exports["with PATCH request"] = {
     return test.done();
   },
 
+  "its method was PATCH": function (test) {
+    test.equal(this.echo.method, 'PATCH');
+    return test.done();
+  },
+
   "it has a request body": function (test) {
     test.equal(this.req.body, 'key=value');
     return test.done();
@@ -718,12 +759,17 @@ exports["with PATCH request"] = {
 exports["with DELETE request"] = {
   setUp: function (done) {
     var self = this
-    this.server = SERVER.createServer(null, function (err, address) {
+      , opts = {
+          echo: true
+        }
+
+    this.server = SERVER.createServer(opts, function (err, address) {
       if (err) return done(err);
       self.address = address;
       self.req = LIB.http.del(address);
       self.req.promise.then(function (response) {
         self.res = response;
+        self.echo = JSON.parse(response.body.toString());
         return done();
       }).catch(done);
     });
@@ -738,6 +784,11 @@ exports["with DELETE request"] = {
     test.ok(this.req instanceof Request, 'Request instance');
     test.equal(this.req.method, 'DELETE', 'method');
     test.equal(this.req.href, this.address +'/', 'href');
+    return test.done();
+  },
+
+  "its method was DELETE": function (test) {
+    test.equal(this.echo.method, 'DELETE');
     return test.done();
   },
 
