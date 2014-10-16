@@ -1,6 +1,7 @@
 var LIB = require('../lib/library/')
   , REQ = require('request')
   , Request = REQ.Request
+  , SERVER = require('./lib/server')
 
 
 exports["get() without error"] = {
@@ -575,29 +576,28 @@ exports["del() with error"] = {
 };
 
 exports["with GET request"] = {
-  setUp: (function () {
-    var req, res
-    return function (done) {
-      if (!req) {
-        this.req = req = LIB.http.get('http://www.example.com');
-        var self = this;
-
-        this.req.promise.then(function (response) {
-          self.res = res = response;
-          return done();
-        }).catch(done);
-      } else {
-        this.req = req;
-        this.res = res;
+  setUp: function (done) {
+    var self = this
+    this.server = SERVER.createServer(null, function (err, address) {
+      if (err) return done(err);
+      self.address = address;
+      self.req = LIB.http.get(address);
+      self.req.promise.then(function (response) {
+        self.res = response;
         return done();
-      }
-    }
-  }()),
+      }).catch(done);
+    });
+  },
+
+  tearDown: function (done) {
+    this.server.close();
+    return done();
+  },
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
     test.equal(this.req.method, 'GET', 'method');
-    test.equal(this.req.href, 'http://www.example.com/', 'href');
+    test.equal(this.req.href, this.address +'/', 'href');
     return test.done();
   },
 
@@ -608,7 +608,7 @@ exports["with GET request"] = {
 
   "its content-type is text/html": function (test) {
     var headers = this.res.headers
-    test.equal(headers['content-type'], 'text/html');
+    test.equal(headers['content-type'], 'text/plain');
     return test.done();
   },
 
@@ -620,29 +620,28 @@ exports["with GET request"] = {
 };
 
 exports["with POST request"] = {
-  setUp: (function () {
-    var req, res
-    return function (done) {
-      if (!req) {
-        this.req = req = LIB.http.post('http://www.example.com').form({key: 'value'});
-        var self = this;
-
-        this.req.promise.then(function (response) {
-          self.res = res = response;
-          return done();
-        }).catch(done);
-      } else {
-        this.req = req;
-        this.res = res;
+  setUp: function (done) {
+    var self = this
+    this.server = SERVER.createServer(null, function (err, address) {
+      if (err) return done(err);
+      self.address = address;
+      self.req = LIB.http.post(address).form({key: 'value'});
+      self.req.promise.then(function (response) {
+        self.res = response;
         return done();
-      }
-    }
-  }()),
+      }).catch(done);
+    });
+  },
+
+  tearDown: function (done) {
+    this.server.close();
+    return done();
+  },
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
     test.equal(this.req.method, 'POST', 'method');
-    test.equal(this.req.href, 'http://www.example.com/', 'href');
+    test.equal(this.req.href, this.address +'/', 'href');
     return test.done();
   },
 
@@ -653,29 +652,28 @@ exports["with POST request"] = {
 };
 
 exports["with PUT request"] = {
-  setUp: (function () {
-    var req, res
-    return function (done) {
-      if (!req) {
-        this.req = req = LIB.http.put('http://www.example.com').form({key: 'value'});
-        var self = this;
-
-        this.req.promise.then(function (response) {
-          self.res = res = response;
-          return done();
-        }).catch(done);
-      } else {
-        this.req = req;
-        this.res = res;
+  setUp: function (done) {
+    var self = this
+    this.server = SERVER.createServer(null, function (err, address) {
+      if (err) return done(err);
+      self.address = address;
+      self.req = LIB.http.put(address).form({key: 'value'});
+      self.req.promise.then(function (response) {
+        self.res = response;
         return done();
-      }
-    }
-  }()),
+      }).catch(done);
+    });
+  },
+
+  tearDown: function (done) {
+    this.server.close();
+    return done();
+  },
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
     test.equal(this.req.method, 'PUT', 'method');
-    test.equal(this.req.href, 'http://www.example.com/', 'href');
+    test.equal(this.req.href, this.address +'/', 'href');
     return test.done();
   },
 
@@ -686,29 +684,28 @@ exports["with PUT request"] = {
 };
 
 exports["with PATCH request"] = {
-  setUp: (function () {
-    var req, res
-    return function (done) {
-      if (!req) {
-        this.req = req = LIB.http.patch('http://www.example.com').form({key: 'value'});
-        var self = this;
-
-        this.req.promise.then(function (response) {
-          self.res = res = response;
-          return done();
-        }).catch(done);
-      } else {
-        this.req = req;
-        this.res = res;
+  setUp: function (done) {
+    var self = this
+    this.server = SERVER.createServer(null, function (err, address) {
+      if (err) return done(err);
+      self.address = address;
+      self.req = LIB.http.patch(address).form({key: 'value'});
+      self.req.promise.then(function (response) {
+        self.res = response;
         return done();
-      }
-    }
-  }()),
+      }).catch(done);
+    });
+  },
+
+  tearDown: function (done) {
+    this.server.close();
+    return done();
+  },
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
     test.equal(this.req.method, 'PATCH', 'method');
-    test.equal(this.req.href, 'http://www.example.com/', 'href');
+    test.equal(this.req.href, this.address +'/', 'href');
     return test.done();
   },
 
@@ -719,57 +716,60 @@ exports["with PATCH request"] = {
 };
 
 exports["with DELETE request"] = {
-  setUp: (function () {
-    var req, res
-    return function (done) {
-      if (!req) {
-        this.req = req = LIB.http.del('http://www.example.com');
-        var self = this;
-
-        this.req.promise.then(function (response) {
-          self.res = res = response;
-          return done();
-        }).catch(done);
-      } else {
-        this.req = req;
-        this.res = res;
+  setUp: function (done) {
+    var self = this
+    this.server = SERVER.createServer(null, function (err, address) {
+      if (err) return done(err);
+      self.address = address;
+      self.req = LIB.http.del(address);
+      self.req.promise.then(function (response) {
+        self.res = response;
         return done();
-      }
-    }
-  }()),
+      }).catch(done);
+    });
+  },
+
+  tearDown: function (done) {
+    this.server.close();
+    return done();
+  },
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
     test.equal(this.req.method, 'DELETE', 'method');
-    test.equal(this.req.href, 'http://www.example.com/', 'href');
+    test.equal(this.req.href, this.address +'/', 'href');
     return test.done();
-  }
+  },
+
+  "its status is 200": function (test) {
+    test.strictEqual(this.res.statusCode, 200);
+    return test.done();
+  },
 };
 
 exports["request() with GET"] = {
-  setUp: (function () {
-    var req, res
-    return function (done) {
-      if (!req) {
-        this.req = req = LIB.http.request('http://www.example.com', {method: 'GET'});
-        var self = this;
-
-        this.req.promise.then(function (response) {
-          self.res = res = response;
-          return done();
-        }).catch(done);
-      } else {
-        this.req = req;
-        this.res = res;
+  setUp: function (done) {
+    var self = this
+    this.server = SERVER.createServer(null, function (err, address) {
+      if (err) return done(err);
+      self.address = address;
+      self.req = LIB.http.request(address, {method: 'GET'});
+      self.req.promise.then(function (response) {
+        self.res = response;
         return done();
-      }
-    }
-  }()),
+      }).catch(done);
+    });
+  },
+
+  tearDown: function (done) {
+    this.server.close();
+    return done();
+  },
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
     test.equal(this.req.method, 'GET', 'method');
-    test.equal(this.req.href, 'http://www.example.com/', 'href');
+    test.equal(this.req.href, this.address +'/', 'href');
     return test.done();
   },
 
@@ -780,7 +780,7 @@ exports["request() with GET"] = {
 
   "its content-type is text/html": function (test) {
     var headers = this.res.headers
-    test.equal(headers['content-type'], 'text/html');
+    test.equal(headers['content-type'], 'text/plain');
     return test.done();
   },
 
