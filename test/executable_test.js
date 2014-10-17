@@ -3,11 +3,11 @@ var CP = require('child_process')
 
   , FP = require('filepath')
 
-  , cache = {}
+  , PUTIL = require('./lib/process')
 
 
 exports['with invalid command'] = {
-  setUp: processCache({
+  setUp: PUTIL.processCache({
     key: 'with invalid command'
   , command: './bin/em.js foobar'
   }),
@@ -51,7 +51,7 @@ exports['with invalid command'] = {
 };
 
 exports['with --help switch'] = {
-  setUp: processCache({
+  setUp: PUTIL.processCache({
     key: 'with --help switch'
   , command: './bin/em.js --help'
   }),
@@ -89,7 +89,7 @@ exports['with --help switch'] = {
 };
 
 exports['with -h switch'] = {
-  setUp: processCache({
+  setUp: PUTIL.processCache({
     key: 'with -h switch'
   , command: './bin/em.js -h'
   }),
@@ -218,28 +218,4 @@ exports['with invalid package.json JSON'] = {
     return done();
   }
 };
-
-
-function processCache(args) {
-  var key = args.key
-    , command = args.command
-
-  return function (done) {
-    var self = this
-    if (cache[key]) {
-      self.lines = cache[key];
-      done();
-    } else {
-      CP.exec(command, function (err, stdout, stderr) {
-        self.lines = cache[key] = stderr.split('\n');
-        if (/Error/.test(self.lines[0])) {
-          console.error('Process execution error:\n', stderr);
-          return done(new Error("Process execution error. See stack dump above."));
-        } else {
-          return done();
-        }
-      });
-    }
-  };
-}
 
