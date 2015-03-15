@@ -1,30 +1,34 @@
-var NFS = require('fs')
-  , NPATH = require('path')
+var FS = require('fs')
+  , PATH = require('path')
 
   , NODEUNIT = require('nodeunit')
 
-  , testPath = NPATH.resolve(process.argv[2])
+  , testPath = PATH.resolve(process.argv[2])
   , fileMatcher = /test\.js$/
   , files
 
 
 function readTree(dir) {
   var collection = []
-    , list = NFS.readdirSync(dir)
+    , list = FS.readdirSync(dir)
 
   list.forEach(function (item) {
-    var filepath = NPATH.join(dir, item)
-      , stats = NFS.statSync(filepath)
+    var filepath = PATH.join(dir, item)
+      , stats = FS.statSync(filepath)
 
     if (stats.isDirectory()) {
       collection = collection.concat(readTree(filepath))
     } else if (stats.isFile() && fileMatcher.test(filepath)) {
-      collection.push(NPATH.relative(process.cwd(), filepath));
+      collection.push(PATH.relative(process.cwd(), filepath));
     }
   })
 
   return collection;
 }
 
-files = readTree(testPath);
+if (FS.statSync(testPath).isDirectory()) {
+  files = readTree(testPath);
+} else {
+  files = [PATH.relative(process.cwd(), testPath)];
+}
 NODEUNIT.reporters.default.run(files, null);
