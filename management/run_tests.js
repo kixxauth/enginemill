@@ -26,10 +26,5 @@ function readTree(dir) {
   return collection;
 }
 
-// Filter out the environment_test.js file.
-files = readTree(testPath).filter(function (path) {
-  if (/environment_test.js/.test(path)) return false;
-  return true;
-});
-
+files = readTree(testPath);
 NODEUNIT.reporters.default.run(files, null);
