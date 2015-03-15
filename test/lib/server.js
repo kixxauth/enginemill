@@ -56,7 +56,7 @@ exports.createServer = function (opts, callback) {
     }
     return callback(err);
   });
-  server.listen(port, function () {
+  server.listen(port, 'localhost', function () {
     var addr = server.address();
     return callback(null, 'http://'+ addr.address +':'+ addr.port);
   });
