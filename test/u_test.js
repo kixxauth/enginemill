@@ -1,6 +1,6 @@
 var
 
-U    = require('../lib/u');
+U = require('../lib/u');
 
 
 exports["U.execute()"] = {
