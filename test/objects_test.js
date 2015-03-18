@@ -88,7 +88,6 @@ exports["Objects.factory()"] = {
       instance = this.returns(),
       updates = this.updates;
 
-      test.ok(updates.initializeContext);
       test.equal(updates.initializeContext, instance);
 
       return test.done();
@@ -139,6 +138,7 @@ exports["Objects.factory()"] = {
       var
       res = factoryWithDependencies();
       this.updates = res.updates;
+      this.initSequence = res.initSequence;
       this.extension = res.extension;
       this.parent1 = res.parent1;
       this.parent2 = res.parent2;
@@ -161,6 +161,60 @@ exports["Objects.factory()"] = {
           test.strictEqual(instance[n], chain[n], n);
         }
       }
+
+      return test.done();
+    },
+
+    "it calls all initialize()rs with a valid Object": function (test) {
+      var
+      instance = this.returns(),
+      updates = this.updates;
+
+      test.ok(updates.spec1);
+      test.equal(typeof updates.spec1, 'object');
+      test.ok(updates.spec2);
+      test.equal(typeof updates.spec2, 'object');
+      test.ok(updates.spec3);
+      test.equal(typeof updates.spec3, 'object');
+
+      return test.done();
+    },
+
+    "it calls all initialize()rs with value passed into factory": function (test) {
+      var
+      specVal = {},
+      updates = this.updates;
+
+      this.returns(specVal);
+
+      test.equal(updates.spec1, specVal);
+      test.equal(updates.spec2, specVal);
+      test.equal(updates.spec3, specVal);
+
+      return test.done();
+    },
+
+    "`this` value in all initialize()rs is the instance itself": function (test) {
+      var
+      instance = this.returns(),
+      updates = this.updates;
+
+      test.equal(updates.initializeContext1, instance);
+      test.equal(updates.initializeContext2, instance);
+      test.equal(updates.initializeContext3, instance);
+
+      return test.done();
+    },
+
+    "all initialize()rs are called in inheritance sequence": function (test) {
+      var
+      initSequence = this.initSequence;
+
+      this.returns();
+
+      test.equal(initSequence[0], this.parent1);
+      test.equal(initSequence[1], this.parent2);
+      test.equal(initSequence[2], this.extension);
 
       return test.done();
     }
@@ -202,11 +256,13 @@ var factoryWithDependencies = function () {
   var
   res = Object.create(null);
   res.updates = Object.create(null);
+  res.initSequence = [];
 
   res.parent1 = {
     initialize: function (spec) {
       res.updates.spec1 = spec;
       res.updates.initializeContext1 = this;
+      res.initSequence.push(res.parent1);
     },
     protoMethod1: function () {},
     override1and2: function () {},
@@ -218,6 +274,7 @@ var factoryWithDependencies = function () {
     initialize: function (spec) {
       res.updates.spec2 = spec;
       res.updates.initializeContext2 = this;
+      res.initSequence.push(res.parent2);
     },
     protoMethod2: function () {},
     override1and2: function () {},
@@ -229,6 +286,7 @@ var factoryWithDependencies = function () {
     initialize: function (spec) {
       res.updates.spec3 = spec;
       res.updates.initializeContext3 = this;
+      res.initSequence.push(res.extension);
     },
     protoMethod3: function () {},
     override1and2: function () {},
