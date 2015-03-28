@@ -1,7 +1,7 @@
 var
-Promise = require('../../lib/promise'),
-Objects = require('../../lib/objects'),
-Action  = require('../../lib/mixins/action').Action;
+Promise = require('../../../lib/promise'),
+Objects = require('../../../lib/objects'),
+Action  = require('../../../lib/mixins/action').Action;
 
 
 exports[".q()ed methods"] = {

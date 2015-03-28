@@ -1,7 +1,7 @@
 var
 
-Objects = require('../lib/objects'),
-U       = require('../lib/u');
+Objects = require('../../lib/objects'),
+U       = require('../../lib/u');
 
 
 exports["Objects.factory()"] = {
