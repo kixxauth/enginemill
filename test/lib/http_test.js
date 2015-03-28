@@ -583,7 +583,11 @@ exports["with GET request"] = {
     this.server = SERVER.createServer(null, function (err, address) {
       if (err) return done(err);
       self.address = address;
-      self.req = REQ.get(address);
+      try {
+        self.req = REQ.get(address);
+      } catch (err) {
+        return done(err);
+      }
       self.req.promise.then(function (response) {
         self.res = response;
         return done();
@@ -632,7 +636,11 @@ exports["with POST request"] = {
     this.server = SERVER.createServer(opts, function (err, address) {
       if (err) return done(err);
       self.address = address;
-      self.req = REQ.post(address).form({key: 'value'});
+      try {
+        self.req = REQ.post(address).form({key: 'value'});
+      } catch (err) {
+        return done(err);
+      }
       self.req.promise.then(function (response) {
         self.res = response;
         self.echo = JSON.parse(response.body.toString());
@@ -684,7 +692,11 @@ exports["with PUT request"] = {
     this.server = SERVER.createServer(opts, function (err, address) {
       if (err) return done(err);
       self.address = address;
-      self.req = REQ.put(address).form({key: 'value'});
+      try {
+        self.req = REQ.put(address).form({key: 'value'});
+      } catch (err) {
+        return done(err);
+      }
       self.req.promise.then(function (response) {
         self.res = response;
         self.echo = JSON.parse(response.body.toString());
@@ -726,7 +738,11 @@ exports["with PATCH request"] = {
     this.server = SERVER.createServer(opts, function (err, address) {
       if (err) return done(err);
       self.address = address;
-      self.req = REQ.patch(address).form({key: 'value'});
+      try {
+        self.req = REQ.patch(address).form({key: 'value'});
+      } catch (err) {
+        return done(err);
+      }
       self.req.promise.then(function (response) {
         self.res = response;
         self.echo = JSON.parse(response.body.toString());
@@ -768,7 +784,11 @@ exports["with DELETE request"] = {
     this.server = SERVER.createServer(opts, function (err, address) {
       if (err) return done(err);
       self.address = address;
-      self.req = REQ.del(address);
+      try {
+        self.req = REQ.del(address);
+      } catch (err) {
+        return done(err);
+      }
       self.req.promise.then(function (response) {
         self.res = response;
         self.echo = JSON.parse(response.body.toString());
@@ -806,7 +826,11 @@ exports["request() with GET"] = {
     this.server = SERVER.createServer(null, function (err, address) {
       if (err) return done(err);
       self.address = address;
-      self.req = REQ.request(address, {method: 'GET'});
+      try {
+        self.req = REQ.request(address, {method: 'GET'});
+      } catch (err) {
+        return done(err);
+      }
       self.req.promise.then(function (response) {
         self.res = response;
         return done();
