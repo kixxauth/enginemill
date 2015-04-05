@@ -140,7 +140,7 @@ exports.Runner = {
     argv;
 
     usage += "  em help\n";
-    usage += "  em help <script_path>";
+    usage += "  em help <script_path>\n";
     usage += "  em run [<script_path>] [--env <environment>] [options]";
 
     argv = this.Args

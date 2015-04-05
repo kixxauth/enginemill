@@ -21,3 +21,37 @@ exports["em (no arguments)"] = {
     return test.done();
   }
 };
+
+
+exports["em foo (invalid command)"] = {
+
+  setUp : execCache('bin/em.js foo'),
+
+  "it messages the user about invalid command": function (test) {
+    test.equal(this.lines[0], "'foo' is not a valid enginemill command.");
+    return test.done();
+  },
+
+  "it shows valid commands": function (test) {
+    test.equal(this.lines[1], "Valid commands are: help, run");
+    return test.done();
+  },
+
+  "it displays the help text": function (test) {
+    test.ok(this.lines.length > 3, "stderr lines length");
+    return test.done();
+  }
+};
+
+
+exports["em help (general help)"] = {
+
+  setUp : execCache('bin/em.js help'),
+
+  "it shows help and exits": function (test) {
+    test.equal(this.lines[0], "Usage:");
+    test.ok(this.lines.length > 3, "stderr lines length");
+    return test.done();
+  }
+};
+
