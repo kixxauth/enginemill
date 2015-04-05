@@ -1,26 +1,58 @@
-var CP = require('child_process')
+var
+Promise = require('../../lib/promise'),
+U       = require('../../lib/u'),
+CP      = require('child_process');
 
-  , cache = {}
 
-exports.processCache = function (args) {
-  var key = args.key
-    , command = args.command
+exports.execCache = function (command) {
+  var
+  error = null,
+  rv    = null;
 
   return function (done) {
-    var self = this
-    if (cache[key]) {
-      self.lines = cache[key];
-      done();
-    } else {
-      CP.exec(command, function (err, stdout, stderr) {
-        self.lines = cache[key] = stderr.split('\n');
-        if (/Error/.test(self.lines[0])) {
-          console.error('Process execution error:\n', stderr);
-          return done(new Error("Process execution error. See stack dump above."));
-        } else {
-          return done();
-        }
-      });
+    var
+    self = this;
+    if (error) {
+      return done(error);
     }
+    if (rv) {
+      U.extend(this, rv);
+      return done();
+    }
+    exports.exec(command).then(function (rv) {
+      U.extend(self, rv);
+      return done();
+    }, function (err) {
+      error = err;
+      done(error);
+    });
   };
-}
+};
+
+
+exports.exec = function (command) {
+  return new Promise(function (resolve, reject) {
+    CP.exec(command, function (err, stdout, stderr) {
+      if (err && !/Command failed/.test(err.message)) {
+        return reject(err);
+      }
+      var
+      rv = Object.create(null);
+      rv.stdout = stdout;
+      rv.stderr = stderr;
+      rv.lines  = null;
+      rv.json   = null;
+      if (stdout) {
+        try {
+          rv.json = JSON.parse(stdout);
+        } catch (err) {
+          rv.json = null;
+        }
+      }
+      if (stderr) {
+        rv.lines = stderr.split('\n');
+      }
+      return resolve(rv);
+    });
+  });
+};
