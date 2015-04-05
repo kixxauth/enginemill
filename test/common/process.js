@@ -19,7 +19,8 @@ exports.execCache = function (command) {
       U.extend(this, rv);
       return done();
     }
-    exports.exec(command).then(function (rv) {
+    exports.exec(command).then(function (returnValue) {
+      rv = returnValue;
       U.extend(self, rv);
       return done();
     }, function (err) {
