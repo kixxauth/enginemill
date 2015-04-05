@@ -1,19 +1,22 @@
-var LIB = require('../lib/library/')
-  , REQ = require('request')
-  , Request = REQ.Request
+var
+U       = require('../../lib/u'),
+REQ     = require('../../lib/http'),
+IMP     = require('request'),
+Request = IMP.Request,
+SERVER  = require('../common/server');
 
 
 exports["get() without error"] = {
   setUp: function (done) {
-    this.originalMethod = REQ.get;
+    this.originalMethod = IMP.get;
 
     var options = this.options = Object.create(null)
       , body = this.body = Object.create(null)
       , response = this.response = Object.create(null)
       , request = this.request = Object.create(null)
 
-    REQ.get = function (opts, callback) {
-      LIB.extend(options, opts);
+    IMP.get = function (opts, callback) {
+      U.extend(options, opts);
       process.nextTick(function () {
         return callback(null, response, body);
       });
@@ -24,7 +27,7 @@ exports["get() without error"] = {
   },
 
   tearDown: function (done) {
-    REQ.get = this.originalMethod;
+    IMP.get = this.originalMethod;
     return done();
   },
 
@@ -35,7 +38,7 @@ exports["get() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    LIB.http.get('http://www.example.com').promise.then(function (res) {
+    REQ.get('http://www.example.com').promise.then(function (res) {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -43,7 +46,7 @@ exports["get() without error"] = {
 
   "passes followRedirect = false": function (test) {
     test.expect(1);
-    LIB.http.get('http://www.example.com').promise.then(function (res) {
+    REQ.get('http://www.example.com').promise.then(function (res) {
       return test.done();
     });
     test.strictEqual(this.options.followRedirect, false);
@@ -51,7 +54,7 @@ exports["get() without error"] = {
 
   "returns the request object": function (test) {
     test.expect(1);
-    var req = LIB.http.get('http://www.example.com')
+    var req = REQ.get('http://www.example.com')
     req.promise.then(function (res) {
       return test.done();
     });
@@ -63,7 +66,7 @@ exports["get() without error"] = {
     var response = this.response
       , body = this.body
 
-    LIB.http.get('http://www.example.com').promise.then(function (res) {
+    REQ.get('http://www.example.com').promise.then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'body object');
       return test.done();
@@ -73,11 +76,11 @@ exports["get() without error"] = {
 
 exports["get() with error"] = {
   setUp: function (done) {
-    this.originalMethod = REQ.get;
+    this.originalMethod = IMP.get;
     var request = this.request = Object.create(null)
       , error = this.error = new Error("POST Error")
 
-    REQ.get = function (options, callback) {
+    IMP.get = function (options, callback) {
       process.nextTick(function () {
         return callback(error);
       });
@@ -88,7 +91,7 @@ exports["get() with error"] = {
   },
 
   tearDown: function (done) {
-    REQ.get = this.originalMethod;
+    IMP.get = this.originalMethod;
     return done();
   },
 
@@ -101,7 +104,7 @@ exports["get() with error"] = {
       return test.done();
     }
 
-    LIB.http.get('http://www.example.com').promise
+    REQ.get('http://www.example.com').promise
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -112,15 +115,15 @@ exports["get() with error"] = {
 
 exports["post() without error"] = {
   setUp: function (done) {
-    this.originalMethod = REQ.post;
+    this.originalMethod = IMP.post;
 
     var options = this.options = Object.create(null)
       , body = this.body = Object.create(null)
       , response = this.response = Object.create(null)
       , request = this.request = Object.create(null)
 
-    REQ.post = function (opts, callback) {
-      LIB.extend(options, opts);
+    IMP.post = function (opts, callback) {
+      U.extend(options, opts);
       process.nextTick(function () {
         return callback(null, response, body);
       });
@@ -131,7 +134,7 @@ exports["post() without error"] = {
   },
 
   tearDown: function (done) {
-    REQ.post = this.originalMethod;
+    IMP.post = this.originalMethod;
     return done();
   },
 
@@ -142,7 +145,7 @@ exports["post() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    LIB.http.post('http://www.example.com').promise.then(function (res) {
+    REQ.post('http://www.example.com').promise.then(function (res) {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -150,7 +153,7 @@ exports["post() without error"] = {
 
   "passes followRedirect = false": function (test) {
     test.expect(1);
-    LIB.http.post('http://www.example.com').promise.then(function (res) {
+    REQ.post('http://www.example.com').promise.then(function (res) {
       return test.done();
     });
     test.strictEqual(this.options.followRedirect, false);
@@ -159,7 +162,7 @@ exports["post() without error"] = {
   "passes form as option": function (test) {
     test.expect(1);
     var form = {key: 'value'}
-      , req = LIB.http.post('http://www.example.com', {body: form})
+      , req = REQ.post('http://www.example.com', {body: form})
 
     test.strictEqual(this.options.body, form);
 
@@ -170,7 +173,7 @@ exports["post() without error"] = {
 
   "returns the request object": function (test) {
     test.expect(1);
-    var req = LIB.http.post('http://www.example.com')
+    var req = REQ.post('http://www.example.com')
     req.promise.then(function (res) {
       return test.done();
     });
@@ -182,7 +185,7 @@ exports["post() without error"] = {
     var response = this.response
       , body = this.body
 
-    LIB.http.post('http://www.example.com').promise.then(function (res) {
+    REQ.post('http://www.example.com').promise.then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'response body');
       return test.done();
@@ -192,11 +195,11 @@ exports["post() without error"] = {
 
 exports["post() with error"] = {
   setUp: function (done) {
-    this.originalMethod = REQ.post;
+    this.originalMethod = IMP.post;
     var request = this.request = Object.create(null)
       , error = this.error = new Error("POST Error")
 
-    REQ.post = function (options, callback) {
+    IMP.post = function (options, callback) {
       process.nextTick(function () {
         return callback(error);
       });
@@ -207,7 +210,7 @@ exports["post() with error"] = {
   },
 
   tearDown: function (done) {
-    REQ.post = this.originalMethod;
+    IMP.post = this.originalMethod;
     return done();
   },
 
@@ -220,7 +223,7 @@ exports["post() with error"] = {
       return test.done();
     }
 
-    LIB.http.post('http://www.example.com').promise
+    REQ.post('http://www.example.com').promise
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -231,15 +234,15 @@ exports["post() with error"] = {
 
 exports["put() without error"] = {
   setUp: function (done) {
-    this.originalMethod = REQ.put;
+    this.originalMethod = IMP.put;
 
     var options = this.options = Object.create(null)
       , body = this.body = Object.create(null)
       , response = this.response = Object.create(null)
       , request = this.request = Object.create(null)
 
-    REQ.put = function (opts, callback) {
-      LIB.extend(options, opts);
+    IMP.put = function (opts, callback) {
+      U.extend(options, opts);
       process.nextTick(function () {
         return callback(null, response, body);
       });
@@ -250,7 +253,7 @@ exports["put() without error"] = {
   },
 
   tearDown: function (done) {
-    REQ.put = this.originalMethod;
+    IMP.put = this.originalMethod;
     return done();
   },
 
@@ -261,7 +264,7 @@ exports["put() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    LIB.http.put('http://www.example.com').promise.then(function (res) {
+    REQ.put('http://www.example.com').promise.then(function (res) {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -269,7 +272,7 @@ exports["put() without error"] = {
 
   "passes followRedirect = false": function (test) {
     test.expect(1);
-    LIB.http.put('http://www.example.com').promise.then(function (res) {
+    REQ.put('http://www.example.com').promise.then(function (res) {
       return test.done();
     });
     test.strictEqual(this.options.followRedirect, false);
@@ -278,7 +281,7 @@ exports["put() without error"] = {
   "passes form as option": function (test) {
     test.expect(1);
     var form = {key: 'value'}
-      , req = LIB.http.put('http://www.example.com', {body: form})
+      , req = REQ.put('http://www.example.com', {body: form})
 
     test.strictEqual(this.options.body, form);
 
@@ -289,7 +292,7 @@ exports["put() without error"] = {
 
   "returns the request object": function (test) {
     test.expect(1);
-    var req = LIB.http.put('http://www.example.com')
+    var req = REQ.put('http://www.example.com')
     req.promise.then(function (res) {
       return test.done();
     });
@@ -301,7 +304,7 @@ exports["put() without error"] = {
     var response = this.response
       , body = this.body
 
-    LIB.http.put('http://www.example.com').promise.then(function (res) {
+    REQ.put('http://www.example.com').promise.then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'response body');
       return test.done();
@@ -311,11 +314,11 @@ exports["put() without error"] = {
 
 exports["put() with error"] = {
   setUp: function (done) {
-    this.originalMethod = REQ.put;
+    this.originalMethod = IMP.put;
     var request = this.request = Object.create(null)
       , error = this.error = new Error("PUT Error")
 
-    REQ.put = function (options, callback) {
+    IMP.put = function (options, callback) {
       process.nextTick(function () {
         return callback(error);
       });
@@ -326,7 +329,7 @@ exports["put() with error"] = {
   },
 
   tearDown: function (done) {
-    REQ.put = this.originalMethod;
+    IMP.put = this.originalMethod;
     return done();
   },
 
@@ -339,7 +342,7 @@ exports["put() with error"] = {
       return test.done();
     }
 
-    LIB.http.put('http://www.example.com').promise
+    REQ.put('http://www.example.com').promise
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -350,15 +353,15 @@ exports["put() with error"] = {
 
 exports["patch() without error"] = {
   setUp: function (done) {
-    this.originalMethod = REQ.patch;
+    this.originalMethod = IMP.patch;
 
     var options = this.options = Object.create(null)
       , body = this.body = Object.create(null)
       , response = this.response = Object.create(null)
       , request = this.request = Object.create(null)
 
-    REQ.patch = function (opts, callback) {
-      LIB.extend(options, opts);
+    IMP.patch = function (opts, callback) {
+      U.extend(options, opts);
       process.nextTick(function () {
         return callback(null, response, body);
       });
@@ -369,7 +372,7 @@ exports["patch() without error"] = {
   },
 
   tearDown: function (done) {
-    REQ.patch = this.originalMethod;
+    IMP.patch = this.originalMethod;
     return done();
   },
 
@@ -380,7 +383,7 @@ exports["patch() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    LIB.http.patch('http://www.example.com').promise.then(function (res) {
+    REQ.patch('http://www.example.com').promise.then(function (res) {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -388,7 +391,7 @@ exports["patch() without error"] = {
 
   "passes followRedirect = false": function (test) {
     test.expect(1);
-    LIB.http.patch('http://www.example.com').promise.then(function (res) {
+    REQ.patch('http://www.example.com').promise.then(function (res) {
       return test.done();
     });
     test.strictEqual(this.options.followRedirect, false);
@@ -397,7 +400,7 @@ exports["patch() without error"] = {
   "passes form as option": function (test) {
     test.expect(1);
     var form = {key: 'value'}
-      , req = LIB.http.patch('http://www.example.com', {body: form})
+      , req = REQ.patch('http://www.example.com', {body: form})
 
     test.strictEqual(this.options.body, form);
 
@@ -408,7 +411,7 @@ exports["patch() without error"] = {
 
   "returns the request object": function (test) {
     test.expect(1);
-    var req = LIB.http.patch('http://www.example.com')
+    var req = REQ.patch('http://www.example.com')
     req.promise.then(function (res) {
       return test.done();
     });
@@ -420,7 +423,7 @@ exports["patch() without error"] = {
     var response = this.response
       , body = this.body
 
-    LIB.http.patch('http://www.example.com').promise.then(function (res) {
+    REQ.patch('http://www.example.com').promise.then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'response body');
       return test.done();
@@ -430,11 +433,11 @@ exports["patch() without error"] = {
 
 exports["patch() with error"] = {
   setUp: function (done) {
-    this.originalMethod = REQ.patch;
+    this.originalMethod = IMP.patch;
     var request = this.request = Object.create(null)
       , error = this.error = new Error("PATCH Error")
 
-    REQ.patch = function (options, callback) {
+    IMP.patch = function (options, callback) {
       process.nextTick(function () {
         return callback(error);
       });
@@ -445,7 +448,7 @@ exports["patch() with error"] = {
   },
 
   tearDown: function (done) {
-    REQ.patch = this.originalMethod;
+    IMP.patch = this.originalMethod;
     return done();
   },
 
@@ -458,7 +461,7 @@ exports["patch() with error"] = {
       return test.done();
     }
 
-    LIB.http.patch('http://www.example.com').promise
+    REQ.patch('http://www.example.com').promise
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -469,15 +472,15 @@ exports["patch() with error"] = {
 
 exports["del() without error"] = {
   setUp: function (done) {
-    this.originalMethod = REQ.del;
+    this.originalMethod = IMP.del;
 
     var options = this.options = Object.create(null)
       , body = this.body = Object.create(null)
       , response = this.response = Object.create(null)
       , request = this.request = Object.create(null)
 
-    REQ.del = function (opts, callback) {
-      LIB.extend(options, opts);
+    IMP.del = function (opts, callback) {
+      U.extend(options, opts);
       process.nextTick(function () {
         return callback(null, response, body);
       });
@@ -488,7 +491,7 @@ exports["del() without error"] = {
   },
 
   tearDown: function (done) {
-    REQ.del = this.originalMethod;
+    IMP.del = this.originalMethod;
     return done();
   },
 
@@ -499,7 +502,7 @@ exports["del() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    LIB.http.del('http://www.example.com').promise.then(function (res) {
+    REQ.del('http://www.example.com').promise.then(function (res) {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -507,7 +510,7 @@ exports["del() without error"] = {
 
   "passes followRedirect = false": function (test) {
     test.expect(1);
-    LIB.http.del('http://www.example.com').promise.then(function (res) {
+    REQ.del('http://www.example.com').promise.then(function (res) {
       return test.done();
     });
     test.strictEqual(this.options.followRedirect, false);
@@ -515,7 +518,7 @@ exports["del() without error"] = {
 
   "returns the request object": function (test) {
     test.expect(1);
-    var req = LIB.http.del('http://www.example.com')
+    var req = REQ.del('http://www.example.com')
     req.promise.then(function (res) {
       return test.done();
     });
@@ -527,7 +530,7 @@ exports["del() without error"] = {
     var response = this.response
       , body = this.body
 
-    LIB.http.del('http://www.example.com').promise.then(function (res) {
+    REQ.del('http://www.example.com').promise.then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'body object');
       return test.done();
@@ -537,11 +540,11 @@ exports["del() without error"] = {
 
 exports["del() with error"] = {
   setUp: function (done) {
-    this.originalMethod = REQ.del;
+    this.originalMethod = IMP.del;
     var request = this.request = Object.create(null)
       , error = this.error = new Error("DELETE Error")
 
-    REQ.del = function (options, callback) {
+    IMP.del = function (options, callback) {
       process.nextTick(function () {
         return callback(error);
       });
@@ -552,7 +555,7 @@ exports["del() with error"] = {
   },
 
   tearDown: function (done) {
-    REQ.del = this.originalMethod;
+    IMP.del = this.originalMethod;
     return done();
   },
 
@@ -565,7 +568,7 @@ exports["del() with error"] = {
       return test.done();
     }
 
-    LIB.http.del('http://www.example.com').promise
+    REQ.del('http://www.example.com').promise
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -575,29 +578,32 @@ exports["del() with error"] = {
 };
 
 exports["with GET request"] = {
-  setUp: (function () {
-    var req, res
-    return function (done) {
-      if (!req) {
-        this.req = req = LIB.http.get('http://www.example.com');
-        var self = this;
-
-        this.req.promise.then(function (response) {
-          self.res = res = response;
-          return done();
-        }).catch(done);
-      } else {
-        this.req = req;
-        this.res = res;
-        return done();
+  setUp: function (done) {
+    var self = this
+    this.server = SERVER.createServer(null, function (err, address) {
+      if (err) return done(err);
+      self.address = address;
+      try {
+        self.req = REQ.get(address);
+      } catch (err) {
+        return done(err);
       }
-    }
-  }()),
+      self.req.promise.then(function (response) {
+        self.res = response;
+        return done();
+      }).catch(done);
+    });
+  },
+
+  tearDown: function (done) {
+    this.server.close();
+    return done();
+  },
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
     test.equal(this.req.method, 'GET', 'method');
-    test.equal(this.req.href, 'http://www.example.com/', 'href');
+    test.equal(this.req.href, this.address +'/', 'href');
     return test.done();
   },
 
@@ -606,9 +612,9 @@ exports["with GET request"] = {
     return test.done();
   },
 
-  "its content-type is text/html": function (test) {
+  "its content-type is text/plain": function (test) {
     var headers = this.res.headers
-    test.equal(headers['content-type'], 'text/html');
+    test.equal(headers['content-type'], 'text/plain');
     return test.done();
   },
 
@@ -620,62 +626,99 @@ exports["with GET request"] = {
 };
 
 exports["with POST request"] = {
-  setUp: (function () {
-    var req, res
-    return function (done) {
-      if (!req) {
-        this.req = req = LIB.http.post('http://www.example.com').form({key: 'value'});
-        var self = this;
+  setUp: function (done) {
+    var self = this
+      , opts = {
+          echo: true
+        , responseStatus: 201
+        }
 
-        this.req.promise.then(function (response) {
-          self.res = res = response;
-          return done();
-        }).catch(done);
-      } else {
-        this.req = req;
-        this.res = res;
-        return done();
+    this.server = SERVER.createServer(opts, function (err, address) {
+      if (err) return done(err);
+      self.address = address;
+      try {
+        self.req = REQ.post(address).form({key: 'value'});
+      } catch (err) {
+        return done(err);
       }
-    }
-  }()),
+      self.req.promise.then(function (response) {
+        self.res = response;
+        self.echo = JSON.parse(response.body.toString());
+        return done();
+      }).catch(done);
+    });
+  },
+
+  tearDown: function (done) {
+    this.server.close();
+    return done();
+  },
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
     test.equal(this.req.method, 'POST', 'method');
-    test.equal(this.req.href, 'http://www.example.com/', 'href');
+    test.equal(this.req.href, this.address +'/', 'href');
     return test.done();
   },
 
   "it has a request body": function (test) {
     test.equal(this.req.body, 'key=value');
     return test.done();
+  },
+
+  "its method was POST": function (test) {
+    test.equal(this.echo.method, 'POST');
+    return test.done();
+  },
+
+  "its status is 201": function (test) {
+    test.strictEqual(this.res.statusCode, 201);
+    return test.done();
+  },
+
+  "its POST body was correct": function (test) {
+    test.equal(this.echo.body, 'key=value');
+    return test.done();
   }
 };
 
 exports["with PUT request"] = {
-  setUp: (function () {
-    var req, res
-    return function (done) {
-      if (!req) {
-        this.req = req = LIB.http.put('http://www.example.com').form({key: 'value'});
-        var self = this;
+  setUp: function (done) {
+    var self = this
+      , opts = {
+          echo: true
+        }
 
-        this.req.promise.then(function (response) {
-          self.res = res = response;
-          return done();
-        }).catch(done);
-      } else {
-        this.req = req;
-        this.res = res;
-        return done();
+    this.server = SERVER.createServer(opts, function (err, address) {
+      if (err) return done(err);
+      self.address = address;
+      try {
+        self.req = REQ.put(address).form({key: 'value'});
+      } catch (err) {
+        return done(err);
       }
-    }
-  }()),
+      self.req.promise.then(function (response) {
+        self.res = response;
+        self.echo = JSON.parse(response.body.toString());
+        return done();
+      }).catch(done);
+    });
+  },
+
+  tearDown: function (done) {
+    this.server.close();
+    return done();
+  },
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
     test.equal(this.req.method, 'PUT', 'method');
-    test.equal(this.req.href, 'http://www.example.com/', 'href');
+    test.equal(this.req.href, this.address +'/', 'href');
+    return test.done();
+  },
+
+  "its method was PUT": function (test) {
+    test.equal(this.echo.method, 'PUT');
     return test.done();
   },
 
@@ -686,29 +729,42 @@ exports["with PUT request"] = {
 };
 
 exports["with PATCH request"] = {
-  setUp: (function () {
-    var req, res
-    return function (done) {
-      if (!req) {
-        this.req = req = LIB.http.patch('http://www.example.com').form({key: 'value'});
-        var self = this;
+  setUp: function (done) {
+    var self = this
+      , opts = {
+          echo: true
+        }
 
-        this.req.promise.then(function (response) {
-          self.res = res = response;
-          return done();
-        }).catch(done);
-      } else {
-        this.req = req;
-        this.res = res;
-        return done();
+    this.server = SERVER.createServer(opts, function (err, address) {
+      if (err) return done(err);
+      self.address = address;
+      try {
+        self.req = REQ.patch(address).form({key: 'value'});
+      } catch (err) {
+        return done(err);
       }
-    }
-  }()),
+      self.req.promise.then(function (response) {
+        self.res = response;
+        self.echo = JSON.parse(response.body.toString());
+        return done();
+      }).catch(done);
+    });
+  },
+
+  tearDown: function (done) {
+    this.server.close();
+    return done();
+  },
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
     test.equal(this.req.method, 'PATCH', 'method');
-    test.equal(this.req.href, 'http://www.example.com/', 'href');
+    test.equal(this.req.href, this.address +'/', 'href');
+    return test.done();
+  },
+
+  "its method was PATCH": function (test) {
+    test.equal(this.echo.method, 'PATCH');
     return test.done();
   },
 
@@ -719,57 +775,78 @@ exports["with PATCH request"] = {
 };
 
 exports["with DELETE request"] = {
-  setUp: (function () {
-    var req, res
-    return function (done) {
-      if (!req) {
-        this.req = req = LIB.http.del('http://www.example.com');
-        var self = this;
+  setUp: function (done) {
+    var self = this
+      , opts = {
+          echo: true
+        }
 
-        this.req.promise.then(function (response) {
-          self.res = res = response;
-          return done();
-        }).catch(done);
-      } else {
-        this.req = req;
-        this.res = res;
-        return done();
+    this.server = SERVER.createServer(opts, function (err, address) {
+      if (err) return done(err);
+      self.address = address;
+      try {
+        self.req = REQ.del(address);
+      } catch (err) {
+        return done(err);
       }
-    }
-  }()),
+      self.req.promise.then(function (response) {
+        self.res = response;
+        self.echo = JSON.parse(response.body.toString());
+        return done();
+      }).catch(done);
+    });
+  },
+
+  tearDown: function (done) {
+    this.server.close();
+    return done();
+  },
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
     test.equal(this.req.method, 'DELETE', 'method');
-    test.equal(this.req.href, 'http://www.example.com/', 'href');
+    test.equal(this.req.href, this.address +'/', 'href');
     return test.done();
-  }
+  },
+
+  "its method was DELETE": function (test) {
+    test.equal(this.echo.method, 'DELETE');
+    return test.done();
+  },
+
+  "its status is 200": function (test) {
+    test.strictEqual(this.res.statusCode, 200);
+    return test.done();
+  },
 };
 
 exports["request() with GET"] = {
-  setUp: (function () {
-    var req, res
-    return function (done) {
-      if (!req) {
-        this.req = req = LIB.http.request('http://www.example.com', {method: 'GET'});
-        var self = this;
-
-        this.req.promise.then(function (response) {
-          self.res = res = response;
-          return done();
-        }).catch(done);
-      } else {
-        this.req = req;
-        this.res = res;
-        return done();
+  setUp: function (done) {
+    var self = this
+    this.server = SERVER.createServer(null, function (err, address) {
+      if (err) return done(err);
+      self.address = address;
+      try {
+        self.req = REQ.request(address, {method: 'GET'});
+      } catch (err) {
+        return done(err);
       }
-    }
-  }()),
+      self.req.promise.then(function (response) {
+        self.res = response;
+        return done();
+      }).catch(done);
+    });
+  },
+
+  tearDown: function (done) {
+    this.server.close();
+    return done();
+  },
 
   "it has a request instance": function (test) {
     test.ok(this.req instanceof Request, 'Request instance');
     test.equal(this.req.method, 'GET', 'method');
-    test.equal(this.req.href, 'http://www.example.com/', 'href');
+    test.equal(this.req.href, this.address +'/', 'href');
     return test.done();
   },
 
@@ -780,7 +857,7 @@ exports["request() with GET"] = {
 
   "its content-type is text/html": function (test) {
     var headers = this.res.headers
-    test.equal(headers['content-type'], 'text/html');
+    test.equal(headers['content-type'], 'text/plain');
     return test.done();
   },
 

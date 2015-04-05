@@ -65,6 +65,8 @@ exports['with script'] = {
 
     CP.exec(this.command +' --help', function (err, stdout, stderr) {
       var lines = err.message.split('\n');
+      console.error('LINES')
+      console.error(lines)
 
       test.equal(lines[3], '  --a_string  Expected to be a String                        [required]');
       test.equal(lines[4], '  --a_number  Expected to be a Number.                       [required]');
