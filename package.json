@@ -19,6 +19,7 @@
         "yargs"             : "~3.7.0"
     },
     "devDependencies": {
+        "jshint"   : "~2.6.3",
         "nodeunit" : "~0.9.1"
     },
     "bugs": {"url": "https://github.com/kixxauth/enginemill/issues"}
