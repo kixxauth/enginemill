@@ -1,17 +1,20 @@
-var NHTTP = require('http')
+"use strict";
+
+var
+NHTTP = require('http');
 
 exports.createServer = function (opts, callback) {
   if (typeof callback !== 'function') {
     throw new Error('The callback argument passed into createServer(opts, callback) must be a function.');
   }
   opts = opts || Object.create(null);
-  var server
-    , port = opts.port || 8080
-    , url = opts.url || '/'
-    , responseStatus = opts.responseStatus || 200
-    , responseContentType = opts.responseContentType || 'text/plain'
-    , responseBody = opts.responseBody || 'hi\n'
-    , echo = false
+  var
+  server,
+  port = opts.port || 8080,
+  responseStatus = opts.responseStatus || 200,
+  responseContentType = opts.responseContentType || 'text/plain',
+  responseBody = opts.responseBody || 'hi\n',
+  echo = false;
 
   if (opts.echo) {
     echo = true;
@@ -19,11 +22,13 @@ exports.createServer = function (opts, callback) {
   }
 
   server = NHTTP.createServer(function (req, res) {
-    var data
+    var
+    data;
 
     function sendResponse() {
-      var headers = Object.create(null)
-        , rv = null
+      var
+      headers = Object.create(null),
+      rv = null;
 
       if (echo) {
         rv = Object.create(null);

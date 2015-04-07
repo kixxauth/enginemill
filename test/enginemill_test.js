@@ -1,3 +1,5 @@
+"use strict";
+
 var
 LIB       = require('./common/'),
 execCache = require('./common/process').execCache;

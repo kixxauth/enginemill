@@ -1,5 +1,6 @@
-var
+"use strict";
 
+var
 Objects = require('../../lib/objects'),
 U       = require('../../lib/u');
 
@@ -61,8 +62,8 @@ exports["Objects.factory()"] = {
     },
 
     "it calls initialize() with a valid Object": function (test) {
+      this.returns();
       var
-      instance = this.returns(),
       updates = this.updates;
 
       test.ok(updates.spec);
@@ -97,6 +98,7 @@ exports["Objects.factory()"] = {
       test.expect(4);
 
       var
+      updates,
       extension = this.extension,
       setVal = {},
       instance = this.returns();
@@ -166,8 +168,9 @@ exports["Objects.factory()"] = {
     },
 
     "it calls all initialize()rs with a valid Object": function (test) {
+      this.returns();
+
       var
-      instance = this.returns(),
       updates = this.updates;
 
       test.ok(updates.spec1);
@@ -247,7 +250,7 @@ var factoryWithNoDependencies = function () {
     }
   };
 
-  res.instancePropNames = ['instanceProp', 'userDefinedProp']
+  res.instancePropNames = ['instanceProp', 'userDefinedProp'];
   res.returns = Objects.factory(res.extension);
   return res;
 };

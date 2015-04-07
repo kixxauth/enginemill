@@ -1,3 +1,5 @@
+"use strict";
+
 var
 CP       = require('child_process'),
 FilePath = require('filepath').FilePath;

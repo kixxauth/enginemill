@@ -1,3 +1,5 @@
+"use strict";
+
 var
 Promise = require('../../lib/promise'),
 U       = require('../../lib/u'),

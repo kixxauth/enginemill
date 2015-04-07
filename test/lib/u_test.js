@@ -1,5 +1,6 @@
-var
+"use strict";
 
+var
 U = require('../../lib/u');
 
 
@@ -58,10 +59,9 @@ exports["U.execute()"] = {
     },
 
     "it returns a function that executes functions in order": function (test) {
-      var
-      order, functions,
-      res = this.returns();
+      this.returns();
 
+      var
       order = this.executionOrder,
       functions = this.functions;
 
@@ -117,7 +117,7 @@ exports["U.execute()"] = {
       var
       res, res1, res2,
       arg1 = {},
-      arg2 = {},
+      arg2 = {};
 
       res = this.returns(arg1, arg2);
       res1 = res[0];

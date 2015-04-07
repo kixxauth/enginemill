@@ -1,3 +1,5 @@
+"use strict";
+
 var
 Promise = require('../../../lib/promise'),
 Objects = require('../../../lib/objects'),
@@ -7,7 +9,7 @@ Action  = require('../../../lib/mixins/action').Action;
 exports[".q()ed methods"] = {
 
   setUp: function (done) {
-    var args, executed, values;
+    var api, args, executed, values;
 
     this.api      = api      = [];
     this.args     = args     = [];
@@ -140,7 +142,7 @@ exports["with return value"] = {
       bbb: function (api, args) {
         args.bar = values.v2;
       }
-    })
+    });
 
     done();
   },
@@ -153,7 +155,7 @@ exports["with return value"] = {
     this.factory().run(null, args)
       .then(function (rv) {
         test.equal(rv, self.values.v2, 'return value');
-        test.equal(rv, args['bar'], 'args');
+        test.equal(rv, args.bar, 'args');
         return;
       })
       .then(test.done, test.done);
@@ -181,7 +183,7 @@ exports["with return method"] = {
       returns: function () {
         return rv;
       }
-    })
+    });
 
     done();
   },

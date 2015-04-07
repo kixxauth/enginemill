@@ -69,9 +69,13 @@ Host application directory structure:
      `-- <plugin_name...>
 
 */
+
+"use strict";
+
 var
 FilePath = require('filepath').FilePath,
 Yargs    = require('yargs'),
+INI      = require('ini'),
 U        = require('./lib/u'),
 Promise  = require('./lib/promise'),
 Objects  = require('./lib/objects'),
@@ -415,11 +419,12 @@ exports.LoadEnvironment = {
     jsonPath = API.appdir(args.configs).append('package.json');
 
     function parseJSON(text) {
-      var app;
+      var
+      err, app;
       try {
         app = JSON.parse(text +'');
-      } catch (err) {
-        err = new Error("JSON SyntaxError: "+ err.message +" in "+ jsonPath);
+      } catch (e) {
+        err = new Error("JSON SyntaxError: "+ e.message +" in "+ jsonPath);
         return Promise.reject(err);
       }
       return app;
@@ -580,7 +585,7 @@ exports.LoadEnvironment = {
   // GLOBAL.U     - To API.U.
   //
   // Returns the GLOBAL Object.
-  setGlobals: function (API, args) {
+  setGlobals: function (API) {
     return Object.defineProperties(GLOBAL, {
       print : {
         enumerable : true,
@@ -658,7 +663,7 @@ exports.newPluginLoader = Objects.factory([Action], exports.LoadPlugins);
 
 exports.RunApp = {
 
-  initialize: function (API, args) {
+  initialize: function () {
     this.Args = Yargs;
     this.q('loadAppModule');
     this.q('parseCommandline');
@@ -729,7 +734,6 @@ exports.RunApp = {
   },
 
   runApp: function (API, args) {
-    debugger;
     exports.module(args.scriptModule.main);
     return args;
   }
