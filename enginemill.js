@@ -317,12 +317,12 @@ exports.Runner = {
   // script and exit the process.
   //
   // Params:
-  // API      - The API Object.
-  // filepath - The FilePath instance representing the application script.
-  showProgramHelpAndExit: function (API, filepath) {
+  // API        - The API Object.
+  // scriptPath - The FilePath instance representing the application script.
+  showProgramHelpAndExit: function (API, scriptPath) {
     var
     scriptModule = exports.RunApp.loadAppModule(null, {
-      filepath: filepath
+      scriptPath: scriptPath
     }).scriptModule;
     exports.RunApp.parseCommandline
       .call(this, API, { scriptModule : scriptModule });
@@ -668,8 +668,8 @@ exports.RunApp = {
   // Loads the Common.js module representing the program.
   //
   // Params:
-  // API           - Not used.
-  // args.filepath - A FilePath instance pointing to the module file.
+  // API             - Not used.
+  // args.scriptPath - A FilePath instance pointing to the module file.
   //
   // Sets:
   // args.scriptModule - The exported Object from the application script.
