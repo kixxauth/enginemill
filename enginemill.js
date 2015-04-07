@@ -113,6 +113,7 @@ exports.Runner = {
 
   initialize: function () {
     this.Args = Yargs;
+    this.q('registerCoffeeScript');
     this.q('parseCommandline');
     this.q('checkCommand');
     this.q('setScriptPath');
@@ -122,6 +123,14 @@ exports.Runner = {
     this.q('loadPlugins');
     this.q('setAPI');
     this.q('runCommand');
+  },
+
+  // Registers the coffee-script library so that require() looks for '.coffee'
+  // file extensions in addition to '.js'.
+  // Returns true.
+  registerCoffeeScript: function () {
+    require('coffee-script').register();
+    return true;
   },
 
   // Parses the commandline arguments and options using the Yargs utility:
@@ -363,8 +372,6 @@ Configuration Structure
 exports.LoadEnvironment = {
 
   initialize: function () {
-    this.q('registerCoffeeScript');
-
     this.q('loadCoreConfigs');
     this.q('readAppSettings');
     this.q('loadAppConfigs');
@@ -374,12 +381,6 @@ exports.LoadEnvironment = {
     // Set the environment
     this.q('setConfigs');
     this.q('setGlobals');
-  },
-
-  // Returns true.
-  registerCoffeeScript: function () {
-    require('coffee-script').register();
-    return true;
   },
 
   // Params:

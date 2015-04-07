@@ -1,4 +1,5 @@
 var
+LIB       = require('./common/'),
 execCache = require('./common/process').execCache;
 
 
@@ -51,6 +52,18 @@ exports["em help (general help)"] = {
   "it shows help and exits": function (test) {
     test.equal(this.lines[0], "Usage:");
     test.ok(this.lines.length > 3, "stderr lines length");
+    return test.done();
+  }
+};
+
+
+exports["em help <script_path>"] = {
+
+  setUp : execCache('bin/em.js help '+ LIB.fixtures('default_app', 'app.coffee')),
+
+  "it displays the help for the given script": function (test) {
+    test.ok(/Usage: em run/.test(this.lines[0]), this.lines[0]);
+    test.equal(this.lines[2], 'Options:', this.lines[2]);
     return test.done();
   }
 };
