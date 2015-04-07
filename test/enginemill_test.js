@@ -1,13 +1,17 @@
 "use strict";
 
 var
-LIB       = require('./common/'),
-execCache = require('./common/process').execCache;
+LIB          = require('./common/'),
+execAndCache = require('./common/process').execAndCache,
+
+COMMAND = LIB.projectDir('bin', 'em.js').toString();
 
 
 exports["em (no arguments)"] = {
 
-  setUp : execCache('bin/em.js'),
+  setUp : execAndCache([COMMAND], {
+    chdir: LIB.fixtures('default_app')
+  }),
 
   "it declares the enginemill lib it is running": function (test) {
     test.ok(/Running Enginemill from/.test(this.stdout), this.stdout.trim());
@@ -28,7 +32,9 @@ exports["em (no arguments)"] = {
 
 exports["em foo (invalid command)"] = {
 
-  setUp : execCache('bin/em.js foo'),
+  setUp : execAndCache([COMMAND, 'foo'], {
+    chdir: LIB.fixtures('default_app')
+  }),
 
   "it messages the user about invalid command": function (test) {
     test.equal(this.lines[0], "'foo' is not a valid enginemill command.");
@@ -49,7 +55,9 @@ exports["em foo (invalid command)"] = {
 
 exports["em help (general help)"] = {
 
-  setUp : execCache('bin/em.js help'),
+  setUp : execAndCache([COMMAND, 'help'], {
+    chdir: LIB.fixtures('default_app')
+  }),
 
   "it shows help and exits": function (test) {
     test.equal(this.lines[0], "Usage:");
@@ -61,7 +69,9 @@ exports["em help (general help)"] = {
 
 exports["em help <script_path>"] = {
 
-  setUp : execCache('bin/em.js help '+ LIB.fixtures('default_app', 'app.coffee')),
+  setUp : execAndCache([COMMAND, 'help', LIB.fixtures('default_app', 'app.coffee')], {
+    chdir: LIB.fixtures('default_app')
+  }),
 
   "it displays the help for the given script": function (test) {
     test.ok(/Usage: em run/.test(this.lines[0]), this.lines[0]);

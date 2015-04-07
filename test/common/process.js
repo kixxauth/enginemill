@@ -1,12 +1,11 @@
 "use strict";
 
 var
-Promise = require('../../lib/promise'),
-U       = require('../../lib/u'),
-CP      = require('child_process');
+U  = require('../../lib/u'),
+CR = require('command_runner');
 
 
-exports.execCache = function (command) {
+exports.execAndCache = function (command, options) {
   var
   error = null,
   rv    = null;
@@ -21,7 +20,7 @@ exports.execCache = function (command) {
       U.extend(this, rv);
       return done();
     }
-    exports.exec(command).then(function (returnValue) {
+    exports.exec(command, options).then(function (returnValue) {
       rv = returnValue;
       U.extend(self, rv);
       return done();
@@ -33,33 +32,33 @@ exports.execCache = function (command) {
 };
 
 
-exports.exec = function (command) {
-  return new Promise(function (resolve, reject) {
-    CP.exec(command, function (err, stdout, stderr) {
-      if (err && !/Command failed/.test(err.message)) {
-        return reject(err);
+exports.exec = function (command, options) {
+  options = options || Object.create(null);
+  var
+  argv = command.slice(1);
+  command = command[0];
+
+  if (options.chdir) {
+    process.chdir(options.chdir.toString());
+  }
+
+  return CR.spawn(command, argv, options).then(function (res) {
+    var
+    rv = U.extend(Object.create(null), res);
+    if (rv.stdout) {
+      try {
+        rv.json = JSON.parse(rv.stdout);
+      } catch (err) {
+        rv.json = null;
       }
-      var
-      rv = Object.create(null);
-      rv.stdout = stdout;
-      rv.stderr = stderr;
-      rv.lines  = null;
-      rv.json   = null;
-      if (stdout) {
-        try {
-          rv.json = JSON.parse(stdout);
-        } catch (err) {
-          rv.json = null;
-        }
-      }
-      if (stderr) {
-        rv.lines = stderr.split('\n');
-      }
-      if (/Unhandled rejection/.test(rv.lines[0])) {
-        console.error('\n *** Program exec crash:');
-        console.error(stderr);
-      }
-      return resolve(rv);
-    });
+    }
+    if (rv.stderr) {
+      rv.lines = rv.stderr.split('\n');
+    }
+    if (/Unhandled rejection/.test(rv.lines[0])) {
+      console.error('\n *** Program exec crash:');
+      console.error(rv.stderr);
+    }
+    return U.deepFreeze(rv);
   });
 };
