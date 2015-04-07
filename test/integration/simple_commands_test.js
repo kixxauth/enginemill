@@ -1,8 +1,8 @@
 "use strict";
 
 var
-LIB          = require('./common/'),
-execAndCache = require('./common/process').execAndCache,
+LIB          = require('../common/'),
+execAndCache = require('../common/process').execAndCache,
 
 COMMAND = LIB.projectDir('bin', 'em.js').toString();
 
