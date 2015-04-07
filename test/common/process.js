@@ -44,18 +44,22 @@ exports.exec = function (command, options) {
 
   return CR.spawn(command, argv, options).then(function (res) {
     var
+    stdout,
     rv = U.extend(Object.create(null), res);
     if (rv.stdout) {
+      stdout = rv.stdout.split('\n');
       try {
-        rv.json = JSON.parse(rv.stdout);
-      } catch (err) {
+        rv.json = JSON.parse(stdout.slice(1).join('\n'));
+      } catch (e) {
         rv.json = null;
       }
     }
     if (rv.stderr) {
       rv.lines = rv.stderr.split('\n');
+    } else {
+      rv.lines = [];
     }
-    if (/Unhandled rejection/.test(rv.lines[0])) {
+    if (rv.lines.length && /Unhandled rejection/.test(rv.lines[0])) {
       console.error('\n *** Program exec crash:');
       console.error(rv.stderr);
     }
