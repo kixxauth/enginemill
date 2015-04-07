@@ -1,11 +1,12 @@
-var FS = require('fs')
-  , PATH = require('path')
+var
+FS = require('fs'),
+PATH = require('path'),
 
-  , NODEUNIT = require('nodeunit')
+NODEUNIT = require('nodeunit'),
 
-  , testPath = PATH.resolve(process.argv[2])
-  , fileMatcher = /test\.js$/
-  , files
+testPath = PATH.resolve(process.argv[2]),
+fileMatcher = /test\.js$/,
+files;
 
 
 function readTree(dir) {
