@@ -85,11 +85,23 @@ newAPI   = require('./lib/api').newAPI;
 
 
 /*
+enginemill.js Module
+---------------------
 The objective of this module is to provide a main entry point to the Enginemill
 framework, and provide a way to take certain features a-la-carte or override
-them by exposing as much of the functionality publicly on the exports Object.
-The standard way to start an application is to call exports.main, which creates
-an instance of exports.Runner and runs it with new API and args Objects.
+them by exposing as much of the enginemill functionality publicly on the
+exports Object. The standard way to start an application is to call
+enginemill exports.main(), which creates an instance of exports.Runner and
+runs it with new API and args Objects. This is how the executable bin/em.js
+script does it.
+
+### exports.main()
+`exports.main()` kicks off a chain of actions which initialize the process and
+prepare dependencies for injection into the guest application. These actions
+are performed mostly serially, and controlled by chaining promises using the
+Enginemill Action mixin (see lib/mixins/action). These actions are broken down
+into 3 main groups: Loading configuration settings, loading and initializing
+plugins, and intializing the guest application.
 */
 exports.main = function () {
   var
@@ -111,6 +123,17 @@ exports.module = function (wrapper) {
 };
 
 
+/*
+### exports.Runner
+The Action definition for the application runner.
+
+This collection of methods is built into an Action Object using the Action
+mixin (see lib/mixins/action).
+
+An instance of Runner is used by `exports.main()` to do what it does. It
+loads configs, loads and initializes plugins, and then intializes the guest
+application.
+*/
 exports.Runner = {
 
   COMMANDS: ['help', 'run'],
@@ -129,6 +152,13 @@ exports.Runner = {
     this.q('runCommand');
   },
 
+  /*
+  The first step is to register CoffeeScript, so that when require() is used to
+  lookup modules, `*.coffee` paths are considered along with `*.js` paths. This
+  means that all guest application files can be written in
+  CoffeeScript or JavaScript.
+  */
+
   // Registers the coffee-script library so that require() looks for '.coffee'
   // file extensions in addition to '.js'.
   // Returns true.
@@ -136,6 +166,16 @@ exports.Runner = {
     require('coffee-script').register();
     return true;
   },
+
+  /*
+  The next step is to parse the command line arguments and options passed into
+  the enginemill executable. We use the Yargs library to do this, and the
+  result is set on the args Object as args.argv for the remainder of the
+  application initialization sequence.
+
+  A really nice thing about using Yargs for command line parsing is that it
+  makes it easy to configure command line documentation for users.
+  */
 
   // Parses the commandline arguments and options using the Yargs utility:
   // https://www.npmjs.com/package/yargs
@@ -172,6 +212,12 @@ exports.Runner = {
     return args;
   },
 
+  /*
+  After parsing command line options, we check to see if the user passed in
+  a valid command argument. If so, we set it as args.command on the args
+  Object. If not, we print out the help docs and exit with a status code of 1.
+  */
+
   // Checks for the positional command argument in parsed argv and takes
   // appropriate action if it is invalid.
   //
@@ -180,6 +226,9 @@ exports.Runner = {
   // args - A new command String will be added as args.command.
   //
   // Expects this.showHelpAndExit() to be present.
+  //
+  // Sets:
+  // args.command - The command String.
   //
   // Returns the args Object.
   checkCommand: function (API, args) {
@@ -199,6 +248,14 @@ exports.Runner = {
     return args;
   },
 
+  /*
+  If the command check passes (the user has passed a valid command), the next
+  step is to set the scriptPath, which is the path to the entry script for the
+  guest application. If the user does not provide it, we use the API.appdir()
+  path, with 'app' appended onto it. This should work for app.js and
+  app.coffee.
+  */
+
   // Checks the command line application script path and sets a default if it
   // is not available.
   //
@@ -216,6 +273,29 @@ exports.Runner = {
     args.scriptPath = path ? FilePath.create(path) : API.appdir('app');
     return args;
   },
+
+  /*
+  Once we have a command and a scriptPath, we check to see if the user is
+  asking for help. There are two forms of help to consider:
+
+  1) General Enginemill help
+  2) Guest application help.
+
+  Users can ask for commandline help for Enginemill usage by running
+
+    em help
+
+  To get help for the guest appliction users can run
+
+    rm help <path to application script>
+
+  The guest application help is configured in the guest applciation script
+  file. See exports.RunApp.parseCommandline for more information about how
+  the host applicaiton help text is configured.
+
+  If either forms of help is requested by the user we show the help text and
+  exit with status code 1.
+  */
 
   // Checks the positional command argument for the help command and takes
   // appropriate action.
@@ -235,6 +315,13 @@ exports.Runner = {
     }
     return args;
   },
+
+  /*
+  If we are still running at this point, and have not exited, it's time to
+  determine the environment we're running in. If the --env argument is not
+  given on the commandline, enginemill defaults to 'production'. Whatever the
+  value ends up being, it is set as args.environment on the args Object.
+  */
 
   // Params:
   // args.configs.argv.env
