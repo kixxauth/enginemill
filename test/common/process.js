@@ -53,6 +53,10 @@ exports.exec = function (command) {
       if (stderr) {
         rv.lines = stderr.split('\n');
       }
+      if (/Unhandled rejection/.test(rv.lines[0])) {
+        console.error('\n *** Program exec crash:');
+        console.error(stderr);
+      }
       return resolve(rv);
     });
   });
