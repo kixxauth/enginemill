@@ -482,8 +482,16 @@ exports.LoadEnvironment = {
     args.configs.plugins = [];
 
     lists.forEach(function (list) {
-      args.configs[list] = args.configs[list].concat(args.coreConfigs[list]);
-      args.configs[list] = args.configs[list].concat(args.appConfigs[list]);
+      var
+      coreList = args.coreConfigs[list],
+      appList  = args.appConfigs[list];
+
+      if (coreList && coreList.length) {
+        args.configs[list] = args.configs[list].concat(coreList);
+      }
+      if (appList && appList.length) {
+        args.configs[list] = args.configs[list].concat(appList);
+      }
     });
 
     return args;
@@ -576,11 +584,11 @@ exports.LoadEnvironment = {
     return Object.defineProperties(GLOBAL, {
       print : {
         enumerable : true,
-        value      : args.API.print,
+        value      : API.print,
       },
       U : {
         enumerable : true,
-        value      : args.API.U
+        value      : API.U
       }
     });
   }
@@ -668,7 +676,7 @@ exports.RunApp = {
   //
   // Returns the args Object.
   loadAppModule: function (API, args) {
-    args.scriptModule = require(args.filepath.toString());
+    args.scriptModule = require(args.scriptPath.toString());
     return args;
   },
 
@@ -721,6 +729,7 @@ exports.RunApp = {
   },
 
   runApp: function (API, args) {
+    debugger;
     exports.module(args.scriptModule.main);
     return args;
   }
@@ -808,7 +817,7 @@ function readPluginDirectory(list, dirpath) {
 function loadPlugin(path) {
   var
   spec, plugin;
-  spec = require(path);
+  spec = require(path.toString());
   plugin = Plugin.newPlugin(spec);
   return plugin;
 }
