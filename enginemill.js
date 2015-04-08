@@ -50,7 +50,7 @@ expected places.
 /*
 Structure
 ---------
-Host application directory structure:
+Guest application directory structure:
 
   |-- package.json
   |-- app.js
@@ -65,6 +65,7 @@ Host application directory structure:
   |  `-- actions
   |-- plugins/
   |  `-- <plugin_name...>
+  |    `-- lib/
   `-- node_modules/
      `-- <plugin_name...>
 
