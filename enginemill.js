@@ -113,15 +113,171 @@ exports.main = function () {
     usrconfigsdir : FilePath.home().append('.enginemill'),
     appdir        : FilePath.create()
   });
+
   args = Object.create(null);
   args.configs = Object.create(null);
-  return exports.newRunner().run(API, args);
+
+  registerCoffeeScript();
+
+  return exports.newRunner()
+    .run(API, args)
+    .then(function (args) {
+      return exports.newPreLoader().run(API, args);
+    })
+    .then(function (args) {
+      exports.API = args.API;
+      return exports.newAppRunner().run(args.API, args);
+    })
+    .then(function () { return exports.API; });
+};
+
+
+exports.load = function (argv) {
+  var
+  API, args;
+
+  argv = Object.defineProperties(Object.create(null), {
+    env: {
+      enumerable : true,
+      value      : argv.env
+    }
+  });
+
+  API = newAPI({
+    sysconfigsdir : FilePath.root().append('etc', 'enginemill'),
+    usrconfigsdir : FilePath.home().append('.enginemill'),
+    appdir        : FilePath.create()
+  });
+
+  args = Object.create(null);
+  args.configs = Object.create(null);
+
+  args = Object.defineProperties(Object.create(null), {
+    configs: {
+      enumerable : true,
+      value      : Object.create(null)
+    },
+    argv: {
+      enumerable : true,
+      value      : argv
+    }
+  });
+
+  registerCoffeeScript();
+
+  return exports.newPreLoader()
+    .run(API, args)
+    .then(function (args) {
+      exports.API = args.API;
+    })
+    .then(function () { return exports.API; });
 };
 
 
 exports.module = function (wrapper) {
   wrapper.call(null, exports.API);
 };
+
+
+/*
+The first step is to register CoffeeScript, so that when require() is used to
+lookup modules, `*.coffee` paths are considered along with `*.js` paths. This
+means that all guest application files can be written in
+CoffeeScript or JavaScript.
+
+This method is used by the main hooks `exports.main()` and `exports.load()`.
+*/
+
+// Registers the coffee-script library so that require() looks for '.coffee'
+// file extensions in addition to '.js'.
+// Returns true.
+function registerCoffeeScript() {
+  require('coffee-script').register();
+  return true;
+}
+
+
+/*
+### exports.PreLoader
+The Action definition for the application preloader.
+*/
+exports.PreLoader = {
+
+  initialize: function () {
+    this.q('setEnvironment');
+    this.q('loadEnvironment');
+    this.q('loadPlugins');
+    this.q('setAPI');
+  },
+
+  /*
+  If we are still running at this point, and have not exited, it's time to
+  determine the environment we're running in. If the --env argument is not
+  given on the commandline, enginemill defaults to 'production'. Whatever the
+  value ends up being, it is set as args.environment on the args Object.
+  */
+
+  // Params:
+  // args.argv.env
+  //
+  // Sets:
+  // args.environment - The environment String.
+  //
+  // Returns the args Object.
+  setEnvironment: function (API, args) {
+    args.environment = args.argv.env || 'production';
+    return args;
+  },
+
+  // Creates a new LoadEvironment action and runs it.
+  //
+  // Params:
+  // API.appdir        - Lookup function that takes a configs Object.
+  // API.sysconfigsdir - Lookup Function that takes a configs Object.
+  // API.usrconfigsdir - Lookup Function that takes a configs Object.
+  // args              - The args Object.
+  //
+  // Sets:
+  // API.configs     - The configs Object (will be frozen).
+  // API.configs.app - The application configs Object (from package.json).
+  // GLOBAL.print    - The print utility Function.
+  // GLOBAL.U        - The utilities Library.
+  //
+  // Returns a Promise for the return value of LoadEnvironment#run().
+  loadEnvironment: function (API, args) {
+    return exports.newEnvironmentLoader().run(API, args);
+  },
+
+
+  // Creates a new LoadPlugins action and runs it.
+  //
+  // Params:
+  // API                           - API Object passed into plugin
+  //                                 initializers.
+  // API.configs.core_plugins      - A list of core plugin name Strings to load
+  // API.configs.installed_plugins - A list of installed plugin name String
+  //                                 to Load.
+  // API.configs.plugins           - A list of guest application plugin name
+  //                                 Strings to load.
+  loadPlugins: function (API, args) {
+    return exports.newPluginLoader().run(API, args);
+  },
+
+  // Params:
+  // API  - The API Object as it has been compiled so far.
+  // args - The args Object.
+  //
+  // Sets:
+  // args.API - The new (frozen) API object.
+  //
+  // Returns the args Object.
+  setAPI: function (API, args) {
+    args.API = API.freeze();
+    return args;
+  },
+};
+
+exports.newPreLoader = Objects.factory([Action], exports.PreLoader);
 
 
 /*
@@ -141,31 +297,11 @@ exports.Runner = {
 
   initialize: function () {
     this.Args = Yargs;
-    this.q('registerCoffeeScript');
+    this.q(registerCoffeeScript);
     this.q('parseCommandline');
     this.q('checkCommand');
     this.q('setScriptPath');
     this.q('checkHelp');
-    this.q('setEnvironment');
-    this.q('loadEnvironment');
-    this.q('loadPlugins');
-    this.q('setAPI');
-    this.q('runCommand');
-  },
-
-  /*
-  The first step is to register CoffeeScript, so that when require() is used to
-  lookup modules, `*.coffee` paths are considered along with `*.js` paths. This
-  means that all guest application files can be written in
-  CoffeeScript or JavaScript.
-  */
-
-  // Registers the coffee-script library so that require() looks for '.coffee'
-  // file extensions in addition to '.js'.
-  // Returns true.
-  registerCoffeeScript: function () {
-    require('coffee-script').register();
-    return true;
   },
 
   /*
@@ -315,82 +451,6 @@ exports.Runner = {
       this.showProgramHelpAndExit(API, args.scriptPath);
     }
     return args;
-  },
-
-  /*
-  If we are still running at this point, and have not exited, it's time to
-  determine the environment we're running in. If the --env argument is not
-  given on the commandline, enginemill defaults to 'production'. Whatever the
-  value ends up being, it is set as args.environment on the args Object.
-  */
-
-  // Params:
-  // args.configs.argv.env
-  //
-  // Sets:
-  // args.environment - The environment String.
-  //
-  // Returns the args Object.
-  setEnvironment: function (API, args) {
-    args.environment = args.argv.env || 'production';
-    return args;
-  },
-
-  // Creates a new LoadEvironment action and runs it.
-  //
-  // Params:
-  // API.appdir        - Lookup function that takes a configs Object.
-  // API.sysconfigsdir - Lookup Function that takes a configs Object.
-  // API.usrconfigsdir - Lookup Function that takes a configs Object.
-  // args              - The args Object.
-  //
-  // Sets:
-  // API.configs     - The configs Object (will be frozen).
-  // API.configs.app - The application configs Object (from package.json).
-  // GLOBAL.print    - The print utility Function.
-  // GLOBAL.U        - The utilities Library.
-  //
-  // Returns a Promise for the return value of LoadEnvironment#run().
-  loadEnvironment: function (API, args) {
-    return exports.newEnvironmentLoader().run(API, args);
-  },
-
-
-  // Creates a new LoadPlugins action and runs it.
-  //
-  // Params:
-  // API                           - API Object passed into plugin
-  //                                 initializers.
-  // API.configs.core_plugins      - A list of core plugin name Strings to load
-  // API.configs.installed_plugins - A list of installed plugin name String
-  //                                 to Load.
-  // API.configs.plugins           - A list of guest application plugin name
-  //                                 Strings to load.
-  loadPlugins: function (API, args) {
-    return exports.newPluginLoader().run(API, args);
-  },
-
-  // Params:
-  // API  - The API Object as it has been compiled so far.
-  // args - The args Object.
-  //
-  // Sets:
-  // args.API    - The new (frozen) API object.
-  // exports.API - To args.API.
-  //
-  // Returns the args Object.
-  setAPI: function (API, args) {
-    exports.API = args.API = API.freeze();
-    return args;
-  },
-
-  // Params:
-  // API      - The unfrozen API Object.
-  // args.API - The new frozen API Object.
-  //
-  // Returns the args Object.
-  runCommand: function (API, args) {
-    return exports.newAppRunner().run(args.API, args);
   },
 
   // Utility method used to show the commandline help text and exit the
