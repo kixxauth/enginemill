@@ -297,7 +297,6 @@ exports.Runner = {
 
   initialize: function () {
     this.Args = Yargs;
-    this.q(registerCoffeeScript);
     this.q('parseCommandline');
     this.q('checkCommand');
     this.q('setScriptPath');
