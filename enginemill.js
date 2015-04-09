@@ -65,6 +65,7 @@ Guest application directory structure:
   |  `-- actions
   |-- plugins/
   |  `-- <plugin_name...>
+  |    |-- index.js
   |    `-- lib/
   `-- node_modules/
      `-- <plugin_name...>
@@ -414,7 +415,7 @@ exports.Runner = {
         args.scriptPath = FilePath.create().append(path);
       }
     } else {
-      args.scriptPath = API.appdir('app');
+      args.scriptPath = API.appdir().append('app');
     }
     return args;
   },
@@ -778,7 +779,7 @@ exports.LoadPlugins = {
     }
     var
     dir = FilePath.create(__dirname).append('plugins');
-    return loadPlugins(API, args.configs, args.configs.core_plugins, dir);
+    return loadPlugins(API, API.configs.core_plugins, dir);
   },
 
   // Params:
@@ -794,7 +795,7 @@ exports.LoadPlugins = {
     }
     var
     dir = API.appdir(args.configs).append('node_modules');
-    return loadPlugins(API, args.configs, args.configs.installed_plugins, dir);
+    return loadPlugins(API, API.configs.installed_plugins, dir);
   },
 
   // Params:
@@ -810,7 +811,7 @@ exports.LoadPlugins = {
     }
     var
     dir = API.appdir(args.configs).append('plugins');
-    return loadPlugins(API, args.configs, args.configs.plugins, dir);
+    return loadPlugins(API, API.configs.plugins, dir);
   }
 };
 
@@ -950,12 +951,12 @@ function loadConfigs(environment, filepath, configs) {
 // dirpath - A FilePath referencing the base plugins directory
 //
 // Returns a Promise for the API Object.
-function loadPlugins(API, configs, list, dirpath) {
+function loadPlugins(API, list, dirpath) {
   var
   paths, plugins;
   paths = readPluginDirectory(list, dirpath);
   plugins = paths.map(loadPlugin);
-  return initializePlugins(API, configs, plugins);
+  return initializePlugins(API, plugins);
 }
 
 
@@ -988,8 +989,8 @@ function loadPlugin(path) {
 // plugins - An Array of plugin exports.
 //
 // Returns a Promise for the API Object.
-function initializePlugins(API, configs, plugins) {
+function initializePlugins(API, plugins) {
   return plugins.reduce(function (promise, plugin) {
-    return promise.then(plugin.initPlugin(API, configs));
+    return promise.then(plugin.initPlugin(API));
   }, Promise.cast(API));
 }
