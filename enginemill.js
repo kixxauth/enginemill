@@ -744,6 +744,10 @@ exports.LoadEnvironment = {
   // Returns the GLOBAL Object.
   setGlobals: function (API) {
     return Object.defineProperties(GLOBAL, {
+      Promise : {
+        enumerable : true,
+        value      : API.Promise
+      },
       print : {
         enumerable : true,
         value      : API.print,
@@ -992,5 +996,5 @@ function loadPlugin(path) {
 function initializePlugins(API, plugins) {
   return plugins.reduce(function (promise, plugin) {
     return promise.then(plugin.initPlugin(API));
-  }, Promise.cast(API));
+  }, Promise.resolve(API));
 }
