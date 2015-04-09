@@ -406,7 +406,7 @@ exports.Runner = {
   setScriptPath: function (API, args) {
     var
     path = args.argv._[1];
-    args.scriptPath = path ? FilePath.create(path) : API.appdir('app');
+    args.scriptPath = path ? FilePath.create().append(path) : API.appdir('app');
     return args;
   },
 
