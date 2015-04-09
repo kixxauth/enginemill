@@ -74,6 +74,7 @@ Guest application directory structure:
 "use strict";
 
 var
+PATH     = require('path'),
 FilePath = require('filepath').FilePath,
 Yargs    = require('yargs'),
 INI      = require('ini'),
@@ -406,7 +407,15 @@ exports.Runner = {
   setScriptPath: function (API, args) {
     var
     path = args.argv._[1];
-    args.scriptPath = path ? FilePath.create().append(path) : API.appdir('app');
+    if (path) {
+      if (PATH.isAbsolute(path)) {
+        args.scriptPath = FilePath.create(path);
+      } else {
+        args.scriptPath = FilePath.create().append(path);
+      }
+    } else {
+      args.scriptPath = API.appdir('app');
+    }
     return args;
   },
 
