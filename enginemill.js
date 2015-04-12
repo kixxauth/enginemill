@@ -491,7 +491,7 @@ exports.Runner = {
         scriptPath       : scriptPath,
         scriptModule     : scriptModule
       });
-    this.showHelpAndExit();
+    this.showHelpAndExit(scriptModule.help || '');
   }
 };
 
