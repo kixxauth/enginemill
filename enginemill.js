@@ -409,7 +409,7 @@ exports.Runner = {
     var
     path = args.argv._[1];
     if (path) {
-      if (PATH.isAbsolute(path)) {
+      if (isAbsolutePath(path)) {
         args.scriptPath = FilePath.create(path);
       } else {
         args.scriptPath = FilePath.create().append(path);
@@ -997,4 +997,13 @@ function initializePlugins(API, plugins) {
   return plugins.reduce(function (promise, plugin) {
     return promise.then(plugin.initPlugin(API));
   }, Promise.resolve(API));
+}
+
+
+// TODO: Replace with FilePath.isAbsolute() when it becomes available.
+function isAbsolutePath(path) {
+  if (typeof PATH.isAbsolute === 'function') {
+    return PATH.isAbsolute(path);
+  }
+  return /^\//.test(path);
 }
