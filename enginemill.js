@@ -486,7 +486,11 @@ exports.Runner = {
       scriptPath: scriptPath
     }).scriptModule;
     exports.RunApp.parseCommandline
-      .call(this, API, { scriptPath: scriptPath, scriptModule : scriptModule });
+      .call(this, API, {
+        parseCommandline : false,
+        scriptPath       : scriptPath,
+        scriptModule     : scriptModule
+      });
     this.showHelpAndExit();
   }
 };
@@ -862,6 +866,7 @@ exports.RunApp = {
     var
     opts,
     argv,
+    parse = U.isBoolean(args.parseCommandline) ? args.parseCommandline : true,
     scriptPath = PATH.relative(process.cwd(), args.scriptPath.toString()),
     usage = args.scriptModule.usage,
     options = args.scriptModule.options;
@@ -890,7 +895,9 @@ exports.RunApp = {
       });
     }
 
-    argv = opts.argv;
+    if (parse) {
+      argv = opts.argv;
+    }
     API.argv(argv);
     return argv;
   },
