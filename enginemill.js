@@ -486,7 +486,7 @@ exports.Runner = {
       scriptPath: scriptPath
     }).scriptModule;
     exports.RunApp.parseCommandline
-      .call(this, API, { scriptModule : scriptModule });
+      .call(this, API, { scriptPath: scriptPath, scriptModule : scriptModule });
     this.showHelpAndExit();
   }
 };
@@ -862,12 +862,13 @@ exports.RunApp = {
     var
     opts,
     argv,
+    scriptPath = PATH.relative(process.cwd(), args.scriptPath.toString()),
     usage = args.scriptModule.usage,
     options = args.scriptModule.options;
 
     opts = this.Args
       .reset()
-      .usage('Usage: em run <script_path> '+ (usage || ''));
+      .usage('Usage: em run '+ scriptPath +' '+ (usage || ''));
 
     if (options && U.isObject(options)) {
       Object.keys(options).forEach(function (key) {
