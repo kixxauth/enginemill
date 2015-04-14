@@ -169,6 +169,9 @@ exports.module = function (wrapper) {
 };
 
 
+exports.action = Action.create;
+
+
 /*
 The first step is to register CoffeeScript, so that when require() is used to
 lookup modules, `*.coffee` paths are considered along with `*.js` paths. This
