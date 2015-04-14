@@ -81,9 +81,8 @@ Yargs    = require('yargs'),
 INI      = require('ini'),
 U        = require('./lib/u'),
 Promise  = require('./lib/promise'),
-Objects  = require('./lib/objects'),
 Plugin   = require('./lib/plugin'),
-Action   = require('./lib/mixins/action').Action,
+Action   = require('./lib/action'),
 newAPI   = require('./lib/api').newAPI;
 
 
@@ -116,19 +115,24 @@ exports.main = function () {
     appdir        : FilePath.create()
   });
 
-  args = Object.create(null);
+  args         = Object.create(null);
   args.configs = Object.create(null);
 
   registerCoffeeScript();
 
-  return exports.newRunner()
-    .run(API, args)
+  return exports.runnerAction(API, args)
     .then(function (args) {
-      return exports.newPreLoader().run(API, args);
+      return exports.preLoaderAction(API, {
+        argv       : args.argv,
+        scriptPath : args.scriptPath
+        // scriptPath is passed just because we need it later.
+      });
     })
     .then(function (args) {
       exports.API = args.API;
-      return exports.newAppRunner().run(args.API, args);
+      return exports.appRunnerAction(args.API, {
+        scriptPath: args.scriptPath
+      });
     })
     .then(function () { return exports.API; });
 };
@@ -138,12 +142,7 @@ exports.load = function (argv) {
   var
   API, args;
 
-  argv = Object.defineProperties(Object.create(null), {
-    env: {
-      enumerable : true,
-      value      : argv.env
-    }
-  });
+  argv = Object.freeze(U.cloneDeep(argv));
 
   API = newAPI({
     sysconfigsdir : FilePath.root().append('etc', 'enginemill'),
@@ -151,24 +150,13 @@ exports.load = function (argv) {
     appdir        : FilePath.create()
   });
 
-  args = Object.create(null);
+  args         = Object.create(null);
   args.configs = Object.create(null);
-
-  args = Object.defineProperties(Object.create(null), {
-    configs: {
-      enumerable : true,
-      value      : Object.create(null)
-    },
-    argv: {
-      enumerable : true,
-      value      : argv
-    }
-  });
+  args.argv    = argv;
 
   registerCoffeeScript();
 
-  return exports.newPreLoader()
-    .run(API, args)
+  return exports.preLoaderAction(API, args)
     .then(function (args) {
       exports.API = args.API;
     })
@@ -205,13 +193,6 @@ The Action definition for the application preloader.
 */
 exports.PreLoader = {
 
-  initialize: function () {
-    this.q('setEnvironment');
-    this.q('loadEnvironment');
-    this.q('loadPlugins');
-    this.q('setAPI');
-  },
-
   /*
   If we are still running at this point, and have not exited, it's time to
   determine the environment we're running in. If the --env argument is not
@@ -237,7 +218,7 @@ exports.PreLoader = {
   // API.appdir        - Lookup function that takes a configs Object.
   // API.sysconfigsdir - Lookup Function that takes a configs Object.
   // API.usrconfigsdir - Lookup Function that takes a configs Object.
-  // args              - The args Object.
+  // args.environment  - The environment String.
   //
   // Sets:
   // API.configs     - The configs Object (will be frozen).
@@ -247,22 +228,24 @@ exports.PreLoader = {
   //
   // Returns a Promise for the return value of LoadEnvironment#run().
   loadEnvironment: function (API, args) {
-    return exports.newEnvironmentLoader().run(API, args);
+    return exports.environmentLoaderAction(API, {
+      configs: {
+        environment: args.environment
+      }
+    });
   },
 
 
   // Creates a new LoadPlugins action and runs it.
   //
   // Params:
-  // API                           - API Object passed into plugin
-  //                                 initializers.
-  // API.configs.core_plugins      - A list of core plugin name Strings to load
-  // API.configs.installed_plugins - A list of installed plugin name String
-  //                                 to Load.
-  // API.configs.plugins           - A list of guest application plugin name
-  //                                 Strings to load.
+  // API                      - API Object passed into plugin initializers.
+  // API.configs.core_plugins - A list of core plugin name Strings to load.
+  // API.configs.plugins      - A list of installed plugin name String to Load.
+  // API.configs.plugins      - A list of guest application plugin name
+  //                            Strings to load.
   loadPlugins: function (API, args) {
-    return exports.newPluginLoader().run(API, args);
+    return exports.pluginLoaderAction(API, args);
   },
 
   // Params:
@@ -279,7 +262,15 @@ exports.PreLoader = {
   },
 };
 
-exports.newPreLoader = Objects.factory([Action], exports.PreLoader);
+
+exports.preLoaderAction = Action.create(function () {
+  return [
+    exports.PreLoader.setEnvironment,
+    exports.PreLoader.loadEnvironment,
+    exports.PreLoader.loadPlugins,
+    exports.PreLoader.setAPI
+  ];
+});
 
 
 /*
@@ -296,14 +287,6 @@ application.
 exports.Runner = {
 
   COMMANDS: ['help', 'run'],
-
-  initialize: function () {
-    this.Args = Yargs;
-    this.q('parseCommandline');
-    this.q('checkCommand');
-    this.q('setScriptPath');
-    this.q('checkHelp');
-  },
 
   /*
   The next step is to parse the command line arguments and options passed into
@@ -322,7 +305,7 @@ exports.Runner = {
   // API  - not used
   // args - A new argv Object will be added as .argv.
   //
-  // Expects the Yargs utility to be present as this.Args.
+  // Expects the Yargs utility to be present as Yargs.
   //
   // Returns the args Object.
   parseCommandline: function (API, args) {
@@ -334,7 +317,7 @@ exports.Runner = {
     usage += "  em help <script_path>\n";
     usage += "  em run [<script_path>] [--env <environment>] [options]";
 
-    argv = this.Args
+    argv = Yargs
       .usage(usage)
       .command('help', 'Get enginemill help or help for an application script.')
       .command('run', 'Run an application script.')
@@ -375,11 +358,11 @@ exports.Runner = {
     message;
     if (!command) {
       message = "An enginemill command is required.";
-    } else if (this.COMMANDS.indexOf(command) < 0) {
+    } else if (exports.Runner.COMMANDS.indexOf(command) < 0) {
       message = "'"+ command +"' is not a valid enginemill command.";
     }
     if (message) {
-      message += "\nValid commands are: "+ this.COMMANDS.join(', ');
+      message += "\nValid commands are: "+ exports.Runner.COMMANDS.join(', ');
       this.showHelpAndExit(message);
     }
     args.command = command;
@@ -455,9 +438,9 @@ exports.Runner = {
     var
     scriptPath = args.argv._[1];
     if (args.command === 'help' && !scriptPath) {
-      this.showHelpAndExit();
+      exports.Runner.showHelpAndExit();
     } else if (args.command === 'help' && scriptPath) {
-      this.showProgramHelpAndExit(API, args.scriptPath);
+      exports.Runner.showProgramHelpAndExit(API, args.scriptPath);
     }
     return args;
   },
@@ -470,7 +453,7 @@ exports.Runner = {
     if (message) {
       console.error(message);
     }
-    console.error(this.Args.help());
+    console.error(Yargs.help());
     process.exit(1);
   },
 
@@ -495,7 +478,15 @@ exports.Runner = {
   }
 };
 
-exports.newRunner = Objects.factory([Action], exports.Runner);
+
+exports.runnerAction = Action.create(function () {
+  return [
+    exports.Runner.parseCommandline,
+    exports.Runner.checkCommand,
+    exports.Runner.setScriptPath,
+    exports.Runner.checkHelp
+  ];
+});
 
 
 /*
@@ -536,21 +527,9 @@ Configuration Structure
 */
 exports.LoadEnvironment = {
 
-  initialize: function () {
-    this.q('loadCoreConfigs');
-    this.q('readAppSettings');
-    this.q('loadAppConfigs');
-    this.q('combinePlugins');
-    this.q('loadPluginConfigs');
-
-    // Set the environment
-    this.q('setConfigs');
-    this.q('setGlobals');
-  },
-
   // Params:
-  // API  - Not used.
-  // args - Will set the args.core_configs.
+  // API                      - Not used.
+  // args.configs.environment - Environment String.
   //
   // Sets:
   // args.coreConfigs - Config Object.
@@ -569,10 +548,9 @@ exports.LoadEnvironment = {
   //
   // Params:
   // API.appdir   - Function that takes a configs Object.
-  // args.configs - The configs Object (will be mutated with .app).
   //
   // Sets:
-  // args.configs.app - Application package.json data.
+  // args.configs.app - Application package.json data Object.
   //
   // Returns a Promise for the args Object.
   readAppSettings: function(API, args) {
@@ -634,18 +612,16 @@ exports.LoadEnvironment = {
   // args.appConfigs  - The app configs Object.
   //
   // Sets:
-  // args.configs.core_plugins      - Array list of plugin name Strings.
-  // args.configs.installed_plugins - Array list of plugin name Strings.
-  // args.configs.plugins           - Array list of plugin name Strings.
+  // args.configs.core_plugins - Array list of plugin name Strings.
+  // args.configs.plugins      - Array list of plugin name Strings.
   //
   // Returns the args Object.
   combinePlugins: function (API, args) {
     var
-    lists = ['core_plugins', 'installed_plugins', 'plugins'];
+    lists = ['core_plugins', 'plugins'];
 
     args.configs.core_plugins = [];
-    args.configs.installed_plugins = [];
-    args.configs.plugins = [];
+    args.configs.plugins      = [];
 
     lists.forEach(function (list) {
       var
@@ -664,13 +640,12 @@ exports.LoadEnvironment = {
   },
 
   // Params:
-  // API.appdir                     - Function that takes a configs Object.
-  // API.sysconfigsdir              - Function that takes a configs Object.
-  // API.usrconfigsdir              - Function that takes a configs Object.
-  // args.configs.core_plugins      - An Array of plugin String names.
-  // args.configs.installed_plugins - An Array of plugin String names.
-  // args.configs.plugins           - An Array of plugin String names.
-  // args.configs.app.name          - Name String of the application.
+  // API.appdir                - Function that takes a configs Object.
+  // API.sysconfigsdir         - Function that takes a configs Object.
+  // API.usrconfigsdir         - Function that takes a configs Object.
+  // args.configs.core_plugins - An Array of plugin String names.
+  // args.configs.plugins      - An Array of plugin String names.
+  // args.configs.app.name     - Name String of the application.
   //
   // Sets:
   // args.pluginConfigs - A configs Object from plugin configs.
@@ -679,7 +654,6 @@ exports.LoadEnvironment = {
   loadPluginConfigs: function (API, args) {
     var
     core_plugins = args.configs.core_plugins,
-    installed_plugins = args.configs.installed_plugins,
     plugins = args.configs.plugins,
     confname = 'configs.ini',
     baseDir,
@@ -692,15 +666,8 @@ exports.LoadEnvironment = {
       }));
     }
 
-    if (installed_plugins && installed_plugins.length) {
-      baseDir = API.appdir(args.configs).append('node_modules');
-      paths = paths.concat(installed_plugins.map(function (plugin) {
-        return baseDir.append(plugin, confname);
-      }));
-    }
-
     if (plugins && plugins.length) {
-      baseDir = API.appdir(args.configs).append('plugins');
+      baseDir = API.appdir(args.configs).append('node_modules');
       paths = paths.concat(plugins.map(function (plugin) {
         return baseDir.append(plugin, confname);
       }));
@@ -731,7 +698,7 @@ exports.LoadEnvironment = {
       args.coreConfigs,
       args.pluginConfigs,
       args.appConfigs);
-    API.configs = U.deepFreeze(configs);
+    API.configs   = U.deepFreeze(configs);
     return API;
   },
 
@@ -764,16 +731,20 @@ exports.LoadEnvironment = {
   }
 };
 
-exports.newEnvironmentLoader = Objects.factory([Action], exports.LoadEnvironment);
+exports.environmentLoaderAction = Action.create(function () {
+  return [
+    exports.LoadEnvironment.loadCoreConfigs,
+    exports.LoadEnvironment.readAppSettings,
+    exports.LoadEnvironment.loadAppConfigs,
+    exports.LoadEnvironment.combinePlugins,
+    exports.LoadEnvironment.loadPluginConfigs,
+    exports.LoadEnvironment.setConfigs,
+    exports.LoadEnvironment.setGlobals
+  ];
+});
 
 
 exports.LoadPlugins = {
-
-  initialize: function () {
-    this.q('loadCorePlugins');
-    this.q('loadInstalledPlugins');
-    this.q('loadAppPlugins');
-  },
 
   // Params:
   // API                      - The API object (it will be mutated)
@@ -781,8 +752,8 @@ exports.LoadPlugins = {
   // API.configs.core_plugins - An Array of plugin name Strings.
   //
   // Returns a Promise for the API Object.
-  loadCorePlugins: function (API, args) {
-    if (!(args.configs.core_plugins && args.configs.core_plugins.length)) {
+  loadCorePlugins: function (API /* args */) {
+    if (!(API.configs.core_plugins && API.configs.core_plugins.length)) {
       return Promise.resolve(API);
     }
     var
@@ -791,49 +762,31 @@ exports.LoadPlugins = {
   },
 
   // Params:
-  // API                           - The API object (it will be mutated)
-  // API.appdir                    - Lookup Function.
-  // API.configs                   - The frozen configs Object
-  // API.configs.installed_plugins - An Array of plugin name Strings.
+  // API                 - The API object (it will be mutated)
+  // API.appdir          - Lookup Function.
+  // API.configs         - The frozen configs Object
+  // API.configs.plugins - An Array of plugin name Strings.
   //
   // Returns a Promise for the API Object.
   loadInstalledPlugins: function (API, args) {
-    if (!(args.configs.installed_plugins && args.configs.installed_plugins.length)) {
+    if (!(API.configs.plugins && API.configs.plugins.length)) {
       return Promise.resolve(API);
     }
     var
     dir = API.appdir(args.configs).append('node_modules');
-    return loadPlugins(API, API.configs.installed_plugins, dir);
-  },
-
-  // Params:
-  // API                  - The API object (it will be mutated)
-  // API.appdir           - Lookup Function.
-  // args.configs         - The frozen configs Object
-  // args.configs.plugins - An Array of plugin name Strings.
-  //
-  // Returns a Promise for the API Object.
-  loadAppPlugins: function (API, args) {
-    if (!(args.configs.plugins && args.configs.plugins.length)) {
-      return Promise.resolve(API);
-    }
-    var
-    dir = API.appdir(args.configs).append('plugins');
     return loadPlugins(API, API.configs.plugins, dir);
-  }
+  },
 };
 
-exports.newPluginLoader = Objects.factory([Action], exports.LoadPlugins);
+exports.pluginLoaderAction = Action.create(function () {
+  return [
+    exports.LoadPlugins.loadCorePlugins,
+    exports.LoadPlugins.loadInstalledPlugins
+  ];
+});
 
 
 exports.RunApp = {
-
-  initialize: function () {
-    this.Args = Yargs;
-    this.q('loadAppModule');
-    this.q('parseCommandline');
-    this.q('runApp');
-  },
 
   // Loads the Common.js module representing the program.
   //
@@ -859,7 +812,7 @@ exports.RunApp = {
   // args.scriptModule.options - The options definition Object defined by the
   //                             script module.
   //
-  // Expects the Yargs utility to be present as this.Args.
+  // Expects the Yargs utility to be present as Yargs.
   //
   // Returns the parsed argv Object.
   parseCommandline: function (API, args) {
@@ -871,7 +824,7 @@ exports.RunApp = {
     usage = args.scriptModule.usage,
     options = args.scriptModule.options;
 
-    opts = this.Args
+    opts = Yargs
       .reset()
       .usage('Usage: em run '+ scriptPath +' '+ (usage || ''));
 
@@ -908,7 +861,13 @@ exports.RunApp = {
   }
 };
 
-exports.newAppRunner = Objects.factory([Action], exports.RunApp);
+exports.appRunnerAction = Action.create(function () {
+  return [
+    exports.RunApp.loadAppModule,
+    exports.RunApp.parseCommandline,
+    exports.RunApp.runApp
+  ];
+});
 
 
 // Utilities:
