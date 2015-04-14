@@ -3,7 +3,7 @@
 var
 Promise = require('../../../lib/promise'),
 Objects = require('../../../lib/objects'),
-Action  = require('../../../lib/mixins/action').Action;
+Action  = require('../../../lib/action');
 
 
 exports[".q()ed methods"] = {
@@ -19,28 +19,33 @@ exports[".q()ed methods"] = {
       v2: {}
     };
 
-    this.factory = Objects.factory([Action], {
-      initialize: function () {
-        this.q('bbb');
-        this.q('aaa');
-      },
-      bbb: function (API, a) {
-        api.push(API);
-        args.push(a);
-        if (typeof API.retval === 'function') {
-          API.retval(values.v1);
+    this.action = Action.create(function () {
+      var
+      self = {
+        bbb: function (API, a) {
+          api.push(API);
+          args.push(a);
+          if (typeof API.retval === 'function') {
+            API.retval(values.v1);
+          }
+          executed.push(values.v1);
+        },
+        aaa: function (API, a) {
+          api.push(API);
+          args.push(a);
+          if (typeof API.retval === 'function') {
+            API.retval(values.v2);
+          }
+          executed.push(values.v2);
         }
-        executed.push(values.v1);
-      },
-      aaa: function (API, a) {
-        api.push(API);
-        args.push(a);
-        if (typeof API.retval === 'function') {
-          API.retval(values.v2);
-        }
-        executed.push(values.v2);
-      }
+      };
+
+      return [
+        self.bbb,
+        self.aaa
+      ]
     });
+
     done();
   },
 
@@ -49,7 +54,7 @@ exports[".q()ed methods"] = {
 
     test.expect(2);
 
-    this.factory().run()
+    this.action()
       .then(function () {
         test.equal(self.executed[0], self.values.v1);
         test.equal(self.executed[1], self.values.v2);
@@ -62,7 +67,7 @@ exports[".q()ed methods"] = {
 
     test.expect(2);
 
-    this.factory().run()
+    this.action()
       .then(function () {
         test.ok(self.api[0]);
         test.ok(self.api[1]);
@@ -82,7 +87,7 @@ exports[".q()ed methods"] = {
       values.push(val);
     };
 
-    this.factory().run(api)
+    this.action(api)
       .then(function () {
         test.equal(values[0], self.values.v1);
         test.equal(values[1], self.values.v2);
@@ -95,7 +100,7 @@ exports[".q()ed methods"] = {
 
     test.expect(2);
 
-    this.factory().run()
+    this.action()
       .then(function () {
         test.ok(self.args[0]);
         test.ok(self.args[1]);
@@ -110,7 +115,7 @@ exports[".q()ed methods"] = {
 
     test.expect(2);
 
-    this.factory().run(null, args)
+    this.action(null, args)
       .then(function () {
         test.equal(self.args[0], args);
         test.equal(self.args[1], args);
@@ -130,73 +135,36 @@ exports["with return value"] = {
       v2: {}
     };
 
-    this.factory = Objects.factory([Action], {
-      initialize: function () {
-        this.q('aaa');
-        this.q('bbb');
-        this.returns = 'bar';
-      },
-      aaa: function (api, args) {
-        args.foo = values.v1;
-      },
-      bbb: function (api, args) {
-        args.bar = values.v2;
-      }
+    this.action = Action.create(function () {
+      var
+      self = {
+        aaa: function (api, args) {
+          args.foo = values.v1;
+        },
+        bbb: function (api, args) {
+          args.bar = values.v2;
+        }
+      };
+
+      return [
+        self.aaa,
+        self.bbb
+      ]
     });
 
     done();
   },
 
-  "it should return the returns value": function (test) {
+  "it should return the given args value": function (test) {
     var
     self = this,
     args = {};
 
-    this.factory().run(null, args)
+    this.action(null, args)
       .then(function (rv) {
-        test.equal(rv, self.values.v2, 'return value');
-        test.equal(rv, args.bar, 'args');
-        return;
-      })
-      .then(test.done, test.done);
-  }
-};
-
-
-exports["with return method"] = {
-
-  setUp: function (done) {
-    var rv;
-    this.rv = rv = {};
-
-    this.factory = Objects.factory([Action], {
-      initialize: function () {
-        this.q('aaa');
-        this.q('bbb');
-      },
-      aaa: function (api, args) {
-        return args;
-      },
-      bbb: function (api, args) {
-        return args;
-      },
-      returns: function () {
-        return rv;
-      }
-    });
-
-    done();
-  },
-
-  "it should return the returns value": function (test) {
-    var
-    self = this,
-    args = {};
-
-    this.factory().run(null, args)
-      .then(function (rv) {
-        test.equal(rv, self.rv, 'return value');
-        test.notEqual(rv, args, 'args');
+        test.equal(rv, args, 'args');
+        test.equal(rv.foo, self.values.v1, 'return value 1');
+        test.equal(rv.bar, self.values.v2, 'return value 2');
         return;
       })
       .then(test.done, test.done);
@@ -215,18 +183,22 @@ exports["with thrown error"] = {
     };
     this.executed = executed = [];
 
-    this.factory = Objects.factory([Action], {
-      initialize: function () {
-        this.q('bbb');
-        this.q('aaa');
-      },
-      bbb: function () {
-        executed.push(values.v1);
-        throw err;
-      },
-      aaa: function () {
-        executed.push(values.v2);
-      }
+    this.action = Action.create(function () {
+      var
+      self = {
+        bbb: function () {
+          executed.push(values.v1);
+          throw err;
+        },
+        aaa: function () {
+          executed.push(values.v2);
+        }
+      };
+
+      return [
+        self.bbb,
+        self.aaa
+      ]
     });
     done();
   },
@@ -236,7 +208,7 @@ exports["with thrown error"] = {
 
     test.expect(1);
 
-    this.factory().run()
+    this.action()
       .then(function () {
         test.ok(false, 'should not be called');
         return;
@@ -251,7 +223,7 @@ exports["with thrown error"] = {
 
     test.expect(2);
 
-    this.factory().run()
+    this.action()
       .then(function () {
         test.ok(false, 'should not be called');
         return;
@@ -275,18 +247,22 @@ exports["with rejection"] = {
     };
     this.executed = executed = [];
 
-    this.factory = Objects.factory([Action], {
-      initialize: function () {
-        this.q('bbb');
-        this.q('aaa');
-      },
-      bbb: function () {
-        executed.push(values.v1);
-        return Promise.reject(err);
-      },
-      aaa: function () {
-        executed.push(values.v2);
-      }
+    this.action = Action.create(function () {
+      var
+      self = {
+        bbb: function () {
+          executed.push(values.v1);
+          return Promise.reject(err);
+        },
+        aaa: function () {
+          executed.push(values.v2);
+        }
+      };
+
+      return [
+        self.bbb,
+        self.aaa
+      ]
     });
     done();
   },
@@ -296,7 +272,7 @@ exports["with rejection"] = {
 
     test.expect(1);
 
-    this.factory().run()
+    this.action()
       .then(function () {
         test.ok(false, 'should not be called');
         return;
@@ -311,7 +287,7 @@ exports["with rejection"] = {
 
     test.expect(2);
 
-    this.factory().run()
+    this.action()
       .then(function () {
         test.ok(false, 'should not be called');
         return;
