@@ -363,7 +363,7 @@ exports.Runner = {
     }
     if (message) {
       message += "\nValid commands are: "+ exports.Runner.COMMANDS.join(', ');
-      this.showHelpAndExit(message);
+      exports.Runner.showHelpAndExit(message);
     }
     args.command = command;
     return args;
