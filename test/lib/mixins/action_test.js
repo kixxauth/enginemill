@@ -2,7 +2,6 @@
 
 var
 Promise = require('../../../lib/promise'),
-Objects = require('../../../lib/objects'),
 Action  = require('../../../lib/action');
 
 
@@ -43,7 +42,7 @@ exports[".q()ed methods"] = {
       return [
         self.bbb,
         self.aaa
-      ]
+      ];
     });
 
     done();
@@ -149,7 +148,7 @@ exports["with return value"] = {
       return [
         self.aaa,
         self.bbb
-      ]
+      ];
     });
 
     done();
@@ -198,7 +197,7 @@ exports["with thrown error"] = {
       return [
         self.bbb,
         self.aaa
-      ]
+      ];
     });
     done();
   },
@@ -262,7 +261,7 @@ exports["with rejection"] = {
       return [
         self.bbb,
         self.aaa
-      ]
+      ];
     });
     done();
   },
