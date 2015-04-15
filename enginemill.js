@@ -712,8 +712,9 @@ exports.LoadEnvironment = {
   // API.U     - The API U utility library.
   //
   // Sets:
-  // GLOBAL.print - To API.print.
-  // GLOBAL.U     - To API.U.
+  // GLOBAL.Promise - The Promise constructor.
+  // GLOBAL.print   - To API.print.
+  // GLOBAL.U       - To API.U.
   //
   // Returns the GLOBAL Object.
   setGlobals: function (API) {
