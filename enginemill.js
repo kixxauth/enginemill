@@ -909,8 +909,9 @@ function loadConfigs(environment, filepath, configs) {
         var
         val = (data[key] || {})[environment];
         Object.defineProperty(configs, key, {
-          enumerable: true,
-          value: typeof val === 'undefined' ? data[key] : val
+          enumerable : true,
+          writable   : true,
+          value      : typeof val === 'undefined' ? data[key] : val
         });
         return configs;
       }, configs);
