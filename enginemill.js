@@ -165,7 +165,18 @@ exports.load = function (argv) {
 
 
 exports.module = function (wrapper) {
-  wrapper.call(null, exports.API);
+  if (!exports.API) {
+    throw new Error("The Enginemill API has not been initialized yet.");
+  }
+  return wrapper.call(null, exports.API);
+};
+
+
+exports.withAPI = function (wrapper) {
+  if (!exports.API) {
+    throw new Error("The Enginemill API has not been initialized yet.");
+  }
+  return wrapper(exports.API);
 };
 
 
