@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-process.title = 'em';
+process.title = 'enginemill';
 
 var
 NPATH = require('path'),
