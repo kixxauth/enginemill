@@ -21,21 +21,21 @@ historically been forced on JavaScript application development. See the
 ./lib/objects module for more info.
 
 ### Promises for Asynchronous Operations
-The second convention is an expectation that all asynchronous operations will
+The third convention is an expectation that all asynchronous operations will
 be implemented and performed with Promises. See the ./lib/promise module for
 more info.
 
 Additionally Enginemill provides tools for performing longer operations using
-Promise chains. One of these is the Action mixin. See the ./lib/mixins/action
-mixin for more info.
+Promise chains. One of these is the Action mixin. See the ./lib/action
+creator for more info.
 
 ### Globals
-The third convention is that sprinkling in a few useful globals is OK and
+The fourth convention is that sprinkling in a few useful globals is OK and
 very useful. Enginemill adds globals to the GLOBAL object sparingly. See the
 Globals section below for more info.
 
 ### Standardized Configuration
-The fourth convention is a standardized way of loading configuration settings.
+The fifth convention is a standardized way of loading configuration settings.
 Enginemill loads configurations with an awareness of the current environment
 the guest applicaiton is running in and allows settings to override in a smart
 way to provide application developers fine grained control over the
@@ -99,9 +99,9 @@ script does it.
 
 ### exports.main()
 `exports.main()` kicks off a chain of actions which initialize the process and
-prepare dependencies for injection into the guest application. These actions
+prepares dependencies for injection into the guest application. These actions
 are performed mostly serially, and controlled by chaining promises using the
-Enginemill Action mixin (see lib/mixins/action). These actions are broken down
+Enginemill Action construct (see lib/action). These actions are broken down
 into 3 main groups: Loading configuration settings, loading and initializing
 plugins, and intializing the guest application.
 */

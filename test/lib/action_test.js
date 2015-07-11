@@ -1,8 +1,8 @@
 "use strict";
 
 var
-Promise = require('../../../lib/promise'),
-Action  = require('../../../lib/action');
+Promise = require('../../lib/promise'),
+Action  = require('../../lib/action');
 
 
 exports[".q()ed methods"] = {
