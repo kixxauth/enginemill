@@ -163,22 +163,6 @@ exports.load = function (argv) {
 };
 
 
-exports.module = function (wrapper) {
-  if (!exports.API) {
-    throw new Error("The Enginemill API has not been initialized yet.");
-  }
-  return wrapper.call(null, exports.API);
-};
-
-
-exports.withAPI = function (wrapper) {
-  if (!exports.API) {
-    throw new Error("The Enginemill API has not been initialized yet.");
-  }
-  return wrapper(exports.API);
-};
-
-
 exports.action = Action.create;
 
 
@@ -731,7 +715,7 @@ exports.RunApp = {
   },
 
   runApp: function (API, args) {
-    exports.module(args.scriptModule.main);
+    args.scriptModule.main(exports.API);
     return args;
   }
 };
