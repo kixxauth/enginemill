@@ -81,7 +81,6 @@ Yargs    = require('yargs'),
 INI      = require('ini'),
 U        = require('./lib/u'),
 Promise  = require('./lib/promise'),
-Plugin   = require('./lib/plugin'),
 Action   = require('./lib/action'),
 newAPI   = require('./lib/api').newAPI;
 
@@ -249,19 +248,6 @@ exports.PreLoader = {
     });
   },
 
-
-  // Creates a new LoadPlugins action and runs it.
-  //
-  // Params:
-  // API                      - API Object passed into plugin initializers.
-  // API.configs.core_plugins - A list of core plugin name Strings to load.
-  // API.configs.plugins      - A list of installed plugin name String to Load.
-  // API.configs.plugins      - A list of guest application plugin name
-  //                            Strings to load.
-  loadPlugins: function (API, args) {
-    return exports.pluginLoaderAction(API, args);
-  },
-
   // Params:
   // API  - The API Object as it has been compiled so far.
   // args - The args Object.
@@ -281,7 +267,6 @@ exports.preLoaderAction = Action.create(function () {
   return [
     exports.PreLoader.setEnvironment,
     exports.PreLoader.loadEnvironment,
-    exports.PreLoader.loadPlugins,
     exports.PreLoader.setAPI
   ];
 });
@@ -461,6 +446,7 @@ exports.Runner = {
 
   // Utility method used to show the commandline help text and exit the
   // process.
+  //
   // Params:
   // message - The message String to use (optional).
   showHelpAndExit: function (message) {
@@ -509,20 +495,11 @@ Configuration Structure
 ### Enginemill configs directory structure:
 
   |-- configs.ini
-  `-- plugins/
-     `-- <plugin_name...>
-       `-- configs.ini
 
 ### Guest application configs directory structure:
 
   |-- package.json
   |-- configs.ini
-  |-- plugins/
-  |  `-- <plugin_name...>
-  |    `-- configs.ini
-  `-- node_modules
-     `-- <plugin_name...>
-       `-- configs.ini
 
 ### System configs directory structure:
 
@@ -561,7 +538,7 @@ exports.LoadEnvironment = {
   // Reads the package.json to add application meta info.
   //
   // Params:
-  // API.appdir   - Function that takes a configs Object.
+  // API.appdir - Function that takes a configs Object.
   //
   // Sets:
   // args.configs.app - Application package.json data Object.
@@ -616,79 +593,6 @@ exports.LoadEnvironment = {
 
     return loadConfigsPath(args.configs.environment, paths).then(function (configs) {
       args.appConfigs = configs;
-      return args;
-    });
-  },
-
-  // Params:
-  // API              - Not used.
-  // args.coreConfigs - The core configs Object.
-  // args.appConfigs  - The app configs Object.
-  //
-  // Sets:
-  // args.configs.core_plugins - Array list of plugin name Strings.
-  // args.configs.plugins      - Array list of plugin name Strings.
-  //
-  // Returns the args Object.
-  combinePlugins: function (API, args) {
-    var
-    lists = ['core_plugins', 'plugins'];
-
-    args.configs.core_plugins = [];
-    args.configs.plugins      = [];
-
-    lists.forEach(function (list) {
-      var
-      coreList = args.coreConfigs[list],
-      appList  = args.appConfigs[list];
-
-      if (coreList && coreList.length) {
-        args.configs[list] = args.configs[list].concat(coreList);
-      }
-      if (appList && appList.length) {
-        args.configs[list] = args.configs[list].concat(appList);
-      }
-    });
-
-    return args;
-  },
-
-  // Params:
-  // API.appdir                - Function that takes a configs Object.
-  // API.sysconfigsdir         - Function that takes a configs Object.
-  // API.usrconfigsdir         - Function that takes a configs Object.
-  // args.configs.core_plugins - An Array of plugin String names.
-  // args.configs.plugins      - An Array of plugin String names.
-  // args.configs.app.name     - Name String of the application.
-  //
-  // Sets:
-  // args.pluginConfigs - A configs Object from plugin configs.
-  //
-  // Returns a Promise for the args Object.
-  loadPluginConfigs: function (API, args) {
-    var
-    core_plugins = args.configs.core_plugins,
-    plugins = args.configs.plugins,
-    confname = 'configs.ini',
-    baseDir,
-    paths = [];
-
-    if (core_plugins && core_plugins.length) {
-      baseDir = FilePath.create(__dirname).append('plugins');
-      paths = paths.concat(core_plugins.map(function (plugin) {
-        return baseDir.append(plugin, confname);
-      }));
-    }
-
-    if (plugins && plugins.length) {
-      baseDir = API.appdir(args.configs).append('node_modules');
-      paths = paths.concat(plugins.map(function (plugin) {
-        return baseDir.append(plugin, confname);
-      }));
-    }
-
-    return loadConfigsPath(args.configs.environments, paths).then(function (configs) {
-      args.pluginConfigs = configs;
       return args;
     });
   },
@@ -751,52 +655,8 @@ exports.environmentLoaderAction = Action.create(function () {
     exports.LoadEnvironment.loadCoreConfigs,
     exports.LoadEnvironment.readAppSettings,
     exports.LoadEnvironment.loadAppConfigs,
-    exports.LoadEnvironment.combinePlugins,
-    exports.LoadEnvironment.loadPluginConfigs,
     exports.LoadEnvironment.setConfigs,
     exports.LoadEnvironment.setGlobals
-  ];
-});
-
-
-exports.LoadPlugins = {
-
-  // Params:
-  // API                      - The API object (it will be mutated)
-  // API.configs              - The frozen configs Object
-  // API.configs.core_plugins - An Array of plugin name Strings.
-  //
-  // Returns a Promise for the API Object.
-  loadCorePlugins: function (API /* args */) {
-    if (!(API.configs.core_plugins && API.configs.core_plugins.length)) {
-      return Promise.resolve(API);
-    }
-    var
-    dir = FilePath.create(__dirname).append('plugins');
-    return loadPlugins(API, API.configs.core_plugins, dir);
-  },
-
-  // Params:
-  // API                 - The API object (it will be mutated)
-  // API.appdir          - Lookup Function.
-  // API.configs         - The frozen configs Object
-  // API.configs.plugins - An Array of plugin name Strings.
-  //
-  // Returns a Promise for the API Object.
-  loadInstalledPlugins: function (API, args) {
-    if (!(API.configs.plugins && API.configs.plugins.length)) {
-      return Promise.resolve(API);
-    }
-    var
-    dir = API.appdir(args.configs).append('node_modules');
-    return loadPlugins(API, API.configs.plugins, dir);
-  },
-};
-
-exports.pluginLoaderAction = Action.create(function () {
-  return [
-    exports.LoadPlugins.loadCorePlugins,
-    exports.LoadPlugins.loadInstalledPlugins
   ];
 });
 
@@ -929,57 +789,6 @@ function loadConfigs(environment, filepath, configs) {
     }
     return configs;
   });
-}
-
-
-// API     - The API object (it will be mutated)
-// configs - The frozen configs Object
-// list    - An Array of plugin String names
-// dirpath - A FilePath referencing the base plugins directory
-//
-// Returns a Promise for the API Object.
-function loadPlugins(API, list, dirpath) {
-  var
-  paths, plugins;
-  paths = readPluginDirectory(list, dirpath);
-  plugins = paths.map(loadPlugin);
-  return initializePlugins(API, plugins);
-}
-
-
-// list    - An Array of plugin String names
-// dirpath - A FilePath referencing the base plugins directory
-//
-// Returns an Array of expanded FilePaths.
-function readPluginDirectory(list, dirpath) {
-  return list.map(function (plugin) {
-    return dirpath.append(plugin, 'index');
-  });
-}
-
-
-// Params:
-// path - A FilePath instance representing the full path to the plugin.
-//
-// Returns a Plugin.
-function loadPlugin(path) {
-  var
-  spec, plugin;
-  spec = require(path.toString());
-  plugin = Plugin.newPlugin(spec);
-  return plugin;
-}
-
-
-// API     - The API object (it will be appended).
-// configs - The frozen configs Object
-// plugins - An Array of plugin exports.
-//
-// Returns a Promise for the API Object.
-function initializePlugins(API, plugins) {
-  return plugins.reduce(function (promise, plugin) {
-    return promise.then(plugin.initPlugin(API));
-  }, Promise.resolve(API));
 }
 
 
