@@ -1,30 +1,41 @@
-"use strict";
+#!/usr/bin/env node
+'use strict';
 
 var
 CP       = require('child_process'),
-FilePath = require('filepath').FilePath;
+FilePath = require('filepath').FilePath,
+Promise  = require('bluebird');
 
-function main() {
+exports.main = function () {
   var
-  projectDir = FilePath.create(__dirname).dirname();
-  spawn({
-    jshint: projectDir.append('node_modules', '.bin', 'jshint'),
-    target: projectDir
+  execFile = process.platform === 'win32' ? 'jshint.cmd' : 'jshint';
+
+  console.log(' ### running lint_runner ### ');
+
+  return new Promise(function (resolve, reject) {
+    var
+    exec = FilePath.create().append('node_modules', '.bin', execFile),
+    dir  = FilePath.create(),
+    proc = CP.spawn(exec.toString(), [dir.toString()]);
+    proc.stdout.pipe(process.stdout);
+    proc.stderr.pipe(process.stderr);
+    proc.on('close', function (code) {
+      if (code === 0) {
+        return resolve(0);
+      }
+      return reject(new Error('Failed Linting'));
+    });
   });
+};
+
+
+if (require.main === module) {
+  exports.main()
+    .then(function () {
+      console.log('lint_runner succeeded :)');
+    })
+    .catch(function (err) {
+      console.error('lint_runner run failed:');
+      console.error(err.stack || err.message || err);
+    });
 }
-
-function spawn(args) {
-  var
-  argv = [args.jshint.toString(), args.target.toString()],
-  child = CP.spawn('node', argv);
-  child.on('error', function (err) {
-    console.error('JSHint process error:');
-    console.error(err.stack || err.message);
-    process.exit(1);
-  });
-  child.stdout.pipe(process.stdout);
-  child.stderr.pipe(process.stderr);
-}
-
-main();
-

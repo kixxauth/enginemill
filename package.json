@@ -5,6 +5,9 @@
     "author"      : "Kris Walker <kris@kixx.name> (http://www.kixx.name/)",
     "bin"         : {"em": "./bin/em.js"},
     "main"        : "./enginemill",
+    "scripts"     : {
+        "lint": "node management/run_jshint.js"
+    },
     "repository"  : {
         "type" : "git",
         "url"  : "git://github.com/kixxauth/enginemill.git"
