@@ -118,9 +118,9 @@ exports.main = function () {
 
   registerCoffeeScript();
 
-  return exports.runnerAction(null, args)
+  return exports.runnerAction(args)
     .then(function (args) {
-      return exports.preLoaderAction(null, {
+      return exports.preLoaderAction({
         API        : args.API,
         argv       : args.argv,
         scriptPath : args.scriptPath
@@ -129,7 +129,7 @@ exports.main = function () {
     })
     .then(function (args) {
       exports.API = args.API;
-      return exports.appRunnerAction(null, {
+      return exports.appRunnerAction({
         API        : args.API,
         scriptPath : args.scriptPath
       });
@@ -155,7 +155,7 @@ exports.load = function (argv) {
 
   registerCoffeeScript();
 
-  return exports.preLoaderAction(null, args)
+  return exports.preLoaderAction(args)
     .then(function (args) {
       exports.API = args.API;
     })
@@ -204,7 +204,7 @@ exports.PreLoader = {
   // args.environment - The environment String.
   //
   // Returns the args Object.
-  setEnvironment: function (API, args) {
+  setEnvironment: function (args) {
     args.environment = args.argv.env || 'production';
     return args;
   },
@@ -224,8 +224,8 @@ exports.PreLoader = {
   // GLOBAL.U        - The utilities Library.
   //
   // Returns a Promise for the return value of LoadEnvironment#run().
-  loadEnvironment: function (API, args) {
-    return exports.environmentLoaderAction(null, {
+  loadEnvironment: function (args) {
+    return exports.environmentLoaderAction({
       API     : args.API,
       configs : {
         environment: args.environment
@@ -240,7 +240,7 @@ exports.PreLoader = {
   // args.API - The new (frozen) API object.
   //
   // Returns the args Object.
-  setAPI: function (API, args) {
+  setAPI: function (args) {
     args.API = args.API.freeze();
     return args;
   },
@@ -290,7 +290,7 @@ exports.Runner = {
   // Expects the Yargs utility to be present as Yargs.
   //
   // Returns the args Object.
-  parseCommandline: function (API, args) {
+  parseCommandline: function (args) {
     var
     usage = 'Usage:\n',
     argv;
@@ -333,7 +333,7 @@ exports.Runner = {
   // args.command - The command String.
   //
   // Returns the args Object.
-  checkCommand: function (API, args) {
+  checkCommand: function (args) {
     var
     command = args.argv._[0],
     message;
@@ -369,7 +369,7 @@ exports.Runner = {
   // args.scriptPath - The FilePath object representing the script path.
   //
   // Returns the args Object.
-  setScriptPath: function (API, args) {
+  setScriptPath: function (args) {
     var
     path = args.argv._[1];
     if (path) {
@@ -414,13 +414,13 @@ exports.Runner = {
   // args.command - The command String.
   //
   // Returns the args Object.
-  checkHelp: function (API, args) {
+  checkHelp: function (args) {
     var
     scriptPath = args.argv._[1];
     if (args.command === 'help' && !scriptPath) {
       exports.Runner.showHelpAndExit();
     } else if (args.command === 'help' && scriptPath) {
-      exports.Runner.showProgramHelpAndExit(null, args);
+      exports.Runner.showProgramHelpAndExit(args);
     }
     return args;
   },
@@ -444,13 +444,13 @@ exports.Runner = {
   // Params:
   // args.API        - The API Object.
   // args.scriptPath - The FilePath instance representing the application script.
-  showProgramHelpAndExit: function (API, args) {
+  showProgramHelpAndExit: function (args) {
     var
-    scriptModule = exports.RunApp.loadAppModule(null, {
+    scriptModule = exports.RunApp.loadAppModule({
       scriptPath: args.scriptPath
     }).scriptModule;
     exports.RunApp.parseCommandline
-      .call(this, null, {
+      .call(this, {
         API              : args.API,
         parseCommandline : false,
         scriptPath       : args.scriptPath,
@@ -507,7 +507,7 @@ exports.LoadEnvironment = {
   // args.coreConfigs - Config Object.
   //
   // Returns a Promise for the args Object.
-  loadCoreConfigs: function (API, args) {
+  loadCoreConfigs: function (args) {
     var
     paths = [ FilePath.create(__dirname).append('configs.ini') ];
     return loadConfigsPath(args.configs.environment, paths).then(function (configs) {
@@ -525,7 +525,7 @@ exports.LoadEnvironment = {
   // args.configs.app - Application package.json data Object.
   //
   // Returns a Promise for the args Object.
-  readAppSettings: function(API, args) {
+  readAppSettings: function(args) {
     var
     jsonPath = args.API.appdir(args.configs).append('package.json');
 
@@ -563,7 +563,7 @@ exports.LoadEnvironment = {
   // args.appConfigs - Configs Object.
   //
   // Returns a Promise for the args Object.
-  loadAppConfigs: function (API, args) {
+  loadAppConfigs: function (args) {
     var
     appname = args.configs.app.name,
     paths = [
@@ -590,7 +590,7 @@ exports.LoadEnvironment = {
   // args.API.configs - Frozen configs Object.
   //
   // Returns the args object.
-  setConfigs: function (API, args) {
+  setConfigs: function (args) {
     var
     configs = U.extend(
       args.configs,
@@ -613,7 +613,7 @@ exports.LoadEnvironment = {
   // GLOBAL.U       - To API.U.
   //
   // Returns the GLOBAL Object.
-  setGlobals: function (API, args) {
+  setGlobals: function (args) {
     return Object.defineProperties(GLOBAL, {
       Promise : {
         enumerable : true,
@@ -653,7 +653,7 @@ exports.RunApp = {
   // args.scriptModule - The exported Object from the application script.
   //
   // Returns the args Object.
-  loadAppModule: function (API, args) {
+  loadAppModule: function (args) {
     args.scriptModule = require(args.scriptPath.toString());
     return args;
   },
@@ -670,7 +670,7 @@ exports.RunApp = {
   // Expects the Yargs utility to be present as Yargs.
   //
   // Returns the parsed argv Object.
-  parseCommandline: function (API, args) {
+  parseCommandline: function (args) {
     var
     opts,
     argv,
@@ -710,7 +710,7 @@ exports.RunApp = {
     return argv;
   },
 
-  runApp: function (API, args) {
+  runApp: function (args) {
     args.scriptModule.main(exports.API);
     return args;
   }
