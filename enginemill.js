@@ -106,22 +106,22 @@ plugins, and intializing the guest application.
 */
 exports.main = function () {
   var
-  API, args;
+  args;
 
-  API = newAPI({
+  args         = Object.create(null);
+  args.configs = Object.create(null);
+  args.API     = newAPI({
     sysconfigsdir : FilePath.root().append('etc', 'enginemill'),
     usrconfigsdir : FilePath.home().append('.enginemill'),
     appdir        : FilePath.create()
   });
 
-  args         = Object.create(null);
-  args.configs = Object.create(null);
-
   registerCoffeeScript();
 
-  return exports.runnerAction(API, args)
+  return exports.runnerAction(null, args)
     .then(function (args) {
-      return exports.preLoaderAction(API, {
+      return exports.preLoaderAction(null, {
+        API        : args.API,
         argv       : args.argv,
         scriptPath : args.scriptPath
         // scriptPath is passed just because we need it later.
@@ -129,8 +129,9 @@ exports.main = function () {
     })
     .then(function (args) {
       exports.API = args.API;
-      return exports.appRunnerAction(args.API, {
-        scriptPath: args.scriptPath
+      return exports.appRunnerAction(null, {
+        API        : args.API,
+        scriptPath : args.scriptPath
       });
     })
     .then(function () { return exports.API; });
@@ -139,23 +140,22 @@ exports.main = function () {
 
 exports.load = function (argv) {
   var
-  API, args;
+  args;
 
   argv = Object.freeze(U.cloneDeep(argv));
 
-  API = newAPI({
+  args         = Object.create(null);
+  args.configs = Object.create(null);
+  args.argv    = argv;
+  args.API     = newAPI({
     sysconfigsdir : FilePath.root().append('etc', 'enginemill'),
     usrconfigsdir : FilePath.home().append('.enginemill'),
     appdir        : FilePath.create()
   });
 
-  args         = Object.create(null);
-  args.configs = Object.create(null);
-  args.argv    = argv;
-
   registerCoffeeScript();
 
-  return exports.preLoaderAction(API, args)
+  return exports.preLoaderAction(null, args)
     .then(function (args) {
       exports.API = args.API;
     })
@@ -212,28 +212,28 @@ exports.PreLoader = {
   // Creates a new LoadEvironment action and runs it.
   //
   // Params:
-  // API.appdir        - Lookup function that takes a configs Object.
-  // API.sysconfigsdir - Lookup Function that takes a configs Object.
-  // API.usrconfigsdir - Lookup Function that takes a configs Object.
+  // args.API.appdir        - Lookup function that takes a configs Object.
+  // args.API.sysconfigsdir - Lookup Function that takes a configs Object.
+  // args.API.usrconfigsdir - Lookup Function that takes a configs Object.
   // args.environment  - The environment String.
   //
   // Sets:
-  // API.configs     - The configs Object (will be frozen).
-  // API.configs.app - The application configs Object (from package.json).
+  // args.API.configs     - The configs Object (will be frozen).
+  // args.API.configs.app - The application configs Object (from package.json).
   // GLOBAL.print    - The print utility Function.
   // GLOBAL.U        - The utilities Library.
   //
   // Returns a Promise for the return value of LoadEnvironment#run().
   loadEnvironment: function (API, args) {
-    return exports.environmentLoaderAction(API, {
-      configs: {
+    return exports.environmentLoaderAction(null, {
+      API     : args.API,
+      configs : {
         environment: args.environment
       }
     });
   },
 
   // Params:
-  // API  - The API Object as it has been compiled so far.
   // args - The args Object.
   //
   // Sets:
@@ -241,7 +241,7 @@ exports.PreLoader = {
   //
   // Returns the args Object.
   setAPI: function (API, args) {
-    args.API = API.freeze();
+    args.API = args.API.freeze();
     return args;
   },
 };
@@ -285,7 +285,6 @@ exports.Runner = {
   // https://www.npmjs.com/package/yargs
   //
   // Parameters:
-  // API  - not used
   // args - A new argv Object will be added as .argv.
   //
   // Expects the Yargs utility to be present as Yargs.
@@ -326,7 +325,6 @@ exports.Runner = {
   // appropriate action if it is invalid.
   //
   // Params:
-  // API  - not used
   // args - A new command String will be added as args.command.
   //
   // Expects this.showHelpAndExit() to be present.
@@ -364,7 +362,7 @@ exports.Runner = {
   // is not available.
   //
   // Params:
-  // API.appdir - Lookup function that takes a configs Object.
+  // args.API.appdir - Lookup function that takes a configs Object.
   // args.argv  - The parsed commandline argv.
   //
   // Sets:
@@ -381,7 +379,7 @@ exports.Runner = {
         args.scriptPath = FilePath.create().append(path);
       }
     } else {
-      args.scriptPath = API.appdir().append('app');
+      args.scriptPath = args.API.appdir().append('app');
     }
     return args;
   },
@@ -413,7 +411,6 @@ exports.Runner = {
   // appropriate action.
   //
   // Params:
-  // API          - not users
   // args.command - The command String.
   //
   // Returns the args Object.
@@ -423,7 +420,7 @@ exports.Runner = {
     if (args.command === 'help' && !scriptPath) {
       exports.Runner.showHelpAndExit();
     } else if (args.command === 'help' && scriptPath) {
-      exports.Runner.showProgramHelpAndExit(API, args.scriptPath);
+      exports.Runner.showProgramHelpAndExit(null, args);
     }
     return args;
   },
@@ -445,17 +442,18 @@ exports.Runner = {
   // script and exit the process.
   //
   // Params:
-  // API        - The API Object.
-  // scriptPath - The FilePath instance representing the application script.
-  showProgramHelpAndExit: function (API, scriptPath) {
+  // args.API        - The API Object.
+  // args.scriptPath - The FilePath instance representing the application script.
+  showProgramHelpAndExit: function (API, args) {
     var
     scriptModule = exports.RunApp.loadAppModule(null, {
-      scriptPath: scriptPath
+      scriptPath: args.scriptPath
     }).scriptModule;
     exports.RunApp.parseCommandline
-      .call(this, API, {
+      .call(this, null, {
+        API              : args.API,
         parseCommandline : false,
-        scriptPath       : scriptPath,
+        scriptPath       : args.scriptPath,
         scriptModule     : scriptModule
       });
     this.showHelpAndExit(scriptModule.help || '');
@@ -503,7 +501,6 @@ Configuration Structure
 exports.LoadEnvironment = {
 
   // Params:
-  // API                      - Not used.
   // args.configs.environment - Environment String.
   //
   // Sets:
@@ -522,7 +519,7 @@ exports.LoadEnvironment = {
   // Reads the package.json to add application meta info.
   //
   // Params:
-  // API.appdir - Function that takes a configs Object.
+  // args.API.appdir - Function that takes a configs Object.
   //
   // Sets:
   // args.configs.app - Application package.json data Object.
@@ -530,7 +527,7 @@ exports.LoadEnvironment = {
   // Returns a Promise for the args Object.
   readAppSettings: function(API, args) {
     var
-    jsonPath = API.appdir(args.configs).append('package.json');
+    jsonPath = args.API.appdir(args.configs).append('package.json');
 
     function parseJSON(text) {
       var
@@ -557,9 +554,9 @@ exports.LoadEnvironment = {
   },
 
   // Params:
-  // API.appdir            - Function that takes a configs Object.
-  // API.sysconfigsdir     - Function that takes a configs Object.
-  // API.usrconfigsdir     - Function that takes a configs Object.
+  // args.API.appdir            - Function that takes a configs Object.
+  // args.API.sysconfigsdir     - Function that takes a configs Object.
+  // args.API.usrconfigsdir     - Function that takes a configs Object.
   // args.configs.app.name - Name String of the application.
   //
   // Sets:
@@ -570,9 +567,9 @@ exports.LoadEnvironment = {
     var
     appname = args.configs.app.name,
     paths = [
-      API.appdir(args.configs).append('configs.ini'),
-      API.sysconfigsdir(args.configs).append(appname +'.ini'),
-      API.usrconfigsdir(args.configs).append(appname +'.ini')
+      args.API.appdir(args.configs).append('configs.ini'),
+      args.API.sysconfigsdir(args.configs).append(appname +'.ini'),
+      args.API.usrconfigsdir(args.configs).append(appname +'.ini')
     ];
 
     return loadConfigsPath(args.configs.environment, paths).then(function (configs) {
@@ -584,15 +581,15 @@ exports.LoadEnvironment = {
   // Deep freeze the configs Object and assign it to API.configs.
   //
   // Params:
-  // API                - API Object will have .configs added.
+  // args.API           - API Object will have .configs added.
   // args.coreConfigs   - The enginemill configs Object.
   // args.pluginConfigs - The plugins configs Object.
   // args.appConfigs    - The application configs Object.
   //
   // Sets:
-  // API.configs - Frozen configs Object.
+  // args.API.configs - Frozen configs Object.
   //
-  // Returns the API object.
+  // Returns the args object.
   setConfigs: function (API, args) {
     var
     configs = U.extend(
@@ -600,15 +597,15 @@ exports.LoadEnvironment = {
       args.coreConfigs,
       args.pluginConfigs,
       args.appConfigs);
-    API.configs   = U.deepFreeze(configs);
-    return API;
+    args.API.configs   = U.deepFreeze(configs);
+    return args;
   },
 
   // Sets a few useful globals. Yikes!
   //
   // Params:
-  // API.print - The API print Function.
-  // API.U     - The API U utility library.
+  // args.API.print - The API print Function.
+  // args.API.U     - The API U utility library.
   //
   // Sets:
   // GLOBAL.Promise - The Promise constructor.
@@ -616,19 +613,19 @@ exports.LoadEnvironment = {
   // GLOBAL.U       - To API.U.
   //
   // Returns the GLOBAL Object.
-  setGlobals: function (API) {
+  setGlobals: function (API, args) {
     return Object.defineProperties(GLOBAL, {
       Promise : {
         enumerable : true,
-        value      : API.Promise
+        value      : args.API.Promise
       },
       print : {
         enumerable : true,
-        value      : API.print,
+        value      : args.API.print,
       },
       U : {
         enumerable : true,
-        value      : API.U
+        value      : args.API.U
       }
     });
   }
@@ -650,7 +647,6 @@ exports.RunApp = {
   // Loads the Common.js module representing the program.
   //
   // Params:
-  // API             - Not used.
   // args.scriptPath - A FilePath instance pointing to the module file.
   //
   // Sets:
@@ -666,7 +662,7 @@ exports.RunApp = {
   // https://www.npmjs.com/package/yargs
   //
   // Params:
-  // API.argv()                - The setter Function for API argv.
+  // args.API.argv()           - The setter Function for API argv.
   // args.scriptModule.usage   - The usage String defined by the script module.
   // args.scriptModule.options - The options definition Object defined by the
   //                             script module.
@@ -710,7 +706,7 @@ exports.RunApp = {
     if (parse) {
       argv = opts.argv;
     }
-    API.argv(argv);
+    args.API.argv(argv);
     return argv;
   },
 
