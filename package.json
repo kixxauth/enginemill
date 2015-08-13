@@ -6,7 +6,8 @@
     "bin"         : {"em": "./bin/em.js"},
     "main"        : "./enginemill",
     "scripts"     : {
-        "lint": "node management/run_jshint.js"
+        "lint": "node management/run_jshint.js",
+        "test": "node management/run_tests.js ./test"
     },
     "repository"  : {
         "type" : "git",
