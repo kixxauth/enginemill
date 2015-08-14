@@ -20,7 +20,7 @@ exports.main = (API) ->
       appdir        : typeof API.appdir is 'function'
       sysconfigsdir : typeof API.sysconfigsdir is 'function'
       usrconfigsdir : typeof API.usrconfigsdir is 'function'
-      argv          : API.argv()
+      argv          : API.argv
 
   process.stdout.write(JSON.stringify(output))
   return

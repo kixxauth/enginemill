@@ -662,10 +662,11 @@ exports.RunApp = {
   // https://www.npmjs.com/package/yargs
   //
   // Params:
-  // args.API.argv()           - The setter Function for API argv.
+  // args.API                  - Will set API.argv
   // args.scriptModule.usage   - The usage String defined by the script module.
   // args.scriptModule.options - The options definition Object defined by the
   //                             script module.
+  // args.parseCommandline     - Boolean add API.argv or not (default=true)
   //
   // Expects the Yargs utility to be present as Yargs.
   //
@@ -673,7 +674,6 @@ exports.RunApp = {
   parseCommandline: function (args) {
     var
     opts,
-    argv,
     parse = U.isBoolean(args.parseCommandline) ? args.parseCommandline : true,
     scriptPath = PATH.relative(process.cwd(), args.scriptPath.toString()),
     usage = args.scriptModule.usage,
@@ -703,11 +703,8 @@ exports.RunApp = {
       });
     }
 
-    if (parse) {
-      argv = opts.argv;
-    }
-    args.API.argv(argv);
-    return argv;
+    args.API.argv = parse ? opts.argv : null;
+    return args.API.argv;
   },
 
   runApp: function (args) {
