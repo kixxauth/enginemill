@@ -77,4 +77,15 @@ exports["em run default_app (configs loading)"] = {
     test.equal(typeof this.json.API.configs, 'object');
     return test.done();
   },
+
+  "it has a setter": function (test) {
+    test.ok(this.json.API.set);
+    return test.done();
+  },
+
+  "it has a getter": function (test) {
+    test.ok(this.json.API.get);
+    test.equal(this.json.API_SETVAL, 'this value was set');
+    return test.done();
+  }
 };

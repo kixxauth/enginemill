@@ -7,6 +7,8 @@ exports.options =
     boolean  : yes
 
 exports.main = (API) ->
+  API.set('API_SETVAL', 'this value was set');
+
   output =
     API:
       configs       : API.configs
@@ -21,6 +23,9 @@ exports.main = (API) ->
       sysconfigsdir : typeof API.sysconfigsdir is 'function'
       usrconfigsdir : typeof API.usrconfigsdir is 'function'
       argv          : typeof API.argv is 'object' # includes null
+      set           : typeof API.set is 'function'
+      get           : typeof API.get is 'function'
+    API_SETVAL: API.get('API_SETVAL')
 
   process.stdout.write(JSON.stringify(output))
   return
