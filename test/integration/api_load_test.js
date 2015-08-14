@@ -36,5 +36,45 @@ exports["em run default_app (configs loading)"] = {
   "it has .factory": function (test) {
     test.ok(this.json.API.factory);
     return test.done();
-  }
+  },
+
+  "it has .path": function (test) {
+    test.ok(this.json.API.path);
+    return test.done();
+  },
+
+  "it has .initializer": function (test) {
+    test.ok(this.json.API.initializer);
+    return test.done();
+  },
+
+  "it has .action": function (test) {
+    test.ok(this.json.API.action);
+    return test.done();
+  },
+
+  "it has .appdir": function (test) {
+    test.ok(this.json.API.appdir);
+    return test.done();
+  },
+
+  "it has .sysconfigsdir": function (test) {
+    test.ok(this.json.API.sysconfigsdir);
+    return test.done();
+  },
+
+  "it has .usrconfigsdir": function (test) {
+    test.ok(this.json.API.usrconfigsdir);
+    return test.done();
+  },
+
+  "it has .argv": function (test) {
+    test.ok(this.json.API.argv);
+    return test.done();
+  },
+
+  "it has .configs": function (test) {
+    test.equal(typeof this.json.API.configs, 'object');
+    return test.done();
+  },
 };
