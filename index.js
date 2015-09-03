@@ -84,4 +84,4 @@ function createApplication(options, envConfigs, argv, packageJSON, fileConfigs) 
     configs       : U.extend(Object.create(null), fileConfigs, envConfigs, argv),
     argv          : argv
   });
-});
+}
