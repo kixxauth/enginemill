@@ -3,7 +3,7 @@
     "version"     : "0.8.0",
     "description" : "Making it easier to build the internet.",
     "author"      : "Kris Walker <kris@kixx.name> (http://www.kixx.name/)",
-    "main"        : "./enginemill",
+    "main"        : "./index.js",
     "scripts"     : {
         "lint": "node management/run_jshint.js",
         "test": "node management/run_tests.js ./test"
