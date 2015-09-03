@@ -1,7 +1,7 @@
 {
     "name"        : "enginemill",
-    "version"     : "0.5.2",
-    "description" : "Making it easier to build awesome stuff on the web.",
+    "version"     : "0.8.0",
+    "description" : "Making it easier to build the internet.",
     "author"      : "Kris Walker <kris@kixx.name> (http://www.kixx.name/)",
     "bin"         : {"em": "./bin/em.js"},
     "main"        : "./enginemill",
