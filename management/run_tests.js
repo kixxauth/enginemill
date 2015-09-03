@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
 var
-FS = require('fs'),
-PATH = require('path'),
-NODEUNIT = require('nodeunit'),
-testPath = PATH.resolve(process.argv[2]),
+FS          = require('fs'),
+PATH        = require('path'),
+nodeunit    = require('nodeunit'),
+testPath    = PATH.resolve(process.argv[2]),
 fileMatcher = /test\.js$/,
 files;
 
@@ -34,4 +34,4 @@ if (FS.statSync(testPath).isDirectory()) {
 } else {
   files = [PATH.relative(process.cwd(), testPath)];
 }
-NODEUNIT.reporters.default.run(files, null);
+nodeunit.reporters.default.run(files, null);

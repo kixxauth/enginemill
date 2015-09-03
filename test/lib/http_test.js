@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
 var
 U       = require('../../lib/u'),
 REQ     = require('../../lib/http'),
 IMP     = require('request'),
 Request = IMP.Request,
-SERVER  = require('../common/server');
+SERVER  = require('../tools/server');
 
 
 exports["get() without error"] = {
