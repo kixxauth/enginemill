@@ -22,7 +22,8 @@
   },
   "devDependencies": {
     "jshint"   : "2.8.0",
-    "nodeunit" : "0.9.1"
+    "nodeunit" : "0.9.1",
+    "sinon"    : "1.16.1"
   },
   "bugs": {"url": "https://github.com/kixxauth/enginemill/issues"}
 }
