@@ -40,17 +40,17 @@ exports["with directory as path"] = {
     .then(function (res) {
       self.res = res;
     })
-    .catch(ERRORS.JSONReadError, function (err) {
+    .catch(ERRORS.ArgumentError, function (err) {
       self.error = err;
     })
     .then(done)
     .catch(done);
   },
 
-  "rejects with JSONReadError": function (test) {
+  "rejects with ArgumentError": function (test) {
     var err = this.error;
-    test.ok((err instanceof ERRORS.JSONReadError), 'is not a JSONReadError');
-    test.equal(err.message, 'The expected file path is a directory');
+    test.ok((err instanceof ERRORS.ArgumentError), 'is not an ArgumentError');
+    test.equal(err.message, 'The expected file path is not a file');
     return test.done();
   }
 };
