@@ -5,7 +5,7 @@ FP     = require('filepath'),
 TOOLS  = require('../tools/'),
 ERRORS = require('../../lib/errors'),
 
-readPackageJSON = require('../../lib/package_json_loader').readPackageJSON;
+readJSON = require('../../lib/json_reader').readJSON;
 
 
 exports["when file does not exist"] = {
@@ -13,9 +13,7 @@ exports["when file does not exist"] = {
     var self = this;
 
     TOOLS.runOnce("when file does not exist", function () {
-      return readPackageJSON({
-        appdir: TOOLS.fixturePath
-      });
+      return readJSON(TOOLS.fixturePath.append('foo.json'));
     })
     .then(function (res) {
       self.res = res;
@@ -31,38 +29,13 @@ exports["when file does not exist"] = {
   }
 };
 
-exports["when directory does not exist"] = {
+exports["with directory as path"] = {
   setUp: function (done) {
     var self = this;
 
-    TOOLS.runOnce("when directory does not exist", function () {
-      return readPackageJSON({
-        appdir: TOOLS.fixturePath.append('foo')
-      });
-    })
-    .then(function (res) {
-      self.res = res;
-    })
-    .then(done)
-    .catch(done);
-  },
-
-  "returns null": function (test) {
-    var res = this.res;
-    test.strictEqual(res, null, 'is not null');
-    return test.done();
-  }
-};
-
-exports["with directory named package.json"] = {
-  setUp: function (done) {
-    var self = this;
-
-    TOOLS.runOnce("with directory named package.json", function () {
-      return readPackageJSON({
-        // There is a directory in fakedir/ named 'package.json/'.
-        appdir: TOOLS.fixturePath.append('fakedir')
-      });
+    TOOLS.runOnce("with directory as path", function () {
+      // There is a directory in fakedir/ named 'package.json/'.
+      return readJSON(TOOLS.fixturePath.append('fakedir', 'package.json'));
     })
     .then(function (res) {
       self.res = res;
@@ -82,14 +55,12 @@ exports["with directory named package.json"] = {
   }
 };
 
-exports["with invalid package.json"] = {
+exports["with invalid JSON file"] = {
   setUp: function (done) {
     var self = this;
 
-    TOOLS.runOnce("with invalid package.json", function () {
-      return readPackageJSON({
-        appdir: TOOLS.fixturePath.append('invalid_package_json')
-      });
+    TOOLS.runOnce("with invalid JSON file", function () {
+      return readJSON(TOOLS.fixturePath.append('invalid_package_json', 'package.json'));
     })
     .then(function (res) {
       self.res = res;
@@ -109,14 +80,12 @@ exports["with invalid package.json"] = {
   }
 };
 
-exports["with valid package.json"] = {
+exports["with valid JSON file"] = {
   setUp: function (done) {
     var self = this;
 
-    TOOLS.runOnce("with valid package.json", function () {
-      return readPackageJSON({
-        appdir: FP.create(__dirname).resolve('../../')
-      });
+    TOOLS.runOnce("with valid JSON file", function () {
+      return readJSON(FP.create(__dirname).resolve('../../package.json'));
     })
     .then(function (res) {
       self.res = res;
