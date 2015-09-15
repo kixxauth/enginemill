@@ -1,7 +1,10 @@
 'use strict';
 
 var
+sinon = require('sinon'),
+
 clArgsLoader = require('../../lib/cl_args_loader');
+
 
 exports["with no defined options"] = {
   setUp: function (done) {
@@ -103,31 +106,53 @@ exports["with defined options"] = {
 
 exports["when help is invoked"] = {
   setUp: function (done) {
+    var
+    self = this,
+    buff = '';
+
     this.argv = [
       '--help'
     ];
 
     this.options = {
       environment: {
-        describe: 'the runtime environment',
-        default: 'development'
+        describe : 'the runtime environment',
+        default  : 'development'
       }
     };
 
-    process.exit = function (code) {
-      debugger;
-    };
+    this.processStdoutWrite = sinon.stub(process.stdout, 'write', function (data) {
+      buff += data;
+    });
+
+    this.processExit = sinon.stub(process, 'exit', function (code) {
+      self.exitCode = code;
+      self.stdout   = buff;
+      done();
+    });
 
     this.parsedArgv = clArgsLoader.loadArgv({
       options : this.options,
       argv    : this.argv
     });
+  },
 
+  tearDown: function(done) {
+    this.processStdoutWrite.restore();
+    this.processExit.restore();
     done();
   },
 
-  "smoke test": function (test) {
-    debugger;
+  "emits exit code of 0": function (test) {
+    test.strictEqual(this.exitCode, 0);
     test.done();
   },
+
+  "prints help string for options": function (test) {
+    var
+    regex = /^\-\-environment[\s]+the runtime environment[\s]+\[default: \"development\"\]/,
+    line = this.stdout.split('\n')[2].trim();
+    test.ok(regex.test(line), line);
+    test.done();
+  }
 };
