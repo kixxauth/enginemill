@@ -15,6 +15,7 @@ exports["when both files not found"] = {
   setUp: function (done) {
     var self = this;
 
+    this.environment = 'development';
     this.readJSON = sinon.stub(jsonReader, 'readJSON');
 
     // Setup the first two calls.
@@ -24,7 +25,7 @@ exports["when both files not found"] = {
     loadConfigs({
       appdir        : FP.create(__dirname),
       sysconfigsdir : FP.root(),
-      environment   : 'development'
+      environment   : this.environment
     })
     .then(function (res) {
       self.res = res;
@@ -44,12 +45,12 @@ exports["when both files not found"] = {
     test.done();
   },
 
-  "appends 'package.json' to passed directory": function (test) {
+  "appends '<environment>.json' to passed directory": function (test) {
     var
     appArg, sysArg,
     stub        = this.readJSON,
-    appExpected = FP.create(__dirname).append('configs.json').toString(),
-    sysExpected = FP.root().append('configs.json').toString();
+    appExpected = FP.create(__dirname).append(this.environment +'.json').toString(),
+    sysExpected = FP.root().append(this.environment +'.json').toString();
 
     appArg = stub.args[0][0].toString();
     sysArg = stub.args[1][0].toString();
@@ -182,27 +183,17 @@ exports["with sys and environment conflicts"] = {
     this.environment = 'development';
 
     this.appVal = {
-      secret_one: 'should not be used',
-      secret_two: 'also should not be used',
       app_config: 'qwerty',
       sys_config: 'will be overwritten',
-      undef: 'will be undefined'
-    };
-    this.appVal[this.environment] = {
-      secret_one: 'first secret',
-      secret_two: 'second secret',
-      another_undef: 'will also be undefined'
+      nulled: 'will be set to null',
+      not_undefined: 'survives'
     };
 
     this.sysVal = {
       sys_config: 'tyuiop',
       global_config: 'global config',
-      another_undef: null
-    };
-    this.sysVal[this.environment] = {
-      secret_two: 'overwritten secret',
-      env_global_config: 'environment global config',
-      undef: null
+      nulled: null,
+      not_undefined: undefined
     };
 
     this.readJSON = sinon.stub(jsonReader, 'readJSON');
@@ -234,26 +225,21 @@ exports["with sys and environment conflicts"] = {
     test.done();
   },
 
-  "environment configs get precedence": function (test) {
+  "app configs persist when not overwritten": function (test) {
     var
     res    = this.res,
-    env    = this.environment,
-    appVal = this.appVal,
-    sysVal = this.sysVal;
+    appVal = this.appVal;
 
-    test.equal(res.secret_one, appVal[env].secret_one);
-    test.equal(res.secret_two, sysVal[env].secret_two);
+    test.equal(res.app_config, appVal.app_config);
     test.done();
   },
 
   "sys configs overwrite": function (test) {
     var
     res    = this.res,
-    env    = this.environment,
     sysVal = this.sysVal;
 
     test.equal(res.sys_config, sysVal.sys_config);
-    test.equal(res.secret_two, sysVal[env].secret_two);
     test.done();
   },
 
@@ -262,26 +248,15 @@ exports["with sys and environment conflicts"] = {
     res = this.res;
 
     test.equal(res.undef, null);
-    test.equal(res.another_undef, null);
-    test.done();
-  },
-
-  "environment object does not exist": function (test) {
-    var
-    res = this.res,
-    env = this.environment;
-
-    test.equal(typeof res[env], 'undefined');
     test.done();
   },
 
   "values are not unset with undefined": function (test) {
     var
     res    = this.res,
-    appVal = this.appVal;
+    sysVal = this.sysVal;
 
-    test.notEqual(typeof res.app_config, 'undefined');
-    test.equal(res.app_config, appVal.app_config);
+    test.strictEqual(res.not_undefined, sysVal.not_undefined);
     test.done();
   }
 };
