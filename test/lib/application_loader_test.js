@@ -2,6 +2,7 @@
 
 var
 TOOLS = require('../tools/'),
+U     = require('../../lib/u'),
 
 applicationLoader = require('../../lib/application_loader');
 
@@ -86,4 +87,58 @@ exports["with defaults"] = {
     test.ok(configs.database_has_memstore);
     test.done();
   }
+};
+
+exports["with package.json"] = {
+  setUp: function (done) {
+    var
+    self = this;
+    this.appdir = TOOLS.fixturePath.append('app');
+
+    applicationLoader.load({
+      appdir: this.appdir,
+    })
+    .then(function (app) {
+      self.app = app;
+      done();
+    });
+  },
+
+  "has a non-default name": function (test) {
+    test.equal(this.app.name, 'test-fixture');
+    test.done();
+  },
+
+  "has a non-default version": function (test) {
+    test.equal(this.app.version, '1.0.0');
+    test.done();
+  },
+
+  "has a packageJSON": function (test) {
+    test.ok(U.isObject(this.app.packageJSON));
+    test.done();
+  },
+
+  "packageJSON has repository object": function (test) {
+    test.ok(U.isObject(this.app.packageJSON.repository));
+    test.done();
+  },
+
+  "packageJSON is deeply frozen": function (test) {
+
+    function walkTree(obj) {
+      test.ok(Object.isFrozen(obj));
+
+      Object.keys(obj).forEach(function (key) {
+        var val = obj[key];
+        if (U.isObject(val)) {
+          walkTree(val);
+        }
+      });
+    }
+
+    walkTree(this.app.packageJSON);
+    test.done();
+  }
+
 };
