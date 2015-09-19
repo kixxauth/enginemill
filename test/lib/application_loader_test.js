@@ -10,7 +10,7 @@ exports["with defaults"] = {
   setUp: function (done) {
     var
     self = this;
-    this.appdir = TOOLS.fixturePath.append('app');
+    this.appdir = TOOLS.fixturePath.append('default-app');
 
     applicationLoader.load({
       appdir       : this.appdir,
