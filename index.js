@@ -9,6 +9,7 @@ packageJSONLoader  = require('./lib/package_json_loader'),
 configsFilesLoader = require('./lib/configs_files_loader'),
 application        = require('./lib/application'),
 
+// args.appdir       = FP.create().resolve(process.argv[1]).dirname();
 DEFAULTS = Object.freeze(U.extend(Object.create(null), {
   usageString: '',
   commandLineOptions: Object.create(null),
