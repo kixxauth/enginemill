@@ -1,8 +1,8 @@
 'use strict';
 
 var
-FP    = require('filepath'),
-sinon = require('sinon'),
+FP      = require('filepath'),
+sinon   = require('sinon'),
 Promise = require('../../lib/promise'),
 
 readPackageJSON = require('../../lib/package_json_loader').readPackageJSON,
