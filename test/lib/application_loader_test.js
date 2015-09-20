@@ -4,6 +4,7 @@ var
 TOOLS = require('../tools/'),
 U     = require('../../lib/u'),
 
+errors            = require('../../lib/errors'),
 applicationLoader = require('../../lib/application_loader');
 
 
@@ -125,7 +126,6 @@ exports["with package.json"] = {
   },
 
   "packageJSON is deeply frozen": function (test) {
-
     function walkTree(obj) {
       test.ok(Object.isFrozen(obj));
 
@@ -141,4 +141,63 @@ exports["with package.json"] = {
     test.done();
   }
 
+};
+
+exports["initializer not found"] = {
+  setUp: function (done) {
+    var
+    self = this;
+    this.appdir = TOOLS.fixturePath.append('default-app');
+
+    applicationLoader.load({
+      appdir       : this.appdir,
+      initializers : [
+        'foobar'
+      ]
+    })
+    .then(function () {
+      done(new Error('Success handler should not be called.'));
+    })
+    .catch(function (err) {
+      self.error = err;
+      done();
+    });
+  },
+
+  "rejects with an ArgumentError": function (test) {
+    var
+    path = this.appdir.append('initializers', 'foobar');
+    test.ok(this.error instanceof Error);
+    test.ok(this.error instanceof errors.ArgumentError);
+    test.ok(/^Cannot find module/.test(this.error.message));
+    test.ok(this.error.message.indexOf(path) > 0);
+    test.done();
+  }
+};
+
+exports["initializer not a function"] = {
+  setUp: function (done) {
+    var
+    self = this;
+    this.appdir = TOOLS.fixturePath.append('default-app');
+
+    applicationLoader.load({
+      appdir       : this.appdir,
+      initializers : [ {} ]
+    })
+    .then(function () {
+      done(new Error('Success handler should not be called.'));
+    })
+    .catch(function (err) {
+      self.error = err;
+      done();
+    });
+  },
+
+  "rejects with an ArgumentError": function (test) {
+    test.ok(this.error instanceof Error);
+    test.ok(this.error instanceof errors.ArgumentError);
+    test.equal(this.error.message, 'Initializers must be functions: index 0');
+    test.done();
+  }
 };
