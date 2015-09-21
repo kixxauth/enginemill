@@ -1,87 +1,40 @@
 'use strict';
 
 var
-FP                 = require('filepath'),
-Promise            = require('./lib/promise'),
-U                  = require('./lib/u'),
-clArgsLoader       = require('./lib/cl_args_loader'),
-packageJSONLoader  = require('./lib/package_json_loader'),
-configsFilesLoader = require('./lib/configs_files_loader'),
-application        = require('./lib/application'),
+Promise = require('./lib/promise'),
+U       = require('./lib/u'),
+objects = require('./lib/objects'),
+FP      = require('filepath'),
+errors  = require('./lib/errors'),
+REQ     = require('./lib/http'),
 
-DEFAULTS = Object.freeze(U.extend(Object.create(null), {
-  usageString: '',
-  commandLineOptions: Object.create(null),
-  environment: 'development',
-  appdir: process.cwd(),
-  appname: 'enginemill_app'
-}));
+applicationLoader = require('./lib/application_loader');
 
 
-// args.name
-// args.commandLineOptions
-// args.usageString
-exports.loadApp = function (args) {
-  var
-  fileConfigs,
-  envConfigs,
-  argv,
-  appdir,
-  sysconfigsdir,
-  packageJSON,
-  appname,
-  environment,
-  usageString        = args.usageString || DEFAULTS.usageString,
-  commandLineOptions = args.commandLineOptions || DEFAULTS.commandLineOptions;
+exports.Promise = Promise;
+exports.U       = U;
+exports.objects = objects;
+exports.FP      = FP;
+exports.errors  = errors;
+exports.REQ     = REQ;
 
-  envConfigs = Object.freeze(U.extend(Object.create(null), process.env));
 
-  argv = Object.freeze(clArgsLoader.loadArgv({
-    usage   : usageString,
-    options : commandLineOptions
-  }));
+exports.load = function (args, callback) {
+  args = args || Object.create(null);
 
-  environment = envConfigs.environment || argv.environment || DEFAULTS.environment;
-
-  appdir = FP.create(argv.appdir || DEFAULTS.appdir);
-
-  packageJSON = packageJSONLoader.readPackageJSON({
-    appdir: appdir
+  var promise = applicationLoader.load({
+    appdir       : args.appdir || FP.create().resolve(process.argv[1]).dirname(),
+    name         : args.name,
+    version      : args.version,
+    usageString  : args.usageString,
+    helpString   : args.helpString,
+    options      : args.options,
+    environment  : args.environment,
+    initializers : args.initializers
   });
-  appname = args.name || packageJSON.name || DEFAULTS.appname;
 
-  sysconfigsdir = FP.create(argv.sysconfigsdir || ('/etc/'+ appname));
-
-  fileConfigs = configsFilesLoader
-    .loadConfigs({
-      appdir        : appdir,
-      sysconfigsdir : sysconfigsdir,
-      environment   : environment
-    });
-
-  return Promise.join({
-      environment   : environment,
-      appname       : appname,
-      appdir        : appdir,
-      sysconfigsdir : sysconfigsdir
-    },
-    envConfigs,
-    argv,
-    packageJSON,
-    fileConfigs,
-    createApplication);
+  if (typeof callback === 'function') {
+    return promise.then(callback);
+  }
+  return promise;
 };
-
-
-function createApplication(options, envConfigs, argv, packageJSON, fileConfigs) {
-  return application.createApplication({
-    name          : options.appname,
-    version       : packageJSON.version,
-    appdir        : options.appdir.toString(),
-    sysconfigsdir : options.sysconfigsdir.toString(),
-    environment   : options.environment,
-    packageJSON   : packageJSON,
-    configs       : U.extend(Object.create(null), fileConfigs, envConfigs, argv),
-    argv          : argv
-  });
-}
