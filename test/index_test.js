@@ -2,7 +2,7 @@
 
 var
 sinon   = require('sinon'),
-FP      = require('filepath'),
+path    = require('filepath'),
 Promise = require('../lib/promise'),
 U       = require('../lib/u'),
 objects = require('../lib/objects'),
@@ -33,8 +33,8 @@ exports["exported modules"] = {
     test.done();
   },
 
-  "exports.FP": function (test) {
-    test.equal(this.enginemill.FP, FP);
+  "exports.path": function (test) {
+    test.equal(this.enginemill.path, path);
     test.done();
   },
 
@@ -77,7 +77,7 @@ exports[".load() with defaults"] = {
   "called with default": function (test) {
     var
     args = this.applicationLoader.args[0][0],
-    expectedAppdir = FP.create().append('management');
+    expectedAppdir = path.create().append('management');
 
     test.equal(args.appdir.toString(), expectedAppdir.toString());
     test.equal(typeof args.name, 'undefined');
