@@ -5,6 +5,7 @@ Promise = require('./lib/promise'),
 U       = require('./lib/u'),
 objects = require('./lib/objects'),
 path    = require('filepath'),
+coffee  = require('coffee-script'),
 errors  = require('./lib/errors'),
 REQ     = require('./lib/http'),
 
@@ -17,6 +18,10 @@ exports.objects = objects;
 exports.path    = path;
 exports.errors  = errors;
 exports.REQ     = REQ;
+
+
+// Register .coffee files with the Node.js module loader.
+coffee.register();
 
 
 exports.load = function (args, callback) {

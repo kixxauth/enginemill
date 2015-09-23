@@ -13,12 +13,13 @@
     "url"  : "git://github.com/kixxauth/enginemill.git"
   },
   "dependencies": {
-    "bluebird" : "2.9.34",
-    "brixx"    : "1.0.0",
-    "filepath" : "1.0.0",
-    "lodash"   : "3.10.1",
-    "request"  : "2.61.0",
-    "yargs"    : "3.23.0"
+    "bluebird"      : "2.9.34",
+    "brixx"         : "1.0.0",
+    "coffee-script" : "1.10.0",
+    "filepath"      : "1.0.0",
+    "lodash"        : "3.10.1",
+    "request"       : "2.61.0",
+    "yargs"         : "3.23.0"
   },
   "devDependencies": {
     "jshint"   : "2.8.0",
