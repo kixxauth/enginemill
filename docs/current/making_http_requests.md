@@ -1,5 +1,6 @@
 Making HTTP Requests
 ====================
+See the [REQ reference docs](./reference/http.md) for more detailed info.
 
 You might find Enginemill's approach to making HTTP requests a little different
 compared to what you've been accustomed to when using Node.js or Ajax.Enginemill makes use of Promises instead of nested callback functions to handle
