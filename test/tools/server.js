@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var
 NHTTP = require('http');
@@ -67,5 +67,4 @@ exports.createServer = function (opts, callback) {
   });
   return server;
 };
-
 

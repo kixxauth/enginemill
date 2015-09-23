@@ -1,0 +1,10 @@
+{
+  "name"        : "test-fixture",
+  "version"     : "1.0.0",
+  "description" : "This is a test fixture.",
+  "private"     : true,
+  "repository"  : {
+    "type" : "git",
+    "url"  : "git://github.com/kixxauth/enginemill.git"
+  }
+}
