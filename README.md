@@ -1,15 +1,18 @@
 Enginemill
 ==========
 
-A Node.js web development environment. Enginemill makes it easy to quickly create a Node.js script, or boot up an application.
+A Node.js web development environment. Enginemill makes it easy to quickly create a Node.js script or boot up an application.
 
 * Includes [Bluebird](https://github.com/petkaantonov/bluebird) for Promises.
-* Includes [Lodash](https://lodash.com/) too (Underscore).
+* Includes [Lodash](https://lodash.com/) (Underscore) too.
 * Includes [Filepath](https://github.com/kixxauth/filepath) to work with the filesystem.
 * Parses command line options with [Yargs](https://github.com/bcoe/yargs).
 * Serially loads plugins you define and kicks off your app only when they have all loaded.
 * Includes a handy Promisified [request](https://github.com/request/request) wrapper for [making HTTP requests](https://github.com/kixxauth/enginemill/blob/master/docs/current/making_http_requests.md).
 * Supports [CoffeeScript](http://coffeescript.org/) out of the box, which is nice for config and plugin initialization files.
+
+## Examples:
+See also [running scripts](https://github.com/kixxauth/enginemill/blob/master/docs/current/running_scripts.md) and [making HTTP requests](https://github.com/kixxauth/enginemill/blob/master/docs/current/making_http_requests.md).
 
 Here is an example of booting up a new [Express.js](http://expressjs.com/) web application:
 
