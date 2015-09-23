@@ -1,59 +1,80 @@
-Running Your Own Scripts
-========================
+Make Node.js Scripts a Snap
+===========================
 You can easily write and run your own scripts with the Enginemill environment
 preloaded into them, which makes your scripting tasks easier than ever.
 
-CoffeeScript is the preferred language for Enginemill programming, and it is assumed that all your scripts will be written in [CoffeeScript](http://coffeescript.org/).
+To create an Enginemill script just compose a JavaScript file with the following structure:
 
-To create an Enginemill script just compose a CoffeeScript file with the following structure:
+```JS
+'use strict'
 
-```CoffeeScript
-exports.usage = "myscript.coffee --first_name <First Name> --age <Age> --print_date"
+var enginemill = require('enginemill');
 
-exports.options =
-	first_name:
-		description: "Your first name"
-		required: yes
-		forceString: yes
-	age:
-		description: "Your age"
-	print_date:
-		description: "Output the date"
-		boolean: true
+// Enginemill attaches the Bluebird promise implementation for convenience.
+var Promise = enginemill.Promise;
 
-exports.help = """
-Print out your name and, optionally, your age.
-"""
+// Enginemill also attaches the FilePath utility for convenience.
+var path = enginemill.path;
 
-# The exports.main function will be called by Enginemill with the command line
-# arguments and options parsed for you.
-exports.main = (opts) ->
-	out = "Hi #{opts.first_name} "
+// Internal module used in this example.
+var CRYPT = require('../lib/crypt');
 
-	# age is optional, so we check to see if it is there:
-	if opts.age
-		out += "it must be good to be #{opts.age} years old! "
+// We name and version our script.
+var NAME = 'hash-to-xuid';
+var VERSION = '1.0.0';
 
-	console.log(out)
-	console.log(new Date()) if opts.print_date
-	return
+// Load your script.
+enginemill.load({
+
+  // Set the application root directory. This is not required, but is shown
+  // here for completeness.
+  appdir: path.create(__dirname, '..'),
+
+  // Name and version are also not required, but shown here.
+  name: NAME,
+  version: VERSION,
+
+  // Setup the command line options and documentation for your script.
+  usageString: 'hash-to-xuid --key <string> --hash <string>',
+  options: {
+    key: {
+      alias: 'k',
+      description: 'auth crypto key',
+      type: 'string',
+      required: true
+    },
+    hash: {
+      alias: 'x',
+      description: 'hashed XUID',
+      type: 'string',
+      required: true
+    }
+  }
+})
+
+// After the load operation resolves, your script runs in the 'then' handler.
+.then(function (app) {
+  // Command line arguments are available on app.argv
+  if (!app.argv.key) {
+    return Promise.reject(new Error('--key must not be an empty string.'));
+  }
+
+  var crypto = CRYPT.createCrypto({ KEY: app.argv.key });
+  console.log(crypto.decrypt(app.argv.hash));
+})
+
+// If there is an error loading your script, it will be printed out here.
+.catch(function (err) {
+  console.error('Caught an error in ' + __filename);
+  console.error(err.stack || err.message || err);
+  process.exit(1);
+});
 ```
 
-Here's what is going on in that script:
-* `exports.usage` provides a usage summary of your script which you would see if you ran `em run ./myscript.coffee --help`.
-* `exports.options` defines the options your script accepts. Notice how you can create descriptive help text for each option with `description`, indicate
-required options with `required`, indicate boolean options with `boolean`, and force the parser to keep the value as a string with `forceString`.
-* `exports.help` should give a longer explanation of how to use the script which you would see if you ran `em run ./myscript.coffee --help`.
-* `exports.main` is the function that Enginemill will call when your script is
- executed, passing it the parse command line options.
-
 ## Running The Script
-Running your scripts is easy with the Enginemill command `em run`. This is how
-you might run the example above:
+Running the script above scripts is easy with `node hash-to-xuid.js` assuming you actually named it `hash-to-xuid.js`.
 
-    em run /path/to/my/script --first_name kristoffer --print_date false
+To print the usage and help strings from your script run it with the `--help`switch like this:
 
-To print the usage and help strings from your script run it with the `--help` switch like this:
-
-    em run /path/to/my/script --help
+    node hash-to-xuid.js --help
 
