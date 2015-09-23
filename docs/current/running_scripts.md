@@ -6,7 +6,7 @@ preloaded into them, which makes your scripting tasks easier than ever.
 To create an Enginemill script just compose a JavaScript file with the following structure:
 
 ```JS
-'use strict'
+'use strict';
 
 var enginemill = require('enginemill');
 
