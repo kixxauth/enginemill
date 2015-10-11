@@ -115,6 +115,32 @@ exports["with defined defaults"] = {
     return test.done();
   },
 
+  "can get a diff": function (test) {
+    var widget1 = this.createWidget();
+    var widget2 = widget1.set({height: 10});
+    var widget3 = this.createWidget({
+      width: 16,
+      depth: 2
+    });
+
+    test.strictEqual(widget1.diff(widget1), null);
+    test.strictEqual(widget1.diff({_id: null, width: 5, height: 2}), null);
+
+    var diff1 = widget1.diff(widget2);
+    test.equal(diff1.length, 1);
+    test.equal(diff1[0][0], 'height');
+    test.equal(diff1[0][1], 2);
+    test.equal(diff1[0][2], 10);
+
+    var diff2 = widget1.diff(widget3);
+    test.equal(diff2.length, 1);
+    test.equal(diff2[0][0], 'width');
+    test.equal(diff2[0][1], 5);
+    test.equal(diff2[0][2], 16);
+
+    return test.done();
+  },
+
   "has defined methods": function (test) {
     var widget = this.createWidget();
     test.equal(widget.area(), 10);
