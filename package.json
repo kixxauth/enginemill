@@ -17,6 +17,7 @@
     "brixx"         : "1.0.0",
     "coffee-script" : "1.10.0",
     "filepath"      : "1.0.0",
+    "immutable"     : "3.7.5",
     "lodash"        : "3.10.1",
     "request"       : "2.61.0",
     "yargs"         : "3.23.0"

@@ -4,6 +4,7 @@ var
 Promise = require('./lib/promise'),
 U       = require('./lib/u'),
 objects = require('./lib/objects'),
+mixins  = require('./lib/mixins/'),
 path    = require('filepath'),
 coffee  = require('coffee-script'),
 errors  = require('./lib/errors'),
@@ -15,6 +16,7 @@ applicationLoader = require('./lib/application_loader');
 exports.Promise = Promise;
 exports.U       = U;
 exports.objects = objects;
+exports.mixins  = mixins;
 exports.path    = path;
 exports.errors  = errors;
 exports.REQ     = REQ;
