@@ -28,7 +28,7 @@ exports["with defined defaults"] = {
   "has name": function (test) {
     var widget = this.createWidget();
     test.equal(widget.name, 'Widget');
-    test.equal(widget.toString(), 'Widget { _id: null, width: 5, height: 2 }');
+    test.equal(widget.toString(), 'Widget { name: "Widget", _id: null, width: 5, height: 2 }');
     return test.done();
   },
 
@@ -77,26 +77,6 @@ exports["with defined defaults"] = {
     return test.done();
   },
 
-  "is immutable": function (test) {
-    var widget1 = this.createWidget();
-    test.equal(widget1.width, 5);
-    var widget2 = widget1.set({width: 2});
-    test.equal(widget1.width, 5);
-    test.notStrictEqual(widget1, widget2);
-    return test.done();
-  },
-
-  "cannot set defined properties by reference": function (test) {
-    var widget = this.createWidget();
-    try {
-      widget.height = 10;
-      test.ok(false, 'should throw');
-    } catch (err1) {
-      test.equal(err1.message, 'Cannot set by reference on an immutable record.');
-    }
-    return test.done();
-  },
-
   "can set properties with setter": function (test) {
     var widget = this.createWidget();
     test.equal(widget.width, 5);
@@ -124,7 +104,7 @@ exports["with defined defaults"] = {
     });
 
     test.strictEqual(widget1.diff(widget1), null);
-    test.strictEqual(widget1.diff({_id: null, width: 5, height: 2}), null);
+    test.strictEqual(widget1.diff({name: 'Widget', _id: null, width: 5, height: 2}), null);
 
     var diff1 = widget1.diff(widget2);
     test.equal(diff1.length, 1);

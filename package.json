@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "bluebird"      : "2.9.34",
-    "brixx"         : "1.0.0",
+    "brixx"         : "1.1.0",
     "coffee-script" : "1.10.0",
     "filepath"      : "1.0.0",
     "immutable"     : "3.7.5",
