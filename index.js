@@ -42,6 +42,7 @@ exports.load = function (args, callback) {
     usageString  : args.usageString,
     helpString   : args.helpString,
     options      : args.options,
+    argv         : args.argv,
     environment  : args.environment,
     initializers : args.initializers
   });

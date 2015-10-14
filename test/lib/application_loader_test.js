@@ -90,6 +90,46 @@ exports["with defaults"] = {
   }
 };
 
+exports["with argv"] = {
+  setUp: function (done) {
+    var
+    self = this;
+    this.appdir = TOOLS.fixturePath.append('default-app');
+    this.argv = {
+      host: '127.0.0.0',
+      port: 8888
+    };
+
+    applicationLoader.load({
+      appdir       : this.appdir,
+      argv         : this.argv,
+      options      : {
+        host: {
+          describe: 'The host String for the server',
+          default: 'localhost'
+        },
+        port: {
+          describe: 'The port Number for the server',
+          default: 3000
+        }
+      },
+      initializers : [
+        'configs'
+      ]
+    })
+    .then(function (app) {
+      self.app = app;
+      done();
+    });
+  },
+
+  "has set argv values": function (test) {
+    test.equal(this.app.argv.host, this.argv.host);
+    test.equal(this.app.argv.port, this.argv.port);
+    return test.done();
+  }
+};
+
 exports["with package.json"] = {
   setUp: function (done) {
     var
