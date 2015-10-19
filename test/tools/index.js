@@ -1,22 +1,17 @@
 'use strict';
 
 var
-FP = require('filepath');
+filepath = require('filepath'),
+nodeUUID = require('node-uuid');
 
-exports.fixturePath = FP.create(__dirname).resolve('../fixtures');
+exports.fixturePath = filepath.create(__dirname).resolve('../fixtures');
 
 exports.hasOwnProp = function (obj, key) {
   return Object.prototype.hasOwnProperty.call(obj, key);
 };
 
-exports.fake_guid = function () {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
+exports.uuid = function () {
+  return nodeUUID.v1();
 };
 
 exports.runOnce = (function () {
