@@ -21,6 +21,9 @@ exports.path    = path;
 exports.errors  = errors;
 exports.REQ     = REQ;
 
+exports.engines = Object.create(null);
+exports.engines.simpleFileDb = require('./lib/simple_file_db');
+
 
 // Register .coffee files with the Node.js module loader.
 coffee.register();
@@ -52,3 +55,17 @@ exports.load = function (args, callback) {
   }
   return promise;
 };
+
+exports.db = objects.factory(mixins.DBConnector, {
+  initialize: function (spec) {
+    this.factories = spec.factories;
+  },
+
+  factory: function (data) {
+    var factory = this.factories[data.name];
+    if (!factory) {
+      throw new Error('Missing factory for "' + data.name + '"');
+    }
+    return factory(data);
+  }
+});
