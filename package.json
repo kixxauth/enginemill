@@ -23,9 +23,10 @@
     "yargs"         : "3.23.0"
   },
   "devDependencies": {
-    "jshint"   : "2.8.0",
-    "nodeunit" : "0.9.1",
-    "sinon"    : "1.16.1"
+    "jshint"    : "2.8.0",
+    "node-uuid" : "1.4.3",
+    "nodeunit"  : "0.9.1",
+    "sinon"     : "1.16.1"
   },
   "bugs": {"url": "https://github.com/kixxauth/enginemill/issues"}
 }
