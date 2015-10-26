@@ -150,7 +150,7 @@ exports["with user defined stream at WARN level"] = {
       useDefaultStream: false
     });
     app.logger.channel.observe({role: 'logging'}, this.handleAll);
-    app.logger.channel.observe({role: 'logging', level: 'ERROR'}, this.handleErr);
+    app.logger.channel.observe({role: 'logging', level: 'ERROR'}, this.handleError);
 
     this.logger = app.logger.create({
       sub: 'test-logger'
@@ -216,7 +216,6 @@ exports["with user defined stream at WARN level"] = {
       test.equal(self.handleError.callCount, 0);
       test.equal(self.handleAll.callCount, 1);
       var rec = self.handleAll.getCall(0).args[0];
-      debugger;
       test.equal(rec.level, 40);
       test.equal(rec.msg, 'foo message');
     })
