@@ -1,7 +1,6 @@
 Enginemill
 ==========
-
-A Node.js web development environment. Enginemill makes it easy to quickly create a Node.js script or boot up an application.
+Enginemill is a Node.js web development framework. The goal is to codify some opinions about how to structure a Node.js system and provide some tools to make the development of your systems easier and more fun.
 
 * Includes [Bluebird](https://github.com/petkaantonov/bluebird) for Promises.
 * Includes [Lodash](https://lodash.com/) (Underscore) too.
