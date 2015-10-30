@@ -235,6 +235,11 @@ enginemill.load = function (args, callback) {
     appdir = filepath.create().resolve(process.argv[1]).dirname();
   }
 
+  // #### Asynchronous Application Loading
+  // Once the `appdir` has been determined, the process is asynchronously
+  // loaded by executing in order through a chained series of Promise handlers.
+  // The first Promise in the chain is simply contructing an arguments Object
+  // hash to pass through the rest of the chain.
   promise = Promise.resolve({
       appdir       : appdir,
       name         : args.name,
@@ -246,25 +251,26 @@ enginemill.load = function (args, callback) {
       environment  : args.environment,
       initializers : args.initializers
     })
-    // #### package.json
-    // After determining the root application directory the package.json is
-    // read and will be available as `app.packageJSON`. The `app.name` and
-    // `app.version` are also determined by the package.json, but can be
-    // overridden with `args.name` and `args.version`.
+  // #### Read package.json
+  // After determining the root application directory the package.json is
+  // read and will be available as `app.packageJSON`. The `app.name` and
+  // `app.version` are also determined by the package.json, but can be
+  // overridden with `args.name` and `args.version`.
     .then(function loadPackageJSON(args) {
-      return packageJSONLoader.readPackageJSON({
-        appdir: args.appdir
-      })
-      .then(function (res) {
+      var path = args.appdir.append('package.json');
+      return enginemill.readJSON({path: path}).then(function (res) {
         args.packageJSON = res || null;
         return args;
       });
     })
-    // #### Command Line Options Parsing
-    // Next, the command line arguments are parsed based on the `args.options`
-    // Object passed in. The parsed command line arguments will be available on
-    // the Application instance as `app.argv`. If `args.argv` is present, this
-    // step will be skipped and it will be assigned to `app.argv` instead.
+  // #### Command Line Options Parsing
+  // Next, the command line arguments are parsed based on the `args.options`
+  // Object passed in. The parsed command line arguments will be available on
+  // the Application instance as `app.argv`. If `args.argv` is present, this
+  // step will be skipped and it will be assigned to `app.argv` instead.
+  // Command line options parsing is directed by the `args.options` Object
+  // passed into `enginemill.load()`, as well as the `args.usageString` and
+  // `args.helpString`.
     .then(function loadCommandLineArgs(args) {
       if (!args.argv) {
         args.argv = clArgsLoader.loadArgv({
@@ -276,13 +282,13 @@ enginemill.load = function (args, callback) {
       }
       return args;
     })
-    // #### Environment Setting
-    // The environment setting String will be available on the Application
-    // instance as `app.environment`. If "--environment" is present from the
-    // command line, it will take precedence. If the "ENVIRONMENT" environment
-    // variable is set, it will be used next. After that, the "NODE_ENV"
-    // environment variable is used, followed by the passed in
-    // `args.environment` and the default `enginemill.DEFAULTS.ENVIRONMENT`.
+  // #### Environment Setting
+  // The environment setting String will be available on the Application
+  // instance as `app.environment`. If "--environment" is present from the
+  // command line, it will take precedence. If the "ENVIRONMENT" environment
+  // variable is set, it will be used next. After that, the "NODE_ENV"
+  // environment variable is used, followed by the passed in
+  // `args.environment` and the default `enginemill.DEFAULTS.ENVIRONMENT`.
     .then(function setEnvironment(args) {
       args.environment = args.argv.environment ||
                          process.env.ENVIRONMENT ||
@@ -291,6 +297,16 @@ enginemill.load = function (args, callback) {
                          enginemill.DEFAULTS.ENVIRONMENT;
       return args;
     })
+  // #### Create the Application Instance
+  // With the package.json, command line arguments, and environment setting
+  // in hand, the load process will create an Application instance. The
+  // Application instance will be passed into all the initialization functions
+  // and should be referenced in your application simply as `app`. The
+  // Application instance will include usefull attributes like `app.name` and
+  // `app.environment` as well as the `app.argv` Object containing command
+  // line arguments. In your initializers, you'll probably want to extend
+  // the `app.configs` and `app.API` Objects to provide useful references
+  // for the rest of your program.
     .then(function createApplication(args) {
       var packageJSON = args.packageJSON || Object.create(null);
 
@@ -309,9 +325,17 @@ enginemill.load = function (args, callback) {
 
       return args;
     })
+  // #### Load Initializers
+  // After the Application instance has been created the initializers are
+  // loaded and executed in serial. The initializers to run are defined by
+  // the `args.initializers` Array passed into `enginemill.load()`. See
+  // the __Initializer Loading__ section for more information.
     .then(function loadInitializers(args) {
       return exports.loadInitializers(args);
     })
+
+  // #### Return a Promise
+  // Finally `enginemill.load()` returns a Promise for the Application instance.
     .then(function returnApplication(args) {
       return args.app;
     });
@@ -423,3 +447,49 @@ enginemill.db = objects.factory(mixins.DBConnector, {
     return factory(data);
   }
 });
+
+
+// Params:
+// path - FilePath representing the path to the file to load.
+//
+// Returns:
+// - A Promise for parsed JSON file if it exists.
+// - If it does not exist then returns a Promise for null.
+// - If there is a JSON syntax error detected a JSONReadError is
+//   returned via rejection.
+// - If the given path is not a file an ERRORS.ArgumentError is
+//   passed via rejection.
+exports.readJSON = function (path) {
+
+  function parseJSON(text) {
+    var err, data;
+    try {
+      data = JSON.parse(text +'');
+    } catch (e) {
+      err = new ERRORS.JSONReadError('JSON SyntaxError: '+ e.message +' in '+ path);
+      return Promise.reject(err);
+    }
+    return data;
+  }
+
+  function setValues(data) {
+    return U.extend(Object.create(null), data || Object.create(null));
+  }
+
+  function catchFileReadError(err) {
+    var newError = new ERRORS.JSONReadError('Unexpected JSON read Error');
+    newError.code = err.code;
+    return Promise.reject(newError);
+  }
+
+  if (path.exists() && path.isFile()) {
+    // Wrap this into a Bluebird Promise.
+    return Promise.resolve(path.read())
+      .then(parseJSON, catchFileReadError)
+      .then(setValues);
+  } else if (!path.exists()) {
+    return Promise.resolve(null);
+  }
+  return Promise.reject(
+    new ERRORS.ArgumentError('The expected file path is not a file'));
+};
