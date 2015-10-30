@@ -7,20 +7,23 @@
 // Enginemill runs with [strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode) on.
 'use strict';
 
+// The `exports` object is assigned to `enginemill` for readability.
+var enginemill = exports;
+
 var util = require('util');
 
 // ### enginemill.Promise
 // Enginemill uses [Bluebird Promises](http://bluebirdjs.com/docs/getting-started.html) to handle asynchronous programming
-// from start to finish and exports it as `enginemill.Promise` for you.
-exports.Promise = require('Bluebird');
-var Promise     = exports.Promise;
+// from start to finish and enginemill it as `enginemill.Promise` for you.
+enginemill.Promise = require('Bluebird');
+var Promise     = enginemill.Promise;
 
 // ### enginemill.U
 // Enginemill also uses [Lodash](https://lodash.com/) as the default JavaScript utility library,
 // and adds some extensions from [BRIXX](https://github.com/kixxauth/brixx) as well. Notice that it is exported
 // as the `U` symbol instead of the `_` symbol.
-exports.U = require('lodash');
-var U     = exports.U;
+enginemill.U = require('lodash');
+var U     = enginemill.U;
 var BRIXX = require('brixx');
 // #### enginemill.U.ensure()
 // Ensures the passed in object is, in fact, an Object. When `null` or
@@ -74,7 +77,7 @@ var BRIXX = require('brixx');
 //   }
 // });
 // ```
-exports.U.mixin({
+enginemill.U.mixin({
   ensure     : BRIXX.ensure,
   deepFreeze : BRIXX.deepFreeze,
   exists     : BRIXX.exists,
@@ -90,13 +93,14 @@ var filepath = enginemill.filepath;
 
 // ### enginemill.Errors
 // The Standard Enginemill Error constructors are all exposed on `enginemill`
-// exports via the `Errors` namespace. This makes robust exception handling
+// enginemill via the `Errors` namespace. This makes robust exception handling
 // much easier with [Bluebird's catch exception handling](http://bluebirdjs.com/docs/api/catch.html),
 // allowing you properly segment your exception handling based on [operational and programmer errors](https://www.joyent.com/developers/node/design/errors).
-exports.Errors = Object.create(null);
+enginemill.Errors = Object.create(null);
 
 // #### enginemill.Errors.NotImplementedError
-// Useful for parts of a program which are not implemented yet.
+// Useful for parts of a program which are not implemented yet. Exported
+// publically as `enginemill.Errors.NotImplementedError`
 function NotImplementedError(message) {
   Error.call(this);
   Error.captureStackTrace(this, this.constructor);
@@ -104,10 +108,11 @@ function NotImplementedError(message) {
   this.message = message;
 }
 util.inherits(NotImplementedError, Error);
-exports.Errors.NotImplementedError = NotImplementedError;
+enginemill.Errors.NotImplementedError = NotImplementedError;
 
 // #### enginemill.Errors.NotFoundError
-// Used when a resource cannot be located.
+// Used when a resource cannot be located. Exported publically as
+// `enginemill.Errors.NotFoundError`
 function NotFoundError(message) {
   Error.call(this);
   Error.captureStackTrace(this, this.constructor);
@@ -115,10 +120,11 @@ function NotFoundError(message) {
   this.message = message;
 }
 util.inherits(NotFoundError, Error);
-exports.Errors.NotFoundError;
+enginemill.Errors.NotFoundError;
 
 // #### enginemill.Errors.JSONParseError
-// Handle the special case of parsing JSON.
+// Handle the special case of parsing JSON. Exported publically as
+// `enginemill.Errors.JSONReadError`
 function JSONParseError(message) {
   Error.call(this);
   Error.captureStackTrace(this, this.constructor);
@@ -126,7 +132,7 @@ function JSONParseError(message) {
   this.message = message;
 }
 util.inherits(JSONReadError, Error);
-exports.Errors.JSONReadError;
+enginemill.Errors.JSONReadError;
 
 // ### CoffeeScript
 // Enginemill registers the [CoffeeScript](http://coffeescript.org/) compiler before loading or
@@ -182,6 +188,8 @@ coffee.register();
 // __environment__  | *String* Will be used instead of command line environment if present.
 // __initializers__ | *Array* of initializers (String names).
 //
+// __Returns__ a Promise for the Application instance.
+//
 // #### Example
 // In `bin\start_server.js`:
 // ```JS
@@ -206,13 +214,18 @@ coffee.register();
 //     process.exit(1);
 // });
 // ```
-exports.load = function (args, callback) {
+enginemill.load = function (args, callback) {
   args = args || Object.create(null);
 
-  // If `args.appdir` is a FilePath instance `enginemill.load()` will use it
-  // as is. If it is a String then `enginemill.load()` will create a FilePath
-  // instance from it. Othewise a FilePath instance referencing the directory
-  // of the executing script is used as a best guess by default.
+  var promise;
+
+  // #### appdir
+  // The load sequence begins by determining what the application root
+  // directory is going to be. If `args.appdir` is a FilePath instance
+  // `enginemill.load()` will use it as is. If it is a String then
+  // `enginemill.load()` will create a FilePath instance from it. Othewise
+  // a FilePath instance referencing the directory of the executing script
+  // is used as a best guess by default.
   var appdir;
   if (args.appdir && args.appdir instanceof filepath.FilePath) {
     appdir = args.appdir;
@@ -222,7 +235,7 @@ exports.load = function (args, callback) {
     appdir = filepath.create().resolve(process.argv[1]).dirname();
   }
 
-  return Promise.resolve({
+  promise = Promise.resolve({
       appdir       : appdir,
       name         : args.name,
       version      : args.version,
@@ -233,30 +246,171 @@ exports.load = function (args, callback) {
       environment  : args.environment,
       initializers : args.initializers
     })
-    .then(loadPackageJSON)
-    .then(loadCommandLineArgs)
-    .then(setEnvironment)
-    .then(createApplication)
-    .then(loadInitializers)
-    .then(function (args) {
+    // #### package.json
+    // After determining the root application directory the package.json is
+    // read and will be available as `app.packageJSON`. The `app.name` and
+    // `app.version` are also determined by the package.json, but can be
+    // overridden with `args.name` and `args.version`.
+    .then(function loadPackageJSON(args) {
+      return packageJSONLoader.readPackageJSON({
+        appdir: args.appdir
+      })
+      .then(function (res) {
+        args.packageJSON = res || null;
+        return args;
+      });
+    })
+    // #### Command Line Options Parsing
+    // Next, the command line arguments are parsed based on the `args.options`
+    // Object passed in. The parsed command line arguments will be available on
+    // the Application instance as `app.argv`. If `args.argv` is present, this
+    // step will be skipped and it will be assigned to `app.argv` instead.
+    .then(function loadCommandLineArgs(args) {
+      if (!args.argv) {
+        args.argv = clArgsLoader.loadArgv({
+          usageString : args.usageString,
+          helpString  : args.helpString,
+          options     : args.options,
+          argv        : process.argv
+        });
+      }
+      return args;
+    })
+    // #### Environment Setting
+    // The environment setting String will be available on the Application
+    // instance as `app.environment`. If "--environment" is present from the
+    // command line, it will take precedence. If the "ENVIRONMENT" environment
+    // variable is set, it will be used next. After that, the "NODE_ENV"
+    // environment variable is used, followed by the passed in
+    // `args.environment` and the default `enginemill.DEFAULTS.ENVIRONMENT`.
+    .then(function setEnvironment(args) {
+      args.environment = args.argv.environment ||
+                         process.env.ENVIRONMENT ||
+                         process.env.NODE_ENV ||
+                         args.environment ||
+                         enginemill.DEFAULTS.ENVIRONMENT;
+      return args;
+    })
+    .then(function createApplication(args) {
+      var packageJSON = args.packageJSON || Object.create(null);
+
+      args.app = application.create({
+        name        : args.name ||
+                      packageJSON.name ||
+                      exports.DEFAULTS.APP_NAME,
+        version     : args.version ||
+                      packageJSON.version ||
+                      exports.DEFAULTS.APP_VERSION,
+        appdir      : args.appdir,
+        packageJSON : args.packageJSON,
+        environment : args.environment,
+        argv        : args.argv
+      });
+
+      return args;
+    })
+    .then(function loadInitializers(args) {
+      return exports.loadInitializers(args);
+    })
+    .then(function returnApplication(args) {
       return args.app;
     });
-
-
 };
 
 // ### Defaults
 // Some default options used by Enginemill which you can extend by modifying
 // the `enginemill.DEFAULTS` Object. See __enginemill.load__ above for more
 // information about how these are used.
-exports.DEFAULTS = {
+enginemill.DEFAULTS = {
   ENVIRONMENT      : 'development',
   INITIALIZER_PATH : 'initializers',
   APP_NAME         : 'not-named',
   APP_VERSION      : '0'
 };
 
-exports.db = objects.factory(mixins.DBConnector, {
+// ### Initializer Loading
+// The initialization loader requires and loads all initializers passed in as
+// Strings. Initialization functions may also be passed in and will be used
+// directly. Initailization modules must export a Function with
+// `module.exports = function () { ... }`.
+//
+// After the initializer functions are loaded they are exectuted serially in
+// order. Each initializer function is passed a single argument; the
+// Application instance. Extending the `app.configs` or `app.API` Objects
+// is a great use of an initializer. It is expected that initializers will
+// complete aysnchronously, and if so, they should return a Promise.
+//
+// ### enginemill.loadInitializers
+// Typically you can just allow `enginemill.load` to call
+// `enginemill.loadInitializers`, but in case you need to extend it, or call
+// it separately, it is available as `enginemill.loadInitializers`.
+//
+// name             | description
+// ---------------- | ---
+// __app__          | *Application instance* The initialized Application Object.
+// __initializers__ | *Array* List of Strings or Functions.
+//
+// __Returns__ A Promise for the Application instance after all initializers
+// have been executed in order.
+//
+// #### Example
+// Good example of an initializer which sets configuration settings:
+// ```CoffeeScript
+// module.exports = (app) ->
+//     # app.environment is set with the --environment option, or the
+//     # NODE_ENV environment variable.
+//     app.configs.port = if app.environment is 'production' then 8080 else 3000
+//
+//     # Set the public path to '../public'
+//     app.configs.public_path = app.appdir.append 'public'
+// ```
+enginemill.loadInitializers = function (args) {
+  var
+  initializers, app, dir;
+
+  if (!args.initializers) {
+    initializers = [];
+  } else {
+    initializers = Array.isArray(args.initializers) ?
+                   args.initializers : [args.initializers];
+  }
+
+  app = args.app;
+  dir = app.appdir.append(enginemill.DEFAULTS.INITIALIZER_PATH);
+
+  return initializers
+
+    .map(function (module, index) {
+      var path, message;
+
+      if (typeof module === 'string') {
+        path = dir.append(module).toString();
+        try {
+          module = require(path);
+        } catch (moduleError) {
+          if (moduleError.code === 'MODULE_NOT_FOUND') {
+            throw new Error('Initializer module not found: '+ path);
+          }
+          throw moduleError;
+        }
+      }
+
+      if (typeof module !== 'function') {
+        message = path ? ('path '+ path) : ('index '+ index);
+        throw new Error('Initializers must be functions: '+ message);
+      }
+
+      return module;
+    })
+
+    .reduce(function (promise, module) {
+      return promise.then(function (app) {
+        return Promise.resolve(module(app)).then(U.constant(app));
+      });
+    }, Promise.resolve(args.app));
+}
+
+enginemill.db = objects.factory(mixins.DBConnector, {
   initialize: function (spec) {
     this.factories = spec.factories;
   },
