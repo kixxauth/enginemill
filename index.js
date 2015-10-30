@@ -1,8 +1,16 @@
 // Enginemill
 // ==========
 // Enginemill is a Node.js web development framework. The goal is to codify
-// some opinions about how to structure a Node.js system and provide some
+// some opinions about how to structure a Node.js system and provide
 // tools to make the development of your systems easier and more fun.
+//
+// * Includes [Bluebird](https://github.com/petkaantonov/bluebird) for Promises.
+// * Includes [Lodash](https://lodash.com/) (Underscore) too.
+// * Includes [Filepath](https://github.com/kixxauth/filepath) to work with the filesystem.
+// * Parses command line options with [Yargs](https://github.com/bcoe/yargs).
+// * Serially loads plugins you define and kicks off your app only when they have all loaded.
+// * Includes a handy Promisified [request](https://github.com/request/request) wrapper for [making HTTP requests](https://github.com/kixxauth/enginemill/blob/master/docs/current/making_http_requests.md).
+// * Supports [CoffeeScript](http://coffeescript.org/) out of the box, which is nice for config and plugin initialization files.
 
 // Enginemill runs with [strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode) on.
 'use strict';
@@ -14,17 +22,25 @@ var util = require('util');
 
 // ### enginemill.Promise
 // Enginemill uses [Bluebird Promises](http://bluebirdjs.com/docs/getting-started.html) to handle asynchronous programming
-// from start to finish and enginemill it as `enginemill.Promise` for you.
+// from start to finish and exposes it as `enginemill.Promise` for you.
 enginemill.Promise = require('Bluebird');
 var Promise     = enginemill.Promise;
 
 // ### enginemill.U
 // Enginemill also uses [Lodash](https://lodash.com/) as the default JavaScript utility library,
-// and adds some extensions from [BRIXX](https://github.com/kixxauth/brixx) as well. Notice that it is exported
-// as the `U` symbol instead of the `_` symbol.
+// and adds some extensions from [BRIXX](https://github.com/kixxauth/brixx) as well. Notice that lodash is exported
+// as the `U` symbol instead of the `_` symbol. This is because the underscore
+// "\_" is used by many programmers to indicate a "private" symbol. Enginemill
+// holds the opinion that very rarely should anything be "private" in
+// JavaScript, but nevertheless, it's usage is prevalent. Also, the "\_" is used
+// in the Node.js REPL to contain the value of the last executed statement.
+// Finally, the "U" symbol is appropriate for Lodash, since it is
+// commonly used in set theory.
 enginemill.U = require('lodash');
 var U     = enginemill.U;
 var BRIXX = require('brixx');
+
+// ### Lodash Extensions
 // #### enginemill.U.ensure()
 // Ensures the passed in object is, in fact, an Object. When `null` or
 // `undefined` are passed in, ensure() returns a new Object created with
@@ -49,8 +65,7 @@ var BRIXX = require('brixx');
 //    is not present.
 //
 // #### enginemill.U.factory()
-// An object factory which uses the mixin pattern. Pass it some mixins and it
-// will return an Object factory Function for you. Returns a Function which
+// An object factory which uses the mixin pattern. Returns a Function which
 // will create new Objects using a prototype composed of the mixins passed in.
 // The returned Object factory will call initialize() on your object instance.
 // If there is an initialize() function defined on any of the mixins,
@@ -93,10 +108,23 @@ var filepath = enginemill.filepath;
 
 // ### enginemill.Errors
 // The Standard Enginemill Error constructors are all exposed on `enginemill`
-// enginemill via the `Errors` namespace. This makes robust exception handling
-// much easier with [Bluebird's catch exception handling](http://bluebirdjs.com/docs/api/catch.html),
-// allowing you properly segment your exception handling based on [operational and programmer errors](https://www.joyent.com/developers/node/design/errors).
+// via the `Errors` namespace. This makes robust exception handling
+// much easier with [Bluebird's catch](http://bluebirdjs.com/docs/api/catch.html),
+// allowing you to properly segment your exception handling based on [operational and programmer errors](https://www.joyent.com/developers/node/design/errors).
 enginemill.Errors = Object.create(null);
+var Errors = enginemill.Errors;
+
+// #### enginemill.Errors.OperationalError
+// A superclass for all other Operational Errors and used by itself
+// as a general operational exception indicator.
+function OperationalError(message) {
+  Error.call(this);
+  Error.captureStackTrace(this, this.constructor);
+  this.name = this.constructor.name;
+  this.message = message;
+}
+util.inherits(OperationalError, Error);
+enginemill.Errors.OperationalError = OperationalError;
 
 // #### enginemill.Errors.NotImplementedError
 // Useful for parts of a program which are not implemented yet. Exported
@@ -107,7 +135,7 @@ function NotImplementedError(message) {
   this.name = this.constructor.name;
   this.message = message;
 }
-util.inherits(NotImplementedError, Error);
+util.inherits(NotImplementedError, OperationalError);
 enginemill.Errors.NotImplementedError = NotImplementedError;
 
 // #### enginemill.Errors.NotFoundError
@@ -119,7 +147,7 @@ function NotFoundError(message) {
   this.name = this.constructor.name;
   this.message = message;
 }
-util.inherits(NotFoundError, Error);
+util.inherits(NotFoundError, OperationalError);
 enginemill.Errors.NotFoundError;
 
 // #### enginemill.Errors.JSONParseError
@@ -131,7 +159,7 @@ function JSONParseError(message) {
   this.name = this.constructor.name;
   this.message = message;
 }
-util.inherits(JSONReadError, Error);
+util.inherits(JSONReadError, OperationalError);
 enginemill.Errors.JSONReadError;
 
 // ### CoffeeScript
@@ -174,8 +202,6 @@ coffee.register();
 // `- package.json
 // ```
 // #### Arguments
-// __enginemill.load(args) arguments (args) Object:__
-//
 // name                  | description
 // --------------------- | ---
 // __appdir__       | *FilePath instance* Defaults to the directory of the currently executing script.
@@ -252,7 +278,8 @@ enginemill.load = function (args, callback) {
       initializers : args.initializers
     })
   // #### Read package.json
-  // After determining the root application directory the package.json is
+  // After determining the root application directory and constructing the
+  // arguments hash the package.json is
   // read and will be available as `app.packageJSON`. The `app.name` and
   // `app.version` are also determined by the package.json, but can be
   // overridden with `args.name` and `args.version`.
@@ -266,7 +293,8 @@ enginemill.load = function (args, callback) {
   // #### Command Line Options Parsing
   // Next, the command line arguments are parsed based on the `args.options`
   // Object passed in. The parsed command line arguments will be available on
-  // the Application instance as `app.argv`. If `args.argv` is present, this
+  // the Application instance as `app.argv`. If `args.argv` was passed into
+  // `enginemill.load()`, this
   // step will be skipped and it will be assigned to `app.argv` instead.
   // Command line options parsing is directed by the `args.options` Object
   // passed into `enginemill.load()`, as well as the `args.usageString` and
@@ -354,9 +382,10 @@ enginemill.DEFAULTS = {
 
 // ### Initializer Loading
 // The initialization loader requires and loads all initializers passed in as
-// Strings. Initialization functions may also be passed in and will be used
-// directly. Initailization modules must export a Function with
+// Strings. Initailization modules must export a Function with
 // `module.exports = function () { ... }`.
+// Initialization Functions may also be passed in and will be used
+// directly.
 //
 // After the initializer functions are loaded they are exectuted serially in
 // order. Each initializer function is passed a single argument; the
@@ -369,6 +398,7 @@ enginemill.DEFAULTS = {
 // `enginemill.loadInitializers`, but in case you need to extend it, or call
 // it separately, it is available as `enginemill.loadInitializers`.
 //
+// #### Arguments
 // name             | description
 // ---------------- | ---
 // __app__          | *Application instance* The initialized Application Object.
@@ -449,24 +479,31 @@ enginemill.db = objects.factory(mixins.DBConnector, {
 });
 
 
-// Params:
-// path - FilePath representing the path to the file to load.
+// ### enginemill.readJSON
+// A utility function used by Enginemill to read JSON files, but available
+// on the public API as well.
 //
-// Returns:
+// #### Arguments
+// name                  | description
+// --------------------- | ---
+// __path__ | *FilePath instance* The path to the JSON file to load.
+//
+// __Returns__:
 // - A Promise for parsed JSON file if it exists.
 // - If it does not exist then returns a Promise for null.
 // - If there is a JSON syntax error detected a JSONReadError is
 //   returned via rejection.
-// - If the given path is not a file an ERRORS.ArgumentError is
+// - If the given path is not a file an Error is
 //   passed via rejection.
-exports.readJSON = function (path) {
+exports.readJSON = function (args) {
+  var path = args.path;
 
   function parseJSON(text) {
     var err, data;
     try {
       data = JSON.parse(text +'');
     } catch (e) {
-      err = new ERRORS.JSONReadError('JSON SyntaxError: '+ e.message +' in '+ path);
+      err = new Errors.JSONReadError('JSON SyntaxError: '+ e.message +' in '+ path);
       return Promise.reject(err);
     }
     return data;
@@ -477,13 +514,12 @@ exports.readJSON = function (path) {
   }
 
   function catchFileReadError(err) {
-    var newError = new ERRORS.JSONReadError('Unexpected JSON read Error');
+    var newError = new Errors.OperationalError('Unexpected JSON read Error: '+ err.message);
     newError.code = err.code;
     return Promise.reject(newError);
   }
 
   if (path.exists() && path.isFile()) {
-    // Wrap this into a Bluebird Promise.
     return Promise.resolve(path.read())
       .then(parseJSON, catchFileReadError)
       .then(setValues);
@@ -491,5 +527,5 @@ exports.readJSON = function (path) {
     return Promise.resolve(null);
   }
   return Promise.reject(
-    new ERRORS.ArgumentError('The expected file path is not a file'));
+    new Error('The FilePath is not a file: '+ path));
 };
