@@ -11,6 +11,10 @@
 // * Serially loads plugins you define and kicks off your app only when they have all loaded.
 // * Includes a handy Promisified [request](https://github.com/request/request) wrapper for [making HTTP requests](https://github.com/kixxauth/enginemill/blob/master/docs/current/making_http_requests.md).
 // * Supports [CoffeeScript](http://coffeescript.org/) out of the box, which is nice for config and plugin initialization files.
+//
+// This documentation is generated from [annotated source code](https://github.com/kixxauth/enginemill) which you
+// can find on GitHub. Ideas, issues, and feedback is welcome on the
+// [issue tracker](https://github.com/kixxauth/enginemill/issues).
 
 // Enginemill runs with [strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode) on.
 'use strict';
