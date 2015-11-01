@@ -432,15 +432,10 @@ enginemill.DEFAULTS = {
   APP_VERSION      : '0'
 };
 
+// ### enginemill.Application
 function Application() {}
 enginemill.Application = Application;
 
-// spec.name
-// spec.version
-// spec.appdir
-// spec.packageJSON
-// spec.environment
-// spec.argv
 Application.prototype.initialize = function (spec) {
   Object.defineProperties(this, {
     name: {
@@ -574,6 +569,10 @@ enginemill.loadInitializers = function (args) {
         return Promise.resolve(module(app)).then(U.constant(app));
       });
     }, Promise.resolve(args.app));
+};
+
+enginemill.Mixins = {
+  Model: BRIXX.Model
 };
 
 function Logger() {}
@@ -724,6 +723,95 @@ U.extend(DatabaseConnector.prototype, {
 });
 
 DatabaseConnector.create = U.factory(DatabaseConnector.prototype);
+
+function JSONFileDatabase() {}
+enginemill.JSONFileDatabase = JSONFileDatabase;
+
+U.extend(JSONFileDatabase.prototype, {
+
+  initialize: function (args) {
+    if (!args.dir) {
+      throw new Error('args.dir is required for JSONFileDatabase');
+    }
+
+    var nodeId = args.nodeId;
+    this.dir = filepath.create(args.dir);
+  },
+
+  get: function (id) {
+    if (!id) {
+      throw new Error('SimpleFileDB#get() requires an ID argument');
+    }
+    var file = this.dir.append(id + '.json');
+    return Promise.resolve(file.read().then(function (text) {
+      var err;
+      if (text) {
+        return JSON.parse(text);
+      }
+      err = new errors.NotFoundError('Could not find record with id "' + id + '"');
+      return Promise.reject(err);
+    }));
+  },
+
+  post: function (record) {
+    if (record.id) {
+      throw new Error('SimpleFileDB#post() does not accept a record ID');
+    }
+    var
+    file,
+    id = this.uuid();
+    record.data.id = id;
+    file = this.dir.append(id + '.json');
+    return Promise.resolve(file.write(JSON.stringify(record.data)).then(function () {
+      return JSON.parse(JSON.stringify(record.data));
+    }));
+  },
+
+  put: function (record) {
+    if (!record.id) {
+      throw new Error('SimpleFileDB#put() requires a record with an ID');
+    }
+    var
+    err,
+    file = this.dir.append(record.id + '.json'),
+    text = JSON.stringify(record.data);
+
+    if (file.isFile()) {
+      return Promise.resolve(file.write(text).then(function () {
+        return JSON.parse(text);
+      }));
+    }
+    err = new errors.NotFoundError('Could not find record with id "' + record.id + '"');
+    return Promise.reject(err);
+  },
+
+  remove: function (id) {
+    if (!id) {
+      throw new Error('SimpleFileDB#remove() requires an ID argument');
+    }
+
+    var
+    err,
+    file = this.dir.append(id + '.json');
+
+    if (file.isFile()) {
+      file.remove();
+      return Promise.resolve(id);
+    }
+
+    err = new errors.NotFoundError('Could not find record with id "' + id + '"');
+    return Promise.reject(err);
+  },
+
+  uuid: function () {
+    if (nodeId) {
+      return nodeUUID.v1({node: nodeId});
+    }
+    return nodeUUID.v1();
+  }
+});
+
+JSONFileDatabase.create = U.factory(JSONFileDatabase.prototype);
 
 //
 // ## Utilities
