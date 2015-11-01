@@ -23,9 +23,10 @@
 var enginemill = exports;
 
 var
-util  = require('util'),
-debug = require('debug'),
-Yargs = require('yargs');
+util     = require('util'),
+debug    = require('debug'),
+nodeUUID = require('node-uuid'),
+Yargs    = require('yargs');
 
 // ### enginemill.Promise
 // Enginemill uses [Bluebird Promises](http://bluebirdjs.com/docs/getting-started.html) to handle asynchronous programming
@@ -740,7 +741,7 @@ U.extend(JSONFileDatabase.prototype, {
       throw new Error('args.dir is required for JSONFileDatabase');
     }
 
-    var nodeId = args.nodeId;
+    this.nodeId = args.nodeId;
     this.dir = filepath.create(args.dir);
   },
 
@@ -754,7 +755,7 @@ U.extend(JSONFileDatabase.prototype, {
       if (text) {
         return JSON.parse(text);
       }
-      err = new errors.NotFoundError('Could not find record with id "' + id + '"');
+      err = new Errors.NotFoundError('Could not find record with id "' + id + '"');
       return Promise.reject(err);
     }));
   },
@@ -787,7 +788,7 @@ U.extend(JSONFileDatabase.prototype, {
         return JSON.parse(text);
       }));
     }
-    err = new errors.NotFoundError('Could not find record with id "' + record.id + '"');
+    err = new Errors.NotFoundError('Could not find record with id "' + record.id + '"');
     return Promise.reject(err);
   },
 
@@ -805,13 +806,13 @@ U.extend(JSONFileDatabase.prototype, {
       return Promise.resolve(id);
     }
 
-    err = new errors.NotFoundError('Could not find record with id "' + id + '"');
+    err = new Errors.NotFoundError('Could not find record with id "' + id + '"');
     return Promise.reject(err);
   },
 
   uuid: function () {
-    if (nodeId) {
-      return nodeUUID.v1({node: nodeId});
+    if (typeof this.nodeId === 'string' || typeof this.nodeId === 'number') {
+      return nodeUUID.v1({node: this.nodeId});
     }
     return nodeUUID.v1();
   }
