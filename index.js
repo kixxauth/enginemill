@@ -4,12 +4,12 @@
 // some opinions about how to structure a Node.js system and provide
 // tools to make the development of your systems easier and more fun.
 //
-// * Includes [Bluebird](https://github.com/petkaantonov/bluebird) for Promises.
-// * Includes [Lodash](https://lodash.com/) (Underscore) too.
-// * Includes [Filepath](https://github.com/kixxauth/filepath) to work with the filesystem.
+// * [Bluebird](https://github.com/petkaantonov/bluebird) for Promises.
+// * [Lodash](https://lodash.com/) (Underscore) too.
+// * [Filepath](https://github.com/kixxauth/filepath) to work with the filesystem.
 // * Parses command line options with [Yargs](https://github.com/bcoe/yargs).
 // * Serially loads plugins you define and kicks off your app only when they have all loaded.
-// * Includes a handy Promisified [request](https://github.com/request/request) wrapper for [making HTTP requests](https://github.com/kixxauth/enginemill/blob/master/docs/current/making_http_requests.md).
+// * Includes a handy Promisified [request](https://github.com/request/request) wrapper for making HTTP requests.
 // * Supports [CoffeeScript](http://coffeescript.org/) out of the box, which is nice for config and plugin initialization files.
 //
 // This documentation is generated from [annotated source code](https://github.com/kixxauth/enginemill) which you
@@ -22,11 +22,9 @@
 // The `exports` object is assigned to `enginemill` for readability.
 var enginemill = exports;
 
-var
-util     = require('util'),
-debug    = require('debug'),
-nodeUUID = require('node-uuid'),
-Yargs    = require('yargs');
+//
+// ## Dependencies
+//
 
 // ### enginemill.Promise
 // Enginemill uses [Bluebird Promises](http://bluebirdjs.com/docs/getting-started.html) to handle asynchronous programming
@@ -114,11 +112,27 @@ enginemill.U.mixin({
 enginemill.filepath = require('filepath');
 var filepath        = enginemill.filepath;
 
+// ### Private Dependencies
+// Enginemill depends on the handy [debug](https://github.com/visionmedia/debug) utility for Application#debug(),
+// [Yargs](https://github.com/bcoe/yargs) for parsing command line arguments in `enginemill.load()`,
+// [node-uuid](https://github.com/broofa/node-uuid) in the JSONFileDatabase,
+// and [request](https://github.com/request/request) in the `enginemill.Request` utility.
+var
+util     = require('util'),
+debug    = require('debug'),
+nodeUUID = require('node-uuid'),
+REQ      = require('request'),
+Yargs    = require('yargs');
+
+// ## Error Handling
+// Enginemill makes robust exception handling
+// easy with [Bluebird's catch](http://bluebirdjs.com/docs/api/catch.html),
+// allowing you to properly segment your exception handling based on [operational and programmer errors](https://www.joyent.com/developers/node/design/errors).
+
 // ### enginemill.Errors
 // The Standard Enginemill Error constructors are all exposed on `enginemill`
-// via the `Errors` namespace. This makes robust exception handling
-// much easier with [Bluebird's catch](http://bluebirdjs.com/docs/api/catch.html),
-// allowing you to properly segment your exception handling based on [operational and programmer errors](https://www.joyent.com/developers/node/design/errors).
+// via the `Errors` namespace, allowing you to easily use them to handle
+// specific Error classes with [Bluebird's catch](http://bluebirdjs.com/docs/api/catch.html).
 enginemill.Errors = Object.create(null);
 var Errors        = enginemill.Errors;
 
@@ -170,14 +184,28 @@ function JSONParseError(message) {
 util.inherits(JSONParseError, OperationalError);
 enginemill.Errors.JSONParseError = JSONParseError;
 
+// ## Message Based Communication
+// Enginemill holds a string opinion that Command/Query
+// Responsibility Segregation ([CQRS](http://martinfowler.com/bliki/CQRS.html))
+// is essential to allow developers to reason about otherwise complex systems.
+// Strict adherence to CQRS should lead to a Store/Index/Query/Presenter
+// architecture as suggested by Enginemill. Having a built in message
+// based communication system makes Store/Index/Query/Presenter possible.
+//
 // ### enginemill.radio
 // Enginemill incudes the [oddcast](https://github.com/oddnetworks/oddcast) library for passing messages between
-// system components. Decoupled component communication makes command/query
-// responsibility segregation ([CQRS](http://martinfowler.com/bliki/CQRS.html))
-// easier to achieve with Enginemill. Strict adherence to CQRS leads to the
-// Store/Index/Query/Presenter architecture suggested by Enginemill.
+// system components. This makes it easy to keep your system components
+// decaupled which makes Command/Query Responsibility Segregation and
+// Store/Index/Query/Presenter architecture possible.
 enginemill.oddcast = require('oddcast');
 var oddcast = enginemill.oddcast;
+
+// ## Application Loading
+// Enginemill uses your applications package.json combined wth command line
+// command line arguments to create a preconfigured Application Object. Once
+// the Application Object is initialized, it is passed into each of your
+// registered initializers. After each handler has initialized, the
+// your application is ready to begin execution.
 
 // ### CoffeeScript
 // Enginemill registers the [CoffeeScript](http://coffeescript.org/) compiler before loading or
@@ -203,18 +231,21 @@ require('coffee-script').register();
 // |  |- middleware.coffee
 // |  |- routes.coffee
 // |  `- databases.coffee
+// |- store
+// |  |- models.js
+// |  `- index.js
+// |- query
+// |  |- author_profile.js
+// |  `- article.js
+// |- index
+// |  |- author_profile.js
+// |  `- article.js
 // |- presenters
 // |  |- users.js
 // |  `- posts.js
 // |- middleware
 // |  |- auth_token.js
 // |  `- api_response.js
-// |- views
-// |  |- author_profile.js
-// |  `- article.js
-// |- store
-// |  |- models.js
-// |  `- index.js
 // |- server.js
 // `- package.json
 // ```
@@ -575,7 +606,43 @@ enginemill.loadInitializers = function (args) {
     }, Promise.resolve(args.app));
 };
 
+// ## Factories and Mixins
+// Enginemill includes an Object factory mixed into lodash as
+// `enginemill.U.factory()`. This factory creator accepts any number of mixins,
+// plus your own prototype definitions to compose factory functions for
+// Objects.
+//
+// ### Creating Factories
+// `enginemill.U.factory()` returns a Function which
+// will create new Objects using a prototype composed of the mixins passed in.
+// The returned Object factory Function will automatically call initialize()
+// on your object instance. If there is an initialize() function defined on any
+// of the mixins, they will also be called, in order, before your mixin.
+//
+// Example:
+// ```JS
+// var newWidget = enginemill.U.factory(enginemill.Mixins.Model, {
+//   name: 'Widget',
+//   idAttribute: '_id',
+//
+//   defaults: {
+//     _id    : null,
+//     width  : 5,
+//     height : 2
+//   },
+//
+//   initialize: function () {
+//     this.cid = randomString();
+//   },
+//
+//   area: function () {
+//     return this.width * this.height;
+//   }
+// });
+// ```
+// ### Mixins
 enginemill.Mixins = {
+  // #### enginemill.Mixins.Model
   Model: BRIXX.Model
 };
 
@@ -823,6 +890,60 @@ JSONFileDatabase.create = U.factory(JSONFileDatabase.prototype);
 //
 // ## Utilities
 //
+
+enginemill.Request = {
+
+  request: function (uri, opts, makeRequest) {
+    makeRequest = makeRequest || REQ;
+    var
+    req, promise, resolve, reject, params;
+
+    promise = new Promise(function (res, rej) {
+      resolve = res;
+      reject = rej;
+    });
+
+    params = REQ.initParams(uri, opts, function (err, res, body) {
+      if (err) {
+        return reject(err);
+      }
+
+      Object.defineProperties(res, {
+        body: {
+          enumerable : true,
+          value      : body
+        }
+      });
+      return resolve(res);
+    });
+
+    params.followRedirect = params.followRedirect || false;
+    params.encoding = typeof params.encoding === 'string' ? params.encoding : null;
+    req = makeRequest(params, params.callback);
+    req.promise = promise;
+    return req;
+  },
+
+  get: function (uri, opts) {
+    return this.request(uri, opts, REQ.get.bind(REQ));
+  },
+
+  post: function (uri, opts) {
+    return this.request(uri, opts, REQ.post.bind(REQ));
+  },
+
+  put: function (uri, opts) {
+    return this.request(uri, opts, REQ.put.bind(REQ));
+  },
+
+  del: function (uri, opts) {
+    return this.request(uri, opts, REQ.del.bind(REQ));
+  },
+
+  patch: function (uri, opts) {
+    return this.request(uri, opts, REQ.patch.bind(REQ));
+  },
+};
 
 // ### enginemill.readJSON
 // A utility function used by Enginemill to read JSON files, but available
