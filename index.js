@@ -155,7 +155,7 @@ function NotFoundError(message) {
   this.message = message;
 }
 util.inherits(NotFoundError, OperationalError);
-enginemill.Errors.NotFoundError;
+enginemill.Errors.NotFoundError = NotFoundError;
 
 // #### enginemill.Errors.JSONParseError
 // Handle the special case of parsing JSON. Exported publically as
@@ -166,8 +166,8 @@ function JSONParseError(message) {
   this.name = this.constructor.name;
   this.message = message;
 }
-util.inherits(JSONReadError, OperationalError);
-enginemill.Errors.JSONReadError;
+util.inherits(JSONParseError, OperationalError);
+enginemill.Errors.JSONParseError = JSONParseError;
 
 // ### enginemill.radio
 // Enginemill incudes the [oddcast](https://github.com/oddnetworks/oddcast) library for passing messages between
@@ -185,7 +185,7 @@ var oddcast = enginemill.oddcast;
 // to write your whole program, but Enginemill holds the opinion that programs
 // are better written in JavaScript, while it can still be convenient to use
 // CoffeeScript to write your configuration files.
-coffee.register();
+require('coffee-script').register();
 
 // ### enginemill.load
 // `enginemill.load()` is the main entry point for your program. This is where
@@ -256,7 +256,7 @@ coffee.register();
 //     process.exit(1);
 // });
 // ```
-enginemill.load = function (args, callback) {
+enginemill.load = function (args) {
   args = args || Object.create(null);
 
   var promise;
@@ -346,16 +346,6 @@ enginemill.load = function (args, callback) {
   // })
   // ```
     .then(function loadCommandLineArgs(args) {
-      if (!args.argv) {
-        args.argv = clArgsLoader.loadArgv({
-          usageString : args.usageString,
-          helpString  : args.helpString,
-          options     : args.options,
-          argv        : process.argv
-        });
-      }
-      return args;
-
       var options = Yargs
         .reset()
         .usage(args.usageString)
@@ -584,7 +574,7 @@ enginemill.loadInitializers = function (args) {
         return Promise.resolve(module(app)).then(U.constant(app));
       });
     }, Promise.resolve(args.app));
-}
+};
 
 function Logger() {}
 enginemill.Logger = Logger;
@@ -613,7 +603,7 @@ Logger.prototype.initialize = function (args) {
   this.channel.observe({role: 'logging'}, this.defaultObserver);
 };
 
-Logger.prototype.configure = function (args) {
+Logger.prototype.configure = function (configs) {
   configs = U.ensure(configs);
 
   if (U.isBoolean(configs.useDefaultStream)) {
