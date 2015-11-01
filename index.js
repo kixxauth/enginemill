@@ -22,13 +22,16 @@
 // The `exports` object is assigned to `enginemill` for readability.
 var enginemill = exports;
 
-var util = require('util');
+var
+util  = require('util'),
+debug = require('debug'),
+Yargs = require('yargs');
 
 // ### enginemill.Promise
 // Enginemill uses [Bluebird Promises](http://bluebirdjs.com/docs/getting-started.html) to handle asynchronous programming
 // from start to finish and exposes it as `enginemill.Promise` for you.
 enginemill.Promise = require('Bluebird');
-var Promise     = enginemill.Promise;
+var Promise        = enginemill.Promise;
 
 // ### enginemill.U
 // Enginemill also uses [Lodash](https://lodash.com/) as the default JavaScript utility library,
@@ -77,7 +80,7 @@ var BRIXX = require('brixx');
 //
 // Example:
 // ```JS
-// var createWidget = enginemill.U.factory(enginemill.Mixins.Model, {
+// var newWidget = enginemill.U.factory(enginemill.Mixins.Model, {
 //   name: 'Widget',
 //   idAttribute: '_id',
 //
@@ -108,7 +111,7 @@ enginemill.U.mixin({
 // Enginemill uses the [FilePath](https://github.com/kixxauth/filepath) library as the default cross platform
 // interface for working with the file system in both posix and win32.
 enginemill.filepath = require('filepath');
-var filepath = enginemill.filepath;
+var filepath        = enginemill.filepath;
 
 // ### enginemill.Errors
 // The Standard Enginemill Error constructors are all exposed on `enginemill`
@@ -116,7 +119,7 @@ var filepath = enginemill.filepath;
 // much easier with [Bluebird's catch](http://bluebirdjs.com/docs/api/catch.html),
 // allowing you to properly segment your exception handling based on [operational and programmer errors](https://www.joyent.com/developers/node/design/errors).
 enginemill.Errors = Object.create(null);
-var Errors = enginemill.Errors;
+var Errors        = enginemill.Errors;
 
 // #### enginemill.Errors.OperationalError
 // A superclass for all other Operational Errors and used by itself
@@ -165,6 +168,15 @@ function JSONParseError(message) {
 }
 util.inherits(JSONReadError, OperationalError);
 enginemill.Errors.JSONReadError;
+
+// ### enginemill.radio
+// Enginemill incudes the [oddcast](https://github.com/oddnetworks/oddcast) library for passing messages between
+// system components. Decoupled component communication makes command/query
+// responsibility segregation ([CQRS](http://martinfowler.com/bliki/CQRS.html))
+// easier to achieve with Enginemill. Strict adherence to CQRS leads to the
+// Store/Index/Query/Presenter architecture suggested by Enginemill.
+enginemill.oddcast = require('oddcast');
+var oddcast = enginemill.oddcast;
 
 // ### CoffeeScript
 // Enginemill registers the [CoffeeScript](http://coffeescript.org/) compiler before loading or
@@ -481,6 +493,11 @@ enginemill.db = objects.factory(mixins.DBConnector, {
     return factory(data);
   }
 });
+
+
+//
+// ## Utilities
+//
 
 
 // ### enginemill.readJSON
