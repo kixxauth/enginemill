@@ -315,6 +315,36 @@ enginemill.load = function (args, callback) {
   // Command line options parsing is directed by the `args.options` Object
   // passed into `enginemill.load()`, as well as the `args.usageString` and
   // `args.helpString`.
+  //
+  // The `args.options` hash passed into `enginemill.load()` should contain a hash
+  // of arguments with an object for each value containing:
+  // - alias - String
+  // - describe - Description String
+  // - demand - Boolean
+  // - type - String ("boolean"|"string")
+  // - default - Any value
+  // __Example:__
+  //
+  // ```JS
+  // enginemill.load({
+  //   options: {
+  //     environment: {
+  //       describe: "The environment setting.",
+  //       type: "string",
+  //       default: "development"
+  //     },
+  //     verbose: {
+  //       alias: "v",
+  //       describe: "Set logging on.",
+  //       type: "boolean"
+  //     }
+  //   }
+  //   initializers: [
+  //     'configs',
+  //     'middleware'
+  //   ]
+  // })
+  // ```
     .then(function loadCommandLineArgs(args) {
       if (!args.argv) {
         args.argv = clArgsLoader.loadArgv({
@@ -324,6 +354,22 @@ enginemill.load = function (args, callback) {
           argv        : process.argv
         });
       }
+      return args;
+
+      var options = Yargs
+        .reset()
+        .usage(args.usageString)
+        .help('help', args.helpString);
+
+      if (args.options && typeof args.options === 'object') {
+        Object.keys(args.options).forEach(function (key) {
+          var
+          conf = args.options[key];
+          options = options.option(key, conf);
+        });
+      }
+
+      args.argv = options.parse(process.argv);
       return args;
     })
   // #### Environment Setting
