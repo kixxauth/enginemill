@@ -393,10 +393,10 @@ enginemill.load = function (args) {
       args.app = Application.create({
         name        : args.name ||
                       packageJSON.name ||
-                      exports.DEFAULTS.APP_NAME,
+                      enginemill.DEFAULTS.APP_NAME,
         version     : args.version ||
                       packageJSON.version ||
-                      exports.DEFAULTS.APP_VERSION,
+                      enginemill.DEFAULTS.APP_VERSION,
         appdir      : args.appdir,
         packageJSON : args.packageJSON,
         environment : args.environment,
@@ -411,7 +411,7 @@ enginemill.load = function (args) {
   // the `args.initializers` Array passed into `enginemill.load()`. See
   // the __Initializer Loading__ section for more information.
     .then(function loadInitializers(args) {
-      return exports.loadInitializers(args);
+      return enginemill.loadInitializers(args);
     })
 
   // #### Return a Promise
@@ -436,54 +436,57 @@ enginemill.DEFAULTS = {
 function Application() {}
 enginemill.Application = Application;
 
-Application.prototype.initialize = function (spec) {
-  Object.defineProperties(this, {
-    name: {
-      enumerable: true,
-      value: spec.name
-    },
-    version: {
-      enumerable: true,
-      value: spec.version
-    },
-    appdir: {
-      enumerable: true,
-      value: spec.appdir
-    },
-    packageJSON: {
-      enumerable: true,
-      value: spec.packageJSON ? U.deepFreeze(spec.packageJSON) : null
-    },
-    environment: {
-      enumerable: true,
-      value: spec.environment
-    },
-    configs: {
-      enumerable: true,
-      value: Object.create(null)
-    },
-    argv: {
-      enumerable: true,
-      value: U.deepFreeze(U.ensure(spec.argv))
-    },
-    logger: {
-      enumerable: true,
-      value: Logger.create({
-        appname: spec.name
-      })
-    },
-    debug: {
-      enumerable: true,
-      value: function (name) {
-        return debug(spec.name + ':' + name);
+U.extend(Application.prototype, {
+
+  initialize: function (spec) {
+    Object.defineProperties(this, {
+      name: {
+        enumerable: true,
+        value: spec.name
+      },
+      version: {
+        enumerable: true,
+        value: spec.version
+      },
+      appdir: {
+        enumerable: true,
+        value: spec.appdir
+      },
+      packageJSON: {
+        enumerable: true,
+        value: spec.packageJSON ? U.deepFreeze(spec.packageJSON) : null
+      },
+      environment: {
+        enumerable: true,
+        value: spec.environment
+      },
+      configs: {
+        enumerable: true,
+        value: Object.create(null)
+      },
+      argv: {
+        enumerable: true,
+        value: U.deepFreeze(U.ensure(spec.argv))
+      },
+      logger: {
+        enumerable: true,
+        value: Logger.create({
+          appname: spec.name
+        })
+      },
+      debug: {
+        enumerable: true,
+        value: function (name) {
+          return debug(spec.name + ':' + name);
+        }
+      },
+      API: {
+        enumerable: true,
+        value: Object.create(null)
       }
-    },
-    API: {
-      enumerable: true,
-      value: Object.create(null)
-    }
-  });
-};
+    });
+  }
+});
 
 Application.create = U.factory(Application.prototype);
 
@@ -578,50 +581,53 @@ enginemill.Mixins = {
 function Logger() {}
 enginemill.Logger = Logger;
 
-Logger.prototype.initialize = function (args) {
-  this.channel = oddcast.eventChannel();
-  this.channel.use({role: 'logging'}, oddcast.inprocessTransport());
+U.extend(Logger.prototype, {
 
-  this.logger = Logger.bunyan.createLogger({
-    name: args.appname
-  });
+  initialize: function (args) {
+    this.channel = oddcast.eventChannel();
+    this.channel.use({role: 'logging'}, oddcast.inprocessTransport());
 
-  this.logger.streams = [];
-  this.logger.addStream({
-    type: 'raw',
-    stream: new Logger.EmitterRawStream({
-      channel: this.channel
-    }),
-    closeOnExit: false
-  });
+    this.logger = Logger.bunyan.createLogger({
+      name: args.appname
+    });
 
-  this.defaultObserver = function (rec) {
-    process.stdout.write(JSON.stringify(rec));
-  };
+    this.logger.streams = [];
+    this.logger.addStream({
+      type: 'raw',
+      stream: new Logger.EmitterRawStream({
+        channel: this.channel
+      }),
+      closeOnExit: false
+    });
 
-  this.channel.observe({role: 'logging'}, this.defaultObserver);
-};
+    this.defaultObserver = function (rec) {
+      process.stdout.write(JSON.stringify(rec));
+    };
 
-Logger.prototype.configure = function (configs) {
-  configs = U.ensure(configs);
+    this.channel.observe({role: 'logging'}, this.defaultObserver);
+  },
 
-  if (U.isBoolean(configs.useDefaultStream)) {
-    if (configs.useDefaultStream) {
-      this.channel.remove({role: 'logging'}, this.defaultObserver);
-      this.channel.observe({role: 'logging'}, this.defaultObserver);
-    } else {
-      this.channel.remove({role: 'logging'}, this.defaultObserver);
+  configure: function (configs) {
+    configs = U.ensure(configs);
+
+    if (U.isBoolean(configs.useDefaultStream)) {
+      if (configs.useDefaultStream) {
+        this.channel.remove({role: 'logging'}, this.defaultObserver);
+        this.channel.observe({role: 'logging'}, this.defaultObserver);
+      } else {
+        this.channel.remove({role: 'logging'}, this.defaultObserver);
+      }
     }
-  }
 
-  if (configs.level) {
-    this.logger.level(configs.level);
-  }
-};
+    if (configs.level) {
+      this.logger.level(configs.level);
+    }
+  },
 
-Logger.prototype.create = function (attributes) {
-  return this.logger.child(attributes);
-};
+  create: function (attributes) {
+    return this.logger.child(attributes);
+  }
+});
 
 Logger.create = U.factory(Logger.prototype);
 
@@ -833,7 +839,7 @@ JSONFileDatabase.create = U.factory(JSONFileDatabase.prototype);
 //   returned via rejection.
 // - If the given path is not a file an Error is
 //   passed via rejection.
-exports.readJSON = function (args) {
+enginemill.readJSON = function (args) {
   var path = args.path;
 
   function parseJSON(text) {
