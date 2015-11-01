@@ -586,9 +586,124 @@ enginemill.loadInitializers = function (args) {
     }, Promise.resolve(args.app));
 }
 
-enginemill.db = objects.factory(mixins.DBConnector, {
+function Logger() {}
+enginemill.Logger = Logger;
+
+Logger.prototype.initialize = function (args) {
+  this.channel = oddcast.eventChannel();
+  this.channel.use({role: 'logging'}, oddcast.inprocessTransport());
+
+  this.logger = Logger.bunyan.createLogger({
+    name: args.appname
+  });
+
+  this.logger.streams = [];
+  this.logger.addStream({
+    type: 'raw',
+    stream: new Logger.EmitterRawStream({
+      channel: this.channel
+    }),
+    closeOnExit: false
+  });
+
+  this.defaultObserver = function (rec) {
+    process.stdout.write(JSON.stringify(rec));
+  };
+
+  this.channel.observe({role: 'logging'}, this.defaultObserver);
+};
+
+Logger.prototype.configure = function (args) {
+  configs = U.ensure(configs);
+
+  if (U.isBoolean(configs.useDefaultStream)) {
+    if (configs.useDefaultStream) {
+      this.channel.remove({role: 'logging'}, this.defaultObserver);
+      this.channel.observe({role: 'logging'}, this.defaultObserver);
+    } else {
+      this.channel.remove({role: 'logging'}, this.defaultObserver);
+    }
+  }
+
+  if (configs.level) {
+    this.logger.level(configs.level);
+  }
+};
+
+Logger.prototype.create = function (attributes) {
+  return this.logger.child(attributes);
+};
+
+Logger.create = U.factory(Logger.prototype);
+
+Logger.FATAL = 'fatal';
+Logger.ERROR = 'error';
+Logger.WARN  = 'warn';
+Logger.INFO  = 'info';
+Logger.DEBUG = 'debug';
+Logger.TRACE = 'trace';
+
+Logger.PATTERNS = {
+  FATAL : {role: 'logging', level: Logger.FATAL},
+  ERROR : {role: 'logging', level: Logger.ERROR},
+  WARN  : {role: 'logging', level: Logger.WARN},
+  INFO  : {role: 'logging', level: Logger.INFO},
+  DEBUG : {role: 'logging', level: Logger.DEBUG},
+  TRACE : {role: 'logging', level: Logger.TRACE}
+};
+
+Logger.bunyan = require('bunyan');
+
+function EmitterRawStream(spec) {
+  this.channel = spec.channel;
+}
+EmitterRawStream.prototype.write = function (rec) {
+  var level = Logger.bunyan.nameFromLevel[rec.level].toUpperCase();
+  this.channel.broadcast(Logger.PATTERNS[level], rec);
+};
+
+Logger.EmitterRawStream = EmitterRawStream;
+
+function DatabaseConnector() {}
+enginemill.DatabaseConnector = DatabaseConnector;
+
+U.extend(DatabaseConnector.prototype, {
   initialize: function (spec) {
+    this.engine    = spec.engine;
     this.factories = spec.factories;
+  },
+
+  get: function (id, options) {
+    options = options || Object.create(null);
+    var self = this;
+    return this.engine.get(id, options).then(function (data) {
+      return self.factory(data);
+    });
+  },
+
+  post: function (entity, options) {
+    options = options || Object.create(null);
+    var
+    self   = this,
+    record = this.serialize(entity);
+    return this.engine.post(record, options).then(function (data) {
+      return self.factory(data);
+    });
+  },
+
+  put: function (entity, options) {
+    options = options || Object.create(null);
+    var
+    self   = this,
+    record = this.serialize(entity);
+    return this.engine.put(record, options).then(function (data) {
+      return self.factory(data);
+    });
+  },
+
+  remove: function (id, options) {
+    options = options || Object.create(null);
+    return this.engine.remove(id, options);
   },
 
   factory: function (data) {
@@ -597,14 +712,32 @@ enginemill.db = objects.factory(mixins.DBConnector, {
       throw new Error('Missing factory for "' + data.name + '"');
     }
     return factory(data);
+  },
+
+  serialize: function (entity) {
+    var record  = Object.create(null);
+    record.id   = entity.id;
+    record.data = entity;
+
+    if (typeof entity.toJSON === 'function') {
+      record.data = entity.toJSON();
+    } else if (typeof entity.valueOf === 'function') {
+      record.data = entity.valueOf();
+    }
+
+    if (entity.idAttribute) {
+      record.id = entity[entity.idAttribute];
+    }
+
+    return record;
   }
 });
 
+DatabaseConnector.create = U.factory(DatabaseConnector.prototype);
 
 //
 // ## Utilities
 //
-
 
 // ### enginemill.readJSON
 // A utility function used by Enginemill to read JSON files, but available
