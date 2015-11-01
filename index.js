@@ -400,7 +400,7 @@ enginemill.load = function (args, callback) {
     .then(function createApplication(args) {
       var packageJSON = args.packageJSON || Object.create(null);
 
-      args.app = application.create({
+      args.app = Application.create({
         name        : args.name ||
                       packageJSON.name ||
                       exports.DEFAULTS.APP_NAME,
@@ -441,6 +441,66 @@ enginemill.DEFAULTS = {
   APP_NAME         : 'not-named',
   APP_VERSION      : '0'
 };
+
+function Application() {}
+enginemill.Application = Application;
+
+// spec.name
+// spec.version
+// spec.appdir
+// spec.packageJSON
+// spec.environment
+// spec.argv
+Application.prototype.initialize = function (spec) {
+  Object.defineProperties(this, {
+    name: {
+      enumerable: true,
+      value: spec.name
+    },
+    version: {
+      enumerable: true,
+      value: spec.version
+    },
+    appdir: {
+      enumerable: true,
+      value: spec.appdir
+    },
+    packageJSON: {
+      enumerable: true,
+      value: spec.packageJSON ? U.deepFreeze(spec.packageJSON) : null
+    },
+    environment: {
+      enumerable: true,
+      value: spec.environment
+    },
+    configs: {
+      enumerable: true,
+      value: Object.create(null)
+    },
+    argv: {
+      enumerable: true,
+      value: U.deepFreeze(U.ensure(spec.argv))
+    },
+    logger: {
+      enumerable: true,
+      value: Logger.create({
+        appname: spec.name
+      })
+    },
+    debug: {
+      enumerable: true,
+      value: function (name) {
+        return debug(spec.name + ':' + name);
+      }
+    },
+    API: {
+      enumerable: true,
+      value: Object.create(null)
+    }
+  });
+};
+
+Application.create = U.factory(Application.prototype);
 
 // ### Initializer Loading
 // The initialization loader requires and loads all initializers passed in as
