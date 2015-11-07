@@ -887,6 +887,43 @@ EmitterRawStream.prototype.write = function (rec) {
 
 Logger.EmitterRawStream = EmitterRawStream;
 
+// Database Connector
+// ------------------
+// The core functionality of your application Store is to store data in a
+// database. The `enginemill.DatabaseConnector` provides a consistent API for
+// writing data changes to your database of choice from within your Store.
+//
+// ### enginemill.DatabaseConnector
+// The DatabaseConnector takes an underlying database engine you create, and a
+// list of Model factory functions, and creates a database API.
+//
+// ##### enginemill.DatabaseConnector class methods
+// __.create(spec)__ create a new databaseconnector api.
+//
+// name          | description
+// ------------- | ---
+// __engine__    | *Object* A database engine following the __Database Engine Interface__ contract.
+// __factories__ | *Object* Index of factory functions by Model name.
+//
+// __Returns__ A DatabaseConnector instance.
+//
+// ##### enginemill.DatabaseConnector instance methods
+// __#get(id, options)__ Should get an entity by calling `engine.get()` and
+// return a Promise for the Model instance from the appropriate factory denoted
+// by `data.name`.
+//
+// __#post(entity, options)__ Accepts a Model instance as the first argument.
+// Serializes the entity into a record Object and passes it into
+// `engine.post()`. The entity must not yet have an ID assigned. Returns a
+// Promise for a new Model instance representing the saved entity.
+//
+// __#put(entity, options)__ Accepts a Model instance as the first argument.
+// Serializes the entity into a record Object and passes it into
+// `engine.put()`. The entity must already have an ID assigned. Returns a
+// Promise for a new Model instance representing the saved entity.
+//
+// __#remove(id, options)__ Should remove an entity by calling
+// `engine.remove()` and return a Promise for the ID of the removed entity.
 function DatabaseConnector() {}
 enginemill.DatabaseConnector = DatabaseConnector;
 
@@ -957,6 +994,60 @@ U.extend(DatabaseConnector.prototype, {
 });
 
 DatabaseConnector.create = U.factory(DatabaseConnector.prototype);
+
+// ### Database Engine Interface
+// An interface contract specification. When an Object meets this contract it
+// can be passed into `enginemill.DatabaseConnector.create(spec)` as the
+// `spec.engine`.
+//
+// ##### Database Engine instance methods
+// __.get(id, options)__ Must accept a String or Number ID as the first
+// argument. May accept an options Object as the second argument.
+// May throw an Error if a String or Number ID is not provided. Must
+// return a Promise for an Object representing the data stored at `id`. If the
+// data does not exist it must reject the Promise with an
+// `enginemill.Errors.NotFoundError`.
+//
+// __.post(record, options)__ Must accept a record Object with `record.data`
+// attribute as the first argument. May accept an options Object as the second
+// argument. May throw an Error if a `record.id` attribute is provided. It is
+// assumed .post(record) will assign an ID to the record. Must return a
+// Promise for the record data as written to the underlying database.
+//
+// __.put(record, options)__ Must accept a record Object with both
+// `record.data` and `record.id` attributes as the first argument. May accept
+// an optinos Object as the second argument. May throw an Error if
+// `record.id` or `record.data` are not provided. Must return a Promise for the
+// data stored at `id`. If `id` does not exist in the database .put(record)
+// must reject the returned Promise with an `enginemill.Errors.NotFoundError`.
+//
+// __.remove(record, options)__ Must accept a String or Number ID as the first
+// argument. May accept an options Object as the second Argument.
+// May throw an Error if a String or Number ID is not provided.
+// Must return a Promise for the ID String or Number. If the record cannot
+// be found it must reject the Promise with an
+// `enginemill.Errors.NotFoundError`.
+//
+// ### JSONFileDatabase
+// For convenience during development Enginemill provides a simple JSON file
+// storage engine which impements the __Database Engine Interface__. You can
+// create an __enginemill.DatabaseConnector__ which uses it:
+// ```JS
+// var db = enginemill.DatabaseConnector.create({
+//   engine: enginemill.JSONFileDatabase.create({
+//     dir: enginemill.filepath.root().append('tmp', 'appdata')
+//   }),
+//
+//   factories: {
+//     Car: createCar
+//   }
+// });
+//
+// db.get();
+// db.post();
+// db.put();
+// db.remove();
+// ```
 
 function JSONFileDatabase() {}
 enginemill.JSONFileDatabase = JSONFileDatabase;
