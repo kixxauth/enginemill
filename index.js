@@ -9,6 +9,7 @@
 // * [Filepath](https://github.com/kixxauth/filepath) to work with the filesystem.
 // * Parses command line options with [Yargs](https://github.com/bcoe/yargs).
 // * Serially loads plugins you define and kicks off your app only when they have all loaded.
+// * Comprehensive logging based on [Bunyan](https://github.com/trentm/node-bunyan).
 // * Includes a handy Promisified [request](https://github.com/request/request) wrapper for making HTTP requests.
 // * Supports [CoffeeScript](http://coffeescript.org/) out of the box, which is nice for config and plugin initialization files.
 //
@@ -477,15 +478,15 @@ U.extend(Application.prototype, {
           appname: spec.name
         })
       },
-      debug: {
-        enumerable: true,
-        value: function (name) {
-          return debug(spec.name + ':' + name);
-        }
-      },
       API: {
         enumerable: true,
         value: Object.create(null)
+      },
+      debug: {
+        enumerable: true,
+        value: function (name) {
+          return debug(name + ':' + name);
+        }
       }
     });
   }
