@@ -73,31 +73,7 @@ var BRIXX = require('brixx');
 // #### enginemill.U.factory()
 // An object factory which uses the mixin pattern. Returns a Function which
 // will create new Objects using a prototype composed of the mixins passed in.
-// The returned Object factory will call initialize() on your object instance.
-// If there is an initialize() function defined on any of the mixins,
-// they will be called before your mixin.
-//
-// Example:
-// ```JS
-// var newWidget = enginemill.U.factory(enginemill.Mixins.Model, {
-//   name: 'Widget',
-//   idAttribute: '_id',
-//
-//   defaults: {
-//     _id    : null,
-//     width  : 5,
-//     height : 2
-//   },
-//
-//   initialize: function () {
-//     this.cid = randomString();
-//   },
-//
-//   area: function () {
-//     return this.width * this.height;
-//   }
-// });
-// ```
+// See the __Factories and Mixins__ section for more information.
 enginemill.U.mixin({
   ensure     : BRIXX.ensure,
   deepFreeze : BRIXX.deepFreeze,
@@ -606,7 +582,8 @@ enginemill.loadInitializers = function (args) {
     }, Promise.resolve(args.app));
 };
 
-// ## Factories and Mixins
+// Factories and Mixins
+// --------------------
 // Enginemill includes an Object factory mixed into lodash as
 // `enginemill.U.factory()`. This factory creator accepts any number of mixins,
 // plus your own prototype definitions to compose factory functions for
@@ -619,7 +596,8 @@ enginemill.loadInitializers = function (args) {
 // on your object instance. If there is an initialize() function defined on any
 // of the mixins, they will also be called, in order, before your mixin.
 //
-// Example:
+// __Example:__
+//
 // ```JS
 // var newWidget = enginemill.U.factory(enginemill.Mixins.Model, {
 //   name: 'Widget',
@@ -641,8 +619,71 @@ enginemill.loadInitializers = function (args) {
 // });
 // ```
 // ### Mixins
+// #### enginemill.Mixins.Model
+// An Object mixin for creating Immutable models. Define a set of default
+// values in your definition and the keys will be used to enforce assignment
+// rules on the instance. Includes a mechnanism for naming the type for your
+// model, as well as assigning an ID.
+//
+// __Example:__
+//
+// ```JS
+// var newWidget = enginemill.U.factory(enginemill.Mixins.Model, {
+//   name: 'Widget',
+//   idAttribute: '_id',
+//
+//   defaults: {
+//     _id    : null,
+//     width  : 5,
+//     height : 2
+//   },
+//
+//   initialize: function () {
+//     this.cid = randomString();
+//   },
+//
+//   area: function () {
+//     return this.width * this.height;
+//   }
+// });
+//
+// var widget = newWidget({width: 4, height: 4});
+// widget.area(); // 16
+// ```
+// Setting the defaults Object hash determines not only what the default
+// values will be for the keys, but also which keys are allowed on an instance
+// of this model. Using #set() to set a key which was not defined in the
+// defaults hash will throw an error.
+//
+// ##### enginemill.Mixin.Model instance properties
+// __#name__ A frozen enumerable property. Used in #toString() and #diff().
+//
+// __#idAttribute__ A non-enumerable prototype property used to determine the
+// ID.
+//
+// ##### enginemill.Mixin.Model instance methods
+// __#has(key)__ Check to see if the model instance has the given key,
+// regardless of if it is defined or not.
+//
+// __#hasId()__ Check to see if the ID property defined by #idAttribute is
+// present.
+//
+// __#set(values)__ Pass in an Object hash of key/value pairs to set.
+// Attempting to set a key which was not defined in the defaults will throw an
+// Error. Returns a new instance of the model.
+//
+// __#diff(otherInstance)__ Pass in another model instance to determine if they
+// are different. Returns `null` if they are the same, or an Array of
+// differences if they are not. Each item in the diff Array is another Array
+// containing [key, selfValue, otherValue].
+//
+// __#toJSON()__ Returns a new Object containing all the key/value pairs
+// defined on this model instance. This makes
+// `JSON.stringify(myModelInstance)` work as you would expect.
+//
+// __#toString()__ Returns a special String representation of this model
+// instance.
 enginemill.Mixins = {
-  // #### enginemill.Mixins.Model
   Model: BRIXX.Model
 };
 
