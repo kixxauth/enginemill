@@ -161,19 +161,11 @@ function JSONParseError(message) {
 util.inherits(JSONParseError, OperationalError);
 enginemill.Errors.JSONParseError = JSONParseError;
 
-// ## Message Based Communication
-// Enginemill holds a string opinion that Command/Query
-// Responsibility Segregation ([CQRS](http://martinfowler.com/bliki/CQRS.html))
-// is essential to allow developers to reason about otherwise complex systems.
-// Strict adherence to CQRS should lead to a Store/Index/Query/Presenter
-// architecture as suggested by Enginemill. Having a built in message
-// based communication system makes Store/Index/Query/Presenter possible.
-//
-// ### enginemill.radio
-// Enginemill incudes the [oddcast](https://github.com/oddnetworks/oddcast) library for passing messages between
-// system components. This makes it easy to keep your system components
-// decaupled which makes Command/Query Responsibility Segregation and
-// Store/Index/Query/Presenter architecture possible.
+// ### enginemill.oddcast
+// Enginemill incudes the [oddcast](https://github.com/oddnetworks/oddcast)
+// library for passing messages between system components. This makes it easy
+// to keep your system components decoupled for true Store/Index/Query/
+// Presenter architecture.
 enginemill.oddcast = require('oddcast');
 var oddcast = enginemill.oddcast;
 
@@ -1039,3 +1031,134 @@ enginemill.readJSON = function (args) {
   return Promise.reject(
     new Error('The FilePath is not a file: '+ path));
 };
+
+// Store/Query/Presenter Architecture
+// ----------------------------------
+// Enginemill holds a string opinion that Command/Query
+// Responsibility Segregation ([CQRS](http://martinfowler.com/bliki/CQRS.html))
+// is essential to allow developers to reason about otherwise complex systems.
+// Strict adherence to CQRS should lead to a Store/Query/Presenter
+// architecture as suggested by Enginemill.
+//
+// ### Message Based Communication
+// Having a built in message based communication system makes Store/Query/
+// Presenter possible. See `enginemill.oddcast` for more info.
+//
+// Examples:
+//
+// #### Broadcast Channel
+// A Broadcast Channel broadcasts events throughout the system to anyone who
+// might be listening.
+// ```JS
+// var oddcast = require('oddcast');
+// var transport = require('my-transport');
+// var events = oddcast.eventChannel();
+// events.use({role: 'store'}, transport({
+//     url: 'http://mypubsub.io/channel/1'
+//   }));
+//
+// events.observe({role: 'store', op: 'write', type: 'video'}, function (args) {
+//   writeIndexRecord(args.entity.key, args.entity);
+// });
+// ```
+// And in some other code, somewhere else ...
+// ```JS
+// var oddcast = require('oddcast');
+// var transport = require('my-transport');
+// var events = oddcast.eventChannel();
+// events.use({role:'store'}, transport({
+//     url: 'http://mypubsub.io/channel/1'
+//   }));
+//
+// // When a record is saved to the datastore, we broadcast it.
+// events.broadcast({
+//     role: 'store',
+//     type: entity.type,
+//     op: 'write',
+//     entity: entity
+//   });
+// ```
+//
+// #### Command Channel
+// A Command Channel is used for directed messages, with the expectation that
+// the receiving component will take a specified action. The underlying
+// transport under a command channel will usually be a message queue.
+// ```JS
+// var oddcast = require('oddcast');
+// var transport = require('my-transport');
+// var commands = oddcast.commandChannel();
+// commands.use({role: 'ingest'}, transport({
+//     url: 'http://myqueue.io/queue/1'
+//   }));
+//
+// commands.receive({role: 'ingest', type: 'video'}, function (args) {
+//   var entity = transformItem(args.item);
+//   var promise = saveEntity(entity).then(function () {
+//     // We return true so the queue knows this message has been processed.
+//     return true;
+//   })
+//   .catch(function (err) {
+//     log.error(err);
+//     // We return false so the queue will keep this message and try
+//     // sending it again.
+//     return false;
+//   });
+//
+//   return promise;
+// });
+// ```
+// And in some other code, somewhere else ...
+// ```JS
+// var oddcast = require('oddcast');
+// var transport = require('my-transport');
+// var commands = oddcast.commandChannel();
+// commands.use({role: 'ingest'}, transport({
+//     url: 'http://myqueue.io/queue/1'
+//   }));
+//
+// // Fetch data from a remote API and queue it up for the store
+// // by sending off a "job" for each one.
+// items.forEach(function (item) {
+//   commands.send({role: 'ingest', type: item.type, item: item});
+// });
+// ```
+//
+// #### Request Channel
+// A Request Channel is used when you know who has the data you need, and
+// would like to request it from them.
+// ```JS
+// var oddcast = require('oddcast');
+// var transport = require('my-transport');
+// var rchannel = oddcast.requestChannel();
+// rchannel.use({role: 'views'}, transport({
+//     host: '0.0.0.0',
+//     port: 8080
+//   }));
+//
+// rchannel.respond({view: 'homePage'}, function () {
+//   return {
+//     featuredVideo: getFeaturedVideo(),
+//     recentlyAdded: getRecentlyAdded(),
+//     season: getShowSeason()
+//   };
+// });
+// ```
+// // And in some other code, somewhere else ...
+// ```JS
+// var oddcast = require('oddcast');
+// var transport = require('my-transport');
+// var rchannel = oddcast.requestChannel();
+// rchannel.use({role: 'views'}, transport({
+//     url: 'http://mymicroservice.io:8080/endpoint/1'
+//   }));
+//
+// // Respond to an HTTP request by querying your view.
+// Router.get('/', function (req, res) {
+//   rchannel
+//     .request({role: views, view: 'homePage'})
+//     .then(function (viewData) {
+//       res.render('homePage.html', viewData);
+//     });
+// });
+// ```
+
