@@ -1141,6 +1141,62 @@ JSONFileDatabase.create = U.factory(JSONFileDatabase.prototype);
 // Utilities
 // ---------
 
+// ### Making HTTP Requests
+// Enginemill exposes a thin wrapper around the venerable
+// [request](https://github.com/request/request)
+// library to integrate Bluebird Promises into the API.
+//
+// Here's an example of making a request and either printing out the HTTP headers,
+// or reporting a failure.
+// ```JS
+// enginemill.Request.get('www.example.com').promise
+//   .then(function (response) {
+//     console.log(response.headers);
+//   })
+//   .catch(function (err) {
+//     console.error(err.stack);
+//     process.exit(1);
+//   });
+// ```
+//
+// If there are any errors in the process of making the HTTP request, or if any
+// errors are thrown inside the `printHeaders()` function, they will be caught
+// and passed to the handler passed into `.catch()`.
+//
+// The `.then()` and `.catch()` methods of a Promise instance both return another
+// promise instance, so you can chain them like this:
+// ```JS
+// function printHeaders(response) {
+//   console.log(response.headers);
+//   return response;
+// }
+//
+// function printBody(response) {
+//   console.log(response.body);
+//   return response;
+// }
+//
+// function printLineCount(response) {
+//   var count = respond.body.split('\n').length;
+//   console.log('Line Count: %s', count);
+//   return response;
+// }
+//
+// function fail(err) {
+//   console.error(err.stack);
+//   process.exit(1)
+// }
+//
+// enginemill.Request.get("www.example.com").promise
+//   .then(printHeaders)
+//   .then(printBody)
+//   .then(printLineCount)
+//   .catch(fail);
+// ```
+//
+// There are several methods you can use to make HTTP requests, each
+// corresponding to an HTTP request method. There is also one generic method
+// you can use for any HTTP request type.
 enginemill.Request = {
 
   request: function (uri, opts, makeRequest) {
@@ -1174,26 +1230,281 @@ enginemill.Request = {
     return req;
   },
 
+  // #### enginemill.Request class methods
+  // __Note:__ When making a request the response body will be a Buffer by
+  // default. You can change that by setting the encoding option on your request
+  // to something other than null. 'utf8' for example, would be good for
+  // setting an HTML document body to a String on the response.
+  //
+  // ##### Options for HTTP requests
+  // A full list of options which can be passed into request methods.
+  //
+  // __qs__ - An Object hash containing query string values to be appended to
+  // the URL String before the request is sent.
+  // ```JS
+  // // Send "http://localhost:8080/pathname?foo=bar&baz=true"
+  // enginemill.Request.get('http://localhost:8080/pathname', {qs: {
+  //   foo: 'bar',
+  //   baz: true
+  // }});
+  //
+  // // Send "http://localhost:8080/pathname?foo[0]=a&foo[1]=b&foo[2]=c&baz="
+  // enginemill.Request.get('http://localhost:8080/pathname', {qs: {
+  //   foo: ['a', 'b', 'c'],
+  //   baz: null
+  // }});
+  // ```
+  //
+  // __headers__ - An Object hash defining HTTP headers to send (default: `{}`).
+  // ```JS
+  // var headers = {
+  //   'user-agent': 'Enginemill request library :-)',
+  //   cookie: 'foo=bar; baz=true'
+  // };
+  //
+  // enginemill.Request.get('http://localhost:8080/pathname', {headers: headers});
+  // ```
+  // In most POST, PUT, and PATCH requests the "content-length" and
+  // "content-type" headers will be set for you based on your use of `json`,
+  // `form`, or `body`.
+  //
+  // __encoding__ - A String or null indicating the encoding to use when
+  // parsing the response. A null value will cause the HTTP body to be set as a
+  // Buffer. A string like 'utf8' will cause the HTTP body to be set as a
+  // String. (default: null)
+  //
+  // __body__ - Buffer or String for PATCH, POST and PUT requests.
+  // ```JS
+  // # Send a Buffer representing a String.
+  // enginemill.Request.post('http://localhost:8080/pathname', {body: new Buffer('Hi server!')});
+  // ```
+  // A String or Buffer will cause the 'content-length' header to be set
+  // automatically, but not the 'content-type' header.
+  //
+  // __form__ - An Object hash to send PATCH, POST and PUT requests with a
+  // URL encoded string.
+  // ```JS
+  // var form = {
+  //   email: 'john@example.io',
+  //   available: ['mon', 'wed', 'fri'],
+  //   after_hours: false
+  // };
+  //
+  // // Send the URL encoded form data as
+  // // "email=john%40example.io&available[0]=mon&available[1]=wed&available[2]=fri&after_hours=false".
+  // enginemill.Request.post('http://localhost:8080/pathname', {form: form});
+  // ```
+  // This will add 'content-type:
+  // application/x-www-form-urlencoded; charset=utf-8' and 'content-length' headers.
+  //
+  // __json__ - An Object hash to send PATCH, POST and PUT requests with a JSON
+  // encoded string.
+  // ```JS
+  // var form = {
+  //   email: 'john@example.io',
+  //   available: ['mon', 'wed', 'fri'],
+  //   after_hours: false
+  // };
+  //
+  // // Send the JSON encoded data as:
+  // // "{"email":"john@example.io","available":["mon","wed","fri"],"after_hours":false}".
+  // enginemill.Request.post('http://localhost:8080/pathname', {json: form});
+  // ```
+  // This will add 'content-type:
+  // application/json', 'accept: application/json', and 'content-length' headers.
+  //
+  // __followRedirect__ - A Boolean indicating that GET requests should
+  // automatically follow HTTP 3xx responses as redirects (default: `false`).
+  //
+  // __followAllRedirects__ - A Boolean indicating that *non* GET requests
+  // should automatically follow HTTP 3xx responses as redirects
+  // (default: `false`).
+  //
+  // __maxRedirects__ - A Number indicating the maximum number of redirects to
+  // follow (default: `10`). If this number is exceeded the request will
+  // eventually fail with "Error: Exceeded maxRedirects".
+  //
+  // __strictSSL__ - Boolean if `true` the SSL certificate from the server must
+  // be valid. **Note:** to use your own certificate authority, you need to
+  // specify an agent that was created with that CA as an option.
+  //
+  // __timeout__ - Integer indicating the number of milliseconds to wait for a
+  // request to respond before aborting the request. If a request times out it
+  // will raise an [Error: ETIMEDOUT] Error.
+  //
+  // __auth__ - An Object hash containing values `username`, `password`, and
+  // `sendImmediately` fields. See the __HTTP Authentication__ section for more
+  // information.
+
+  // __.get(uri, opts)__ Send a request using the HTTP 'GET' method.
+  //
+  // To send URL query parameters, you can just append them on the URL String like
+  // this:
+  // ```JS
+  // enginemill.Request.get('http://localhost:8080/pathname?foo=bar');
+  // ```
+  //
+  // Or, you can add the parameters using an Object hash assigned to `qs` instead
+  // (which is usually a better idea than manipulating the strings yourself):
+  // ```JS
+  // enginemill.Request.get('http://localhost:8080/pathname', {qs: {foo: 'bar'})
+  // ```
   get: function (uri, opts) {
     return this.request(uri, opts, REQ.get.bind(REQ));
   },
 
+  // __.post(uri, opts)__ Send a request using the HTTP 'POST' method.
+  //
+  // You can send a buffer or string in the options:
+  // ```JS
+  // enginemill.Request.post('http://localhost:8080/pathname', {body: 'hi'});
+  // ```
+  //
+  // You can send form data with an Object hash:
+  // ```JS
+  // enginemill.Request.post('http://localhost:8080/pathname', {form: {foo: 'bar'}});
+  // ```
+  // which will encode the form Object as a URL encoded query String and set
+  // the Content-Type header to `application/x-www-form-urlencoded`.
+  //
+  // Sending JSON is easy too:
+  // ```JS
+  // enginemill.Request.post('http://localhost:8080/pathname', {json: {foo: 'bar'}});
+  // ```
+  // The Content-Type header will be set to `application/json` and the response
+  // body will be parsed as JSON.
+  //
+  // If no options hash Object is passed into .post(), it will return a
+  // FormData instance (see FormData below).
   post: function (uri, opts) {
     return this.request(uri, opts, REQ.post.bind(REQ));
   },
 
+  // __.put(uri, opts)__ Send a request using the HTTP 'PUT' method.
+  //
+  // See the .post() docs above; the API is the same.
+  //
+  // ```JS
+  // enginemill.Request.put('http://localhost:8080/pathname', {form: {foo: 'bar'}});
+  // ```
   put: function (uri, opts) {
     return this.request(uri, opts, REQ.put.bind(REQ));
   },
 
-  del: function (uri, opts) {
-    return this.request(uri, opts, REQ.del.bind(REQ));
-  },
+  // __.patch(uri, opts)__ Send a request using the HTTP 'PATCH' method.
+  //
+  // See the .post() docs above. The API is the same.
 
+  // ```JS
+  // enginemill.Request.patch('http://localhost:8080/pathname', {form: {foo: 'bar'}});
+  // ```
   patch: function (uri, opts) {
     return this.request(uri, opts, REQ.patch.bind(REQ));
   },
+
+  // __.del(uri, opts)__ Send a request using the HTTP 'DELETE' method.
+  //
+  // ```JS
+  // enginemill.Request.del('http://localhost:8080/path/resource');
+  // ```
+  del: function (uri, opts) {
+    return this.request(uri, opts, REQ.del.bind(REQ));
+  }
 };
+
+//
+// ##### HTTP Authentication
+// Have a look at the Wikipedia article on
+// [Basic Access Authentication](http://en.wikipedia.org/wiki/Basic_access_authentication)
+// if this concept is not familiar to you. With that said, the `enginemill.Request`
+// library includes an easy way of providing HTTP authentication credentials.
+//
+// ```JS
+// // Send a basic authentication header.
+// var auth = {
+//   username: 'john',
+//   password: 'firesale'
+// };
+//
+// enginemill.Request.get('http://localhost:8080/pathname', {auth: auth});
+//
+// // Retry with a basic authentication header, after receiving a 401 response
+// // from the server.
+// var auth = {
+//   username: 'john',
+//   password: 'firesale',
+//   sendImmediately: false
+// };
+//
+// enginemill.Request.get('http://localhost:8080/pathname', {auth: auth});
+// ```
+// The `sendImmediately` parameter defaults to `true`, which causes the basic
+// authentication header to be sent on the first request, which is usualy
+// what you want. If you explicitly set `sendImmediately` to `false` then the
+// library will retry the request with a proper authentication header after
+// receiving a 401 response from the server, which must include a
+// 'WWW-Authenticate' header indicating the required authentication method.
+//
+// Digest authentication is supported, but it only works with `sendImmediately`
+// set to false; otherwise the library will send the basic authentication header
+// on the initial request, which will probably cause the request to fail when the
+// server is expecting digest authentication.
+//
+// #### Request Instances
+// Each `enginemill.Request` method returns a Request instance. *Remember:* A
+// Request instance is a Node.js Stream object, and has all the properties and
+// methods you would expect a Writable Stream to have.
+//
+// ##### Request Instance properties
+// * __promise__  - A [Promise](./promises) instance for the HTTP Response object.
+// * __readable__ - Boolean which is true if the Request Stream is still readable.
+// * __writable__ - Boolean which is true if the Request Stream is still writable.
+// * __method__   - String like 'GET' indicating the HTTP method.
+// * __headers__  - An dictionary Object of HTTP headers sent.
+// * __agent__    - The Node.js HTTP Agent object used.
+// * __uri__      - A Node.js URL Object structured like this:
+//   * __uri.href__     - The full URL String, like 'http://www.example.com'.
+//   * __uri.protocol__ - The protocol String, like 'http' or 'https'.
+//   * __uri.auth__     - The authorization String, like 'username:password'.
+//   * __uri.host__     - The full host string, including the port, like 'www.example.com:8080'.
+//   * __uri.hostname__ - Only the host name, not the port, like 'www.example.com'.
+//   * __uri.port__     - The port number String of the URI, like '8080'.
+//   * __uri.path__     - The path String with the query String, like '/customers?id=2'.
+//   * __uri.pathname__ - Only the path String, like '/customers'.
+//   * __uri.search__   - Query String including the leading '?'.
+//   * __uri.query__    - Only the query String, like 'id=2'.
+//   * __uri.hash__     - The fragment String including the leading '#'.
+//
+// ##### Request Instance Methods
+// * __form()__ - Returns a form object which can be used to send various kinds
+// of HTTP form data. See the __HTTP Request FormData__ section for more
+// information.
+//
+// #### Response Instances
+// Each `enginemill.Request` method returns a Request instance with a `promise`
+// attribute. That promise will resolve to a Response instance. *Remember:* A
+// Response instance is a Node.js Stream object, and has all the properties and
+// methods you would expect a Readable Stream to have.
+//
+// ##### Request Instance properties
+// * __httpVersion__ - HTTP version String.
+// * __httpVersionMajor__ - HTTP major version Number (easier to detect than httpVersion String).
+// * __httpVersionMinor__ - HTTP minor version Number (easier to detect than httpVersion String).
+// * __headers__ - Object hash of HTTP response headers.
+// * __statusCode__ - The HTTP status code of the response. See the [original RFC document](http://tools.ietf.org/html/rfc2616#section-10) as an authoritative reference.
+// * __body__ - The HTTP response body as a Buffer by default. If you would like a String returned, set the encoding option on your request to 'utf8'.
+// * __request__ - The Request instance that resulted in this Response instance.
+//
+// #### HTTP Request FormData
+// Send multipart file data by creating a form object with the Request#form() method:
+// ```JS
+// // No .body, .form, or .json options are required.
+// var form = enginemill.Request.post('http://localhost:8080/pathname').form();
+// form.append('foo', 'bar');
+// form.append('a_file', enginemill.filepath.create('./my_pic.jpg').newReadStream());
+// form.append('a_buffer', new Buffer('foobarbaz'));
+// ```
+
 
 // ### enginemill.readJSON
 // A utility function used by Enginemill to read JSON files, but available
