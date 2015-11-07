@@ -789,6 +789,16 @@ enginemill.Mixins = {
 // __#create(attributes)__ Creates a new logger which will always log the
 // given attributes.
 //
+// #### Adding Log Record Observers
+// Adding your own observers is simple; just pass a pattern and handler
+// function into `app.logger.channel.observe()` like so:
+// ```CoffeeScript
+// # In logging.coffee initializer:
+// module.exports = (app) ->
+//   # Observe only error log records
+//   errors = require('../lib/logging_error_handler').create(app)
+//   app.logger.channel.observe {role: 'logging', level: 'error'}, errors
+// ```
 function Logger() {}
 enginemill.Logger = Logger;
 
