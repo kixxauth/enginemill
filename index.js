@@ -19,12 +19,12 @@
 // Enginemill runs with [strict mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode) on.
 'use strict';
 
-// The `exports` object is assigned to `enginemill` for readability.
+// The `exports` Object is assigned to `enginemill` for readability.
 var enginemill = exports;
 
 //
-// ## Dependencies
-//
+// Dependencies
+// ------------
 
 // ### enginemill.Promise
 // Enginemill uses [Bluebird Promises](http://bluebirdjs.com/docs/getting-started.html) to handle asynchronous programming
@@ -63,12 +63,11 @@ var BRIXX = require('brixx');
 // undefined, or NaN. Returns true for everything else.
 //
 // #### enginemill.U.stringify()
-// A different way to stringify an Object, other than .toString().
+// A different way to stringify an Object, other than .toString():
 // 1. Returns an empty string for null, undefined or NaN.
 // 2. Returns the special '[object Function]' String for Functions.
-// 3. Returns the result of .toString() for anything else if it exists.
-// 4. Returns the result of Object.prototype.toString if .toString()
-//    is not present.
+// 3. Returns the result of .toString() if it exists.
+// 4. Returns the result of Object.prototype.toString.
 //
 // #### enginemill.U.factory()
 // An object factory which uses the mixin pattern. Returns a Function which
@@ -100,10 +99,12 @@ nodeUUID = require('node-uuid'),
 REQ      = require('request'),
 Yargs    = require('yargs');
 
-// ## Error Handling
+// Error Handling
+// --------------
 // Enginemill makes robust exception handling
 // easy with [Bluebird's catch](http://bluebirdjs.com/docs/api/catch.html),
-// allowing you to properly segment your exception handling based on [operational and programmer errors](https://www.joyent.com/developers/node/design/errors).
+// allowing you to properly segment your exception handling based on
+// [operational and programmer errors](https://www.joyent.com/developers/node/design/errors).
 
 // ### enginemill.Errors
 // The Standard Enginemill Error constructors are all exposed on `enginemill`
@@ -150,7 +151,7 @@ enginemill.Errors.NotFoundError = NotFoundError;
 
 // #### enginemill.Errors.JSONParseError
 // Handle the special case of parsing JSON. Exported publically as
-// `enginemill.Errors.JSONReadError`
+// `enginemill.Errors.JSONParseError`
 function JSONParseError(message) {
   Error.call(this);
   Error.captureStackTrace(this, this.constructor);
@@ -176,12 +177,13 @@ enginemill.Errors.JSONParseError = JSONParseError;
 enginemill.oddcast = require('oddcast');
 var oddcast = enginemill.oddcast;
 
-// ## Application Loading
+// Application Loading
+// -------------------
 // Enginemill uses your applications package.json combined wth command line
-// command line arguments to create a preconfigured Application Object. Once
-// the Application Object is initialized, it is passed into each of your
-// registered initializers. After each handler has initialized, the
-// your application is ready to begin execution.
+// to create a preconfigured Application Object. Once the Application Object
+// has been constructed, it is passed into each of your registered
+// initializers. After each handler has initialized, the your application is
+// ready to begin execution.
 
 // ### CoffeeScript
 // Enginemill registers the [CoffeeScript](http://coffeescript.org/) compiler before loading or
@@ -228,15 +230,15 @@ require('coffee-script').register();
 // #### Arguments
 // name                  | description
 // --------------------- | ---
-// __appdir__       | *FilePath instance* Defaults to the directory of the currently executing script.
+// __appdir__       | *FilePath* Defaults to the directory of the currently executing script.
 // __name__         | *String* Defaults to the package.json "name" attribute.
 // __version__      | *String* Defaults to the package.json "version" attribute.
-// __usageString__  | *String* Used as the usage string on the command line if present.
-// __helpString__   | *String* Used as the help string on the command line if present.
+// __usageString__  | *String* Used as the usage message on the command line if present.
+// __helpString__   | *String* Used as the help message on the command line if present.
 // __options__      | *Object* Command line parsing configurations.
 // __argv__         | *Object* Will be used instead of command line argv if present.
 // __environment__  | *String* Will be used instead of command line environment if present.
-// __initializers__ | *Array* of initializers (String names).
+// __initializers__ | *Array* of initializers (*Strings* or *Functions*).
 //
 // __Returns__ a Promise for the Application instance.
 //
@@ -331,6 +333,7 @@ enginemill.load = function (args) {
   // - demand - Boolean
   // - type - String ("boolean"|"string")
   // - default - Any value
+  //
   // __Example:__
   //
   // ```JS
@@ -391,10 +394,10 @@ enginemill.load = function (args) {
   // Application instance will be passed into all the initialization functions
   // and should be referenced in your application simply as `app`. The
   // Application instance will include usefull attributes like `app.name` and
-  // `app.environment` as well as the `app.argv` Object containing command
-  // line arguments. In your initializers, you'll probably want to extend
-  // the `app.configs` and `app.API` Objects to provide useful references
-  // for the rest of your program.
+  // `app.environment` as well as the `app.argv` Object containing the parsed
+  // command line arguments. In your initializers, you'll probably want to
+  // extend the `app.configs` and `app.API` Objects to provide useful
+  // references for the rest of your program.
     .then(function createApplication(args) {
       var packageJSON = args.packageJSON || Object.create(null);
 
@@ -415,7 +418,7 @@ enginemill.load = function (args) {
     })
   // #### Load Initializers
   // After the Application instance has been created the initializers are
-  // loaded and executed in serial. The initializers to run are defined by
+  // loaded and executed in serial. The initializers to are defined by
   // the `args.initializers` Array passed into `enginemill.load()`. See
   // the __Initializer Loading__ section for more information.
     .then(function loadInitializers(args) {
@@ -511,6 +514,19 @@ Application.create = U.factory(Application.prototype);
 // is a great use of an initializer. It is expected that initializers will
 // complete aysnchronously, and if so, they should return a Promise.
 //
+// __Example__
+//
+// Good example of an initializer which sets configuration settings:
+// ```CoffeeScript
+// module.exports = (app) ->
+//     # app.environment is set with the --environment option, or the
+//     # NODE_ENV environment variable.
+//     app.configs.port = if app.environment is 'production' then 8080 else 3000
+//
+//     # Set the public path to '../public'
+//     app.configs.public_path = app.appdir.append 'public'
+// ```
+//
 // ### enginemill.loadInitializers
 // Typically you can just allow `enginemill.load` to call
 // `enginemill.loadInitializers`, but in case you need to extend it, or call
@@ -524,18 +540,6 @@ Application.create = U.factory(Application.prototype);
 //
 // __Returns__ A Promise for the Application instance after all initializers
 // have been executed in order.
-//
-// #### Example
-// Good example of an initializer which sets configuration settings:
-// ```CoffeeScript
-// module.exports = (app) ->
-//     # app.environment is set with the --environment option, or the
-//     # NODE_ENV environment variable.
-//     app.configs.port = if app.environment is 'production' then 8080 else 3000
-//
-//     # Set the public path to '../public'
-//     app.configs.public_path = app.appdir.append 'public'
-// ```
 enginemill.loadInitializers = function (args) {
   var
   initializers, app, dir;
@@ -928,9 +932,8 @@ U.extend(JSONFileDatabase.prototype, {
 
 JSONFileDatabase.create = U.factory(JSONFileDatabase.prototype);
 
-//
-// ## Utilities
-//
+// Utilities
+// ---------
 
 enginemill.Request = {
 
