@@ -1,11 +1,12 @@
 'use strict';
 
 var
-U       = require('../../lib/u'),
-REQ     = require('../../lib/http'),
+SERVER  = require('./tools/server'),
 IMP     = require('request'),
 Request = IMP.Request,
-SERVER  = require('../tools/server');
+
+enginemill = require('../'),
+U          = enginemill.U;
 
 
 exports["get() without error"] = {
@@ -41,7 +42,7 @@ exports["get() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    REQ.get('http://www.example.com').promise.then(function () {
+    enginemill.Request.get('http://www.example.com').promise.then(function () {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -49,7 +50,7 @@ exports["get() without error"] = {
 
   "passes followRedirect = false": function (test) {
     test.expect(1);
-    REQ.get('http://www.example.com').promise.then(function () {
+    enginemill.Request.get('http://www.example.com').promise.then(function () {
       return test.done();
     });
     test.strictEqual(this.options.followRedirect, false);
@@ -58,7 +59,7 @@ exports["get() without error"] = {
   "returns the request object": function (test) {
     test.expect(1);
     var
-    req = REQ.get('http://www.example.com');
+    req = enginemill.Request.get('http://www.example.com');
     req.promise.then(function () {
       return test.done();
     });
@@ -71,7 +72,7 @@ exports["get() without error"] = {
     response = this.response,
     body = this.body;
 
-    REQ.get('http://www.example.com').promise.then(function (res) {
+    enginemill.Request.get('http://www.example.com').promise.then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'body object');
       return test.done();
@@ -111,7 +112,7 @@ exports["get() with error"] = {
       return test.done();
     }
 
-    REQ.get('http://www.example.com').promise
+    enginemill.Request.get('http://www.example.com').promise
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -152,7 +153,7 @@ exports["post() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    REQ.post('http://www.example.com').promise.then(function () {
+    enginemill.Request.post('http://www.example.com').promise.then(function () {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -160,7 +161,7 @@ exports["post() without error"] = {
 
   "passes followRedirect = false": function (test) {
     test.expect(1);
-    REQ.post('http://www.example.com').promise.then(function () {
+    enginemill.Request.post('http://www.example.com').promise.then(function () {
       return test.done();
     });
     test.strictEqual(this.options.followRedirect, false);
@@ -170,7 +171,7 @@ exports["post() without error"] = {
     test.expect(1);
     var
     form = {key: 'value'},
-    req = REQ.post('http://www.example.com', {body: form});
+    req = enginemill.Request.post('http://www.example.com', {body: form});
 
     test.strictEqual(this.options.body, form);
 
@@ -182,7 +183,7 @@ exports["post() without error"] = {
   "returns the request object": function (test) {
     test.expect(1);
     var
-    req = REQ.post('http://www.example.com');
+    req = enginemill.Request.post('http://www.example.com');
     req.promise.then(function () {
       return test.done();
     });
@@ -195,7 +196,7 @@ exports["post() without error"] = {
     response = this.response,
     body = this.body;
 
-    REQ.post('http://www.example.com').promise.then(function (res) {
+    enginemill.Request.post('http://www.example.com').promise.then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'response body');
       return test.done();
@@ -235,7 +236,7 @@ exports["post() with error"] = {
       return test.done();
     }
 
-    REQ.post('http://www.example.com').promise
+    enginemill.Request.post('http://www.example.com').promise
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -277,7 +278,7 @@ exports["put() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    REQ.put('http://www.example.com').promise.then(function () {
+    enginemill.Request.put('http://www.example.com').promise.then(function () {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -285,7 +286,7 @@ exports["put() without error"] = {
 
   "passes followRedirect = false": function (test) {
     test.expect(1);
-    REQ.put('http://www.example.com').promise.then(function () {
+    enginemill.Request.put('http://www.example.com').promise.then(function () {
       return test.done();
     });
     test.strictEqual(this.options.followRedirect, false);
@@ -295,7 +296,7 @@ exports["put() without error"] = {
     test.expect(1);
     var
     form = {key: 'value'},
-    req = REQ.put('http://www.example.com', {body: form});
+    req = enginemill.Request.put('http://www.example.com', {body: form});
 
     test.strictEqual(this.options.body, form);
 
@@ -307,7 +308,7 @@ exports["put() without error"] = {
   "returns the request object": function (test) {
     test.expect(1);
     var
-    req = REQ.put('http://www.example.com');
+    req = enginemill.Request.put('http://www.example.com');
     req.promise.then(function () {
       return test.done();
     });
@@ -320,7 +321,7 @@ exports["put() without error"] = {
     response = this.response,
     body = this.body;
 
-    REQ.put('http://www.example.com').promise.then(function (res) {
+    enginemill.Request.put('http://www.example.com').promise.then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'response body');
       return test.done();
@@ -360,7 +361,7 @@ exports["put() with error"] = {
       return test.done();
     }
 
-    REQ.put('http://www.example.com').promise
+    enginemill.Request.put('http://www.example.com').promise
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -402,7 +403,7 @@ exports["patch() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    REQ.patch('http://www.example.com').promise.then(function () {
+    enginemill.Request.patch('http://www.example.com').promise.then(function () {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -410,7 +411,7 @@ exports["patch() without error"] = {
 
   "passes followRedirect = false": function (test) {
     test.expect(1);
-    REQ.patch('http://www.example.com').promise.then(function () {
+    enginemill.Request.patch('http://www.example.com').promise.then(function () {
       return test.done();
     });
     test.strictEqual(this.options.followRedirect, false);
@@ -420,7 +421,7 @@ exports["patch() without error"] = {
     test.expect(1);
     var
     form = {key: 'value'},
-    req = REQ.patch('http://www.example.com', {body: form});
+    req = enginemill.Request.patch('http://www.example.com', {body: form});
 
     test.strictEqual(this.options.body, form);
 
@@ -432,7 +433,7 @@ exports["patch() without error"] = {
   "returns the request object": function (test) {
     test.expect(1);
     var
-    req = REQ.patch('http://www.example.com');
+    req = enginemill.Request.patch('http://www.example.com');
     req.promise.then(function () {
       return test.done();
     });
@@ -445,7 +446,7 @@ exports["patch() without error"] = {
     response = this.response,
     body = this.body;
 
-    REQ.patch('http://www.example.com').promise.then(function (res) {
+    enginemill.Request.patch('http://www.example.com').promise.then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'response body');
       return test.done();
@@ -485,7 +486,7 @@ exports["patch() with error"] = {
       return test.done();
     }
 
-    REQ.patch('http://www.example.com').promise
+    enginemill.Request.patch('http://www.example.com').promise
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -527,7 +528,7 @@ exports["del() without error"] = {
 
   "passes uri": function (test) {
     test.expect(1);
-    REQ.del('http://www.example.com').promise.then(function () {
+    enginemill.Request.del('http://www.example.com').promise.then(function () {
       return test.done();
     });
     test.equal(this.options.uri, 'http://www.example.com');
@@ -535,7 +536,7 @@ exports["del() without error"] = {
 
   "passes followRedirect = false": function (test) {
     test.expect(1);
-    REQ.del('http://www.example.com').promise.then(function () {
+    enginemill.Request.del('http://www.example.com').promise.then(function () {
       return test.done();
     });
     test.strictEqual(this.options.followRedirect, false);
@@ -544,7 +545,7 @@ exports["del() without error"] = {
   "returns the request object": function (test) {
     test.expect(1);
     var
-    req = REQ.del('http://www.example.com');
+    req = enginemill.Request.del('http://www.example.com');
     req.promise.then(function () {
       return test.done();
     });
@@ -557,7 +558,7 @@ exports["del() without error"] = {
     response = this.response,
     body = this.body;
 
-    REQ.del('http://www.example.com').promise.then(function (res) {
+    enginemill.Request.del('http://www.example.com').promise.then(function (res) {
       test.strictEqual(res, response, 'response object');
       test.strictEqual(res.body, body, 'body object');
       return test.done();
@@ -597,7 +598,7 @@ exports["del() with error"] = {
       return test.done();
     }
 
-    REQ.del('http://www.example.com').promise
+    enginemill.Request.del('http://www.example.com').promise
       .then(shouldSkip)
       .catch(function (err) {
         test.strictEqual(err, error);
@@ -616,7 +617,7 @@ exports["with GET request"] = {
       }
       self.address = address;
       try {
-        self.req = REQ.get(address);
+        self.req = enginemill.Request.get(address);
       } catch (err) {
         return done(err);
       }
@@ -673,7 +674,7 @@ exports["with POST request"] = {
       }
       self.address = address;
       try {
-        self.req = REQ.post(address).form({key: 'value'});
+        self.req = enginemill.Request.post(address).form({key: 'value'});
       } catch (err) {
         return done(err);
       }
@@ -732,7 +733,7 @@ exports["with PUT request"] = {
       }
       self.address = address;
       try {
-        self.req = REQ.put(address).form({key: 'value'});
+        self.req = enginemill.Request.put(address).form({key: 'value'});
       } catch (err) {
         return done(err);
       }
@@ -781,7 +782,7 @@ exports["with PATCH request"] = {
       }
       self.address = address;
       try {
-        self.req = REQ.patch(address).form({key: 'value'});
+        self.req = enginemill.Request.patch(address).form({key: 'value'});
       } catch (err) {
         return done(err);
       }
@@ -830,7 +831,7 @@ exports["with DELETE request"] = {
       }
       self.address = address;
       try {
-        self.req = REQ.del(address);
+        self.req = enginemill.Request.del(address);
       } catch (err) {
         return done(err);
       }
@@ -875,7 +876,7 @@ exports["request() with GET"] = {
       }
       self.address = address;
       try {
-        self.req = REQ.request(address, {method: 'GET'});
+        self.req = enginemill.Request.request(address, {method: 'GET'});
       } catch (err) {
         return done(err);
       }
