@@ -1,11 +1,10 @@
 'use strict';
 
 var
-FP     = require('filepath'),
-TOOLS  = require('../tools/'),
-ERRORS = require('../../lib/errors'),
+TOOLS = require('./tools/'),
 
-readJSON = require('../../lib/json_reader').readJSON;
+enginemill = require('../'),
+Errors     = enginemill.Errors;
 
 
 exports["when file does not exist"] = {
@@ -13,7 +12,9 @@ exports["when file does not exist"] = {
     var self = this;
 
     TOOLS.runOnce("when file does not exist", function () {
-      return readJSON(TOOLS.fixturePath.append('foo.json'));
+      return enginemill.readJSON({
+        path: TOOLS.fixturePath.append('foo.json')
+      });
     })
     .then(function (res) {
       self.res = res;
@@ -35,22 +36,24 @@ exports["with directory as path"] = {
 
     TOOLS.runOnce("with directory as path", function () {
       // There is a directory in fakedir/ named 'package.json/'.
-      return readJSON(TOOLS.fixturePath.append('fakedir', 'package.json'));
+      return enginemill.readJSON({
+        path: TOOLS.fixturePath.append('fakedir', 'package.json')
+      });
     })
     .then(function (res) {
       self.res = res;
     })
-    .catch(ERRORS.ArgumentError, function (err) {
+    .catch(Errors.OperationalError, function (err) {
       self.error = err;
     })
     .then(done)
     .catch(done);
   },
 
-  "rejects with ArgumentError": function (test) {
+  "rejects with OperationalError": function (test) {
     var err = this.error;
-    test.ok((err instanceof ERRORS.ArgumentError), 'is not an ArgumentError');
-    test.equal(err.message, 'The expected file path is not a file');
+    test.ok((err instanceof Errors.OperationalError), 'is not an OperationalError');
+    test.ok(/^The FilePath is not a file/.test(err.message), 'err.message');
     return test.done();
   }
 };
@@ -60,21 +63,23 @@ exports["with invalid JSON file"] = {
     var self = this;
 
     TOOLS.runOnce("with invalid JSON file", function () {
-      return readJSON(TOOLS.fixturePath.append('invalid_package_json', 'package.json'));
+      return enginemill.readJSON({
+        path: TOOLS.fixturePath.append('invalid_package_json', 'package.json')
+      });
     })
     .then(function (res) {
       self.res = res;
     })
-    .catch(ERRORS.JSONReadError, function (err) {
+    .catch(Errors.JSONParseError, function (err) {
       self.error = err;
     })
     .then(done)
     .catch(done);
   },
 
-  "rejects with JSONReadError": function (test) {
+  "rejects with JSONParseError": function (test) {
     var err = this.error;
-    test.ok((err instanceof ERRORS.JSONReadError), 'is not a JSONReadError');
+    test.ok((err instanceof Errors.JSONParseError), 'is not a JSONParseError');
     test.ok(/^JSON SyntaxError:/.test(err.message), err.message);
     return test.done();
   }
@@ -85,7 +90,10 @@ exports["with valid JSON file"] = {
     var self = this;
 
     TOOLS.runOnce("with valid JSON file", function () {
-      return readJSON(FP.create(__dirname).resolve('../../package.json'));
+      var fp = enginemill.filepath.create(__dirname).resolve('../package.json');
+      return enginemill.readJSON({
+        path: fp
+      });
     })
     .then(function (res) {
       self.res = res;

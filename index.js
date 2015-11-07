@@ -1506,7 +1506,7 @@ enginemill.Request = {
 // __Returns__:
 // - A Promise for parsed JSON file if it exists.
 // - If it does not exist then returns a Promise for null.
-// - If there is a JSON syntax error detected a JSONReadError is
+// - If there is a JSON syntax error detected a JSONParseError is
 //   returned via rejection.
 // - If the given path is not a file an Error is
 //   passed via rejection.
@@ -1518,7 +1518,7 @@ enginemill.readJSON = function (args) {
     try {
       data = JSON.parse(text +'');
     } catch (e) {
-      err = new Errors.JSONReadError('JSON SyntaxError: '+ e.message +' in '+ path);
+      err = new Errors.JSONParseError('JSON SyntaxError: '+ e.message +' in '+ path);
       return Promise.reject(err);
     }
     return data;
@@ -1542,7 +1542,7 @@ enginemill.readJSON = function (args) {
     return Promise.resolve(null);
   }
   return Promise.reject(
-    new Error('The FilePath is not a file: '+ path));
+    new Errors.OperationalError('The FilePath is not a file: '+ path));
 };
 
 // ### enginemill.parseCommandLineOptions
