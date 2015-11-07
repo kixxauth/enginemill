@@ -1,13 +1,13 @@
 'use strict';
 
-// Require enginemill objects
-var enginemill = require('../../../');
-var objects = enginemill.objects;
-var Model = enginemill.mixins.Model;
+var
+enginemill = require('../../'),
+U          = enginemill.U,
+Model      = enginemill.Mixins.Model;
 
 exports["with defined defaults"] = {
   setUp: function (done) {
-    this.createWidget = objects.factory(Model, {
+    this.createWidget = U.factory(Model, {
       name: 'Widget',
       idAttribute: '_id',
 
