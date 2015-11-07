@@ -1,7 +1,8 @@
 'use strict';
 
 var
-Promise = require('../../../../lib/promise');
+enginemill = require('../../../../'),
+Promise    = enginemill.Promise;
 
 
 module.exports = function (app) {

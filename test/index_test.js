@@ -1,16 +1,5 @@
 'use strict';
 
-var
-sinon   = require('sinon'),
-path    = require('filepath'),
-Promise = require('../lib/promise'),
-U       = require('../lib/u'),
-objects = require('../lib/objects'),
-errors  = require('../lib/errors'),
-REQ     = require('../lib/http'),
-
-applicationLoader = require('../lib/application_loader');
-
 
 exports["exported modules"] = {
   setUp: function (done) {
@@ -19,74 +8,102 @@ exports["exported modules"] = {
   },
 
   "exports.Promise": function (test) {
-    test.equal(this.enginemill.Promise, Promise);
+    test.equal(typeof this.enginemill.Promise, 'function', 'enginemill.Promise');
     test.done();
   },
 
   "exports.U": function (test) {
-    test.equal(this.enginemill.U, U);
+    test.equal(typeof this.enginemill.U, 'function', 'enginemill.U');
+    test.equal(typeof this.enginemill.U.VERSION, 'string', 'enginemill.U.VERSION');
     test.done();
   },
 
-  "exports.objects": function (test) {
-    test.equal(this.enginemill.objects, objects);
+  "exports.U.ensure": function (test) {
+    var U = this.enginemill.U;
+    test.equal(typeof U.ensure, 'function', 'enginemill.U.ensure');
     test.done();
   },
 
-  "exports.path": function (test) {
-    test.equal(this.enginemill.path, path);
+  "exports.U.deepFreeze": function (test) {
+    var U = this.enginemill.U;
+    test.equal(typeof U.deepFreeze, 'function', 'enginemill.U.deepFreeze');
     test.done();
   },
 
-  "exports.errors": function (test) {
-    test.equal(this.enginemill.errors, errors);
+  "exports.U.exists": function (test) {
+    var U = this.enginemill.U;
+    test.equal(typeof U.exists, 'function', 'enginemill.U.exists');
     test.done();
   },
 
-  "exports.REQ": function (test) {
-    test.equal(this.enginemill.REQ, REQ);
-    test.done();
-  }
-};
-
-exports[".load() with defaults"] = {
-  setUp: function (done) {
-    this.enginemill = require('../');
-    this.applicationLoader = sinon.stub(applicationLoader, 'load');
-    this.enginemill.load();
-    done();
-  },
-
-  tearDown: function (done) {
-    this.applicationLoader.restore();
-    done();
-  },
-
-  "called once": function (test) {
-    test.equal(this.applicationLoader.callCount, 1);
+  "exports.U.stringify": function (test) {
+    var U = this.enginemill.U;
+    test.equal(typeof U.stringify, 'function', 'enginemill.U.stringify');
     test.done();
   },
 
-  "called with a single argument object": function (test) {
-    var
-    args = this.applicationLoader.args[0];
-    test.equal(args.length, 1);
+  "exports.U.factory": function (test) {
+    var U = this.enginemill.U;
+    test.equal(typeof U.factory, 'function', 'enginemill.U.factory');
     test.done();
   },
 
-  "called with default": function (test) {
-    var
-    args = this.applicationLoader.args[0][0],
-    expectedAppdir = path.create().append('management');
+  "exports.filepath": function (test) {
+    test.equal(this.enginemill.filepath, require('filepath'));
+    test.done();
+  },
 
-    test.equal(args.appdir.toString(), expectedAppdir.toString());
-    test.equal(typeof args.name, 'undefined');
-    test.equal(typeof args.version, 'undefined');
-    test.equal(typeof args.usageString, 'undefined');
-    test.equal(typeof args.helpString, 'undefined');
-    test.equal(typeof args.options, 'undefined');
-    test.equal(typeof args.environment, 'undefined');
-    test.equal(typeof args.initializers, 'undefined');
+  "exports.Errors.OperationalError": function (test) {
+    var Errors = this.enginemill.Errors;
+    test.equal(typeof Errors.OperationalError, 'function', 'OperationalError');
+    test.done();
+  },
+
+  "exports.Errors.NotImplementedError": function (test) {
+    var Errors = this.enginemill.Errors;
+    test.equal(typeof Errors.NotImplementedError, 'function', 'NotImplementedError');
+    test.done();
+  },
+
+  "exports.Errors.NotFoundError": function (test) {
+    var Errors = this.enginemill.Errors;
+    test.equal(typeof Errors.NotFoundError, 'function', 'NotFoundError');
+    test.done();
+  },
+
+  "exports.Errors.JSONParseError": function (test) {
+    var Errors = this.enginemill.Errors;
+    test.equal(typeof Errors.JSONParseError, 'function', 'JSONParseError');
+    test.done();
+  },
+
+  "exports.oddcast": function (test) {
+    test.equal(this.enginemill.oddcast, require('oddcast'));
+    test.done();
+  },
+
+  "exports.Mixins.Model": function (test) {
+    var Mixins = this.enginemill.Mixins;
+    test.equal(typeof Mixins.Model, 'object', 'Mixins.Model');
+    test.done();
+  },
+
+  "exports.DatabaseConnector": function (test) {
+    var DatabaseConnector = this.enginemill.DatabaseConnector;
+    test.equal(typeof DatabaseConnector, 'function', 'DatabaseConnector');
+    test.equal(typeof DatabaseConnector.create, 'function', 'DatabaseConnector.create');
+    test.done();
+  },
+
+  "exports.JSONFileDatabase": function (test) {
+    var JSONFileDatabase = this.enginemill.JSONFileDatabase;
+    test.equal(typeof JSONFileDatabase, 'function', 'JSONFileDatabase');
+    test.equal(typeof JSONFileDatabase.create, 'function', 'JSONFileDatabase.create');
+    test.done();
+  },
+
+  "exports.Request": function (test) {
+    test.equal(typeof this.enginemill.Request, 'object', 'enginemill.Request');
     test.done();
   }
 };
