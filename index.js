@@ -7,10 +7,10 @@
 // * [Bluebird](https://github.com/petkaantonov/bluebird) for Promises.
 // * [Lodash](https://lodash.com/) (Underscore) too.
 // * [Filepath](https://github.com/kixxauth/filepath) to work with the filesystem.
-// * Parses command line options with [Yargs](https://github.com/bcoe/yargs).
-// * Serially loads plugins you define and kicks off your app only when they have all loaded.
+// * [Yargs](https://github.com/bcoe/yargs) to parse command line options.
+// * Serially load plugins you define and kicks off your app only when they have all loaded.
 // * Comprehensive logging based on [Bunyan](https://github.com/trentm/node-bunyan).
-// * Includes a handy Promisified [request](https://github.com/request/request) wrapper for making HTTP requests.
+// * Promisified [request](https://github.com/request/request) wrapper for making HTTP requests.
 // * Supports [CoffeeScript](http://coffeescript.org/) out of the box, which is nice for config and plugin initialization files.
 //
 // This documentation is generated from [annotated source code](https://github.com/kixxauth/enginemill) which you
@@ -163,7 +163,7 @@ util.inherits(JSONParseError, OperationalError);
 enginemill.Errors.JSONParseError = JSONParseError;
 
 // ### enginemill.oddcast
-// Enginemill incudes the [oddcast](https://github.com/oddnetworks/oddcast)
+// Enginemill incudes the [Oddcast](https://github.com/oddnetworks/oddcast)
 // library for passing messages between system components. This makes it easy
 // to keep your system components decoupled for true Store/Index/Query/
 // Presenter architecture.
@@ -172,14 +172,15 @@ var oddcast = enginemill.oddcast;
 
 // Application Loading
 // -------------------
-// Enginemill uses your applications package.json combined wth command line
-// to create a preconfigured Application Object. Once the Application Object
-// has been constructed, it is passed into each of your registered
-// initializers. After each handler has initialized, the your application is
-// ready to begin execution.
+// Enginemill uses your applications package.json combined wth parsed command
+// line options to create a preconfigured Application Object. Once the
+// Application Object has been constructed, it is passed into each of your
+// registered initializers. After each handler has initialized, the your
+// application is ready to begin execution.
 
 // ### CoffeeScript
-// Enginemill registers the [CoffeeScript](http://coffeescript.org/) compiler before loading or
+// Enginemill registers the [CoffeeScript](http://coffeescript.org/)
+// compiler before loading or
 // initializing your program. This way you can use CoffeeScript to write your
 // configuration and initialization files. In fact, you could use CoffeeScript
 // to write your whole program, but Enginemill holds the opinion that programs
@@ -206,11 +207,9 @@ require('coffee-script').register();
 // |  |- models.js
 // |  `- index.js
 // |- query
-// |  |- author_profile.js
-// |  `- article.js
-// |- index
-// |  |- author_profile.js
-// |  `- article.js
+// |  |- author_profile_index.js
+// |  |- article_index.js
+// |  `- index.js
 // |- presenters
 // |  |- users.js
 // |  `- posts.js
@@ -220,7 +219,7 @@ require('coffee-script').register();
 // |- server.js
 // `- package.json
 // ```
-// #### Arguments
+// #### enginemill.load() arguments
 // name                  | description
 // --------------------- | ---
 // __appdir__       | *FilePath* Defaults to the directory of the currently executing script.
@@ -444,7 +443,7 @@ enginemill.DEFAULTS = {
 // information. From there, best practice is to pass it into the
 // other components of your program.
 //
-// ##### enginemill.Application instance properties
+// #### enginemill.Application instance properties
 // __#name__ *String* The name of your application. The name is taken from the
 // `args.name` value passed into `enginemill.load()` or automatically taken
 // from your package.json.
@@ -474,7 +473,7 @@ enginemill.DEFAULTS = {
 // __#API__ *Object* A blank object for you to attach your plugins to in
 // initiallizers.
 //
-// ##### enginemill.Application instance methods
+// #### enginemill.Application instance methods
 // __#debug(name)__ A proxy to the node-debug tool. Pass in a String name and
 // it will return a new debugger bound to it by `debug(name + ':' + name)`.
 function Application() {}
@@ -692,13 +691,13 @@ enginemill.loadInitializers = function (args) {
 // of this model. Using #set() to set a key which was not defined in the
 // defaults hash will throw an error.
 //
-// ##### enginemill.Mixin.Model instance properties
+// #### enginemill.Mixin.Model instance properties
 // __#name__ A frozen enumerable property. Used in #toString() and #diff().
 //
 // __#idAttribute__ A non-enumerable prototype property used to determine the
 // ID.
 //
-// ##### enginemill.Mixin.Model instance methods
+// #### enginemill.Mixin.Model instance methods
 // __#has(key)__ Check to see if the model instance has the given key,
 // regardless of if it is defined or not.
 //
@@ -727,17 +726,19 @@ enginemill.Mixins = {
 // Logging
 // -------
 // Enginemill includes an application level logging system out of the box. It
-// is designed to be easy to extend, or even to not use at all. It does this
+// is designed to be easy to extend, or not use at all. It does this
 // by emitting logging events on an Oddcast broadaster, which you can listen
 // to with any other logging tools you'd like to use.
 //
-// The logging calls are taken by the Bunyan logging tool, and then the
+// The logging calls are taken by the
+// [Bunyan logging library](https://github.com/trentm/node-bunyan),
+// and then the
 // resulting log records created by Bunyan are emitted through the
 // broadcaster. By default the logging system is initialized with a listener
 // which simply writes the Bunyan log records as JSON to stdout.
 //
-// You can set your own listeners, or turn off logging altogether, by calling
-// #configure() on the logger.
+// You can set your own listeners, or turn off logging altogether, by
+// calling #configure() on the logger.
 //
 // You create new loggers by calling #create() on the logger instance.
 //
@@ -775,7 +776,7 @@ enginemill.Mixins = {
 // An instance of `enginemill.Logger` will be placed on the Application
 // instance as `app.logger`.
 //
-// ##### enginemill.Logger instance methods
+// #### enginemill.Logger instance methods
 // __#configure(args)__ Reconfigure the default logging setup.
 //
 // `args.level` Should be a string to set the global log level. One of
@@ -853,12 +854,12 @@ U.extend(Logger.prototype, {
 Logger.create = U.factory(Logger.prototype);
 
 // #### enginemill.Logger log levels:
-// Logger.FATAL = 'fatal'
-// Logger.ERROR = 'error'
-// Logger.WARN  = 'warn'
-// Logger.INFO  = 'info'
-// Logger.DEBUG = 'debug'
-// Logger.TRACE = 'trace'
+// * Logger.FATAL = 'fatal'
+// * Logger.ERROR = 'error'
+// * Logger.WARN  = 'warn'
+// * Logger.INFO  = 'info'
+// * Logger.DEBUG = 'debug'
+// * Logger.TRACE = 'trace'
 Logger.FATAL = 'fatal';
 Logger.ERROR = 'error';
 Logger.WARN  = 'warn';
@@ -897,7 +898,7 @@ Logger.EmitterRawStream = EmitterRawStream;
 // The DatabaseConnector takes an underlying database engine you create, and a
 // list of Model factory functions, and creates a database API.
 //
-// ##### enginemill.DatabaseConnector class methods
+// #### enginemill.DatabaseConnector class methods
 // __.create(spec)__ create a new databaseconnector api.
 //
 // name          | description
@@ -907,7 +908,7 @@ Logger.EmitterRawStream = EmitterRawStream;
 //
 // __Returns__ A DatabaseConnector instance.
 //
-// ##### enginemill.DatabaseConnector instance methods
+// #### enginemill.DatabaseConnector instance methods
 // __#get(id, options)__ Should get an entity by calling `engine.get()` and
 // return a Promise for the Model instance from the appropriate factory denoted
 // by `data.name`.
@@ -924,6 +925,40 @@ Logger.EmitterRawStream = EmitterRawStream;
 //
 // __#remove(id, options)__ Should remove an entity by calling
 // `engine.remove()` and return a Promise for the ID of the removed entity.
+//
+// ### Database Engine Interface
+// An interface contract specification. When an Object meets this contract it
+// can be passed into `enginemill.DatabaseConnector.create(spec)` as the
+// `spec.engine`.
+//
+// #### Database Engine instance methods
+// __.get(id, options)__ Must accept a String or Number ID as the first
+// argument. May accept an options Object as the second argument.
+// May throw an Error if a String or Number ID is not provided. Must
+// return a Promise for an Object representing the data stored at `id`. If the
+// data does not exist it must reject the Promise with an
+// `enginemill.Errors.NotFoundError`.
+//
+// __.post(record, options)__ Must accept a record Object with `record.data`
+// attribute as the first argument. May accept an options Object as the second
+// argument. May throw an Error if a `record.id` attribute is provided. It is
+// assumed .post(record) will assign an ID to the record. Must return a
+// Promise for the record data as written to the underlying database.
+//
+// __.put(record, options)__ Must accept a record Object with both
+// `record.data` and `record.id` attributes as the first argument. May accept
+// an optinos Object as the second argument. May throw an Error if
+// `record.id` or `record.data` are not provided. Must return a Promise for the
+// data stored at `id`. If `id` does not exist in the database .put(record)
+// must reject the returned Promise with an `enginemill.Errors.NotFoundError`.
+//
+// __.remove(record, options)__ Must accept a String or Number ID as the first
+// argument. May accept an options Object as the second Argument.
+// May throw an Error if a String or Number ID is not provided.
+// Must return a Promise for the ID String or Number. If the record cannot
+// be found it must reject the Promise with an
+// `enginemill.Errors.NotFoundError`.
+//
 function DatabaseConnector() {}
 enginemill.DatabaseConnector = DatabaseConnector;
 
@@ -995,39 +1030,6 @@ U.extend(DatabaseConnector.prototype, {
 
 DatabaseConnector.create = U.factory(DatabaseConnector.prototype);
 
-// ### Database Engine Interface
-// An interface contract specification. When an Object meets this contract it
-// can be passed into `enginemill.DatabaseConnector.create(spec)` as the
-// `spec.engine`.
-//
-// ##### Database Engine instance methods
-// __.get(id, options)__ Must accept a String or Number ID as the first
-// argument. May accept an options Object as the second argument.
-// May throw an Error if a String or Number ID is not provided. Must
-// return a Promise for an Object representing the data stored at `id`. If the
-// data does not exist it must reject the Promise with an
-// `enginemill.Errors.NotFoundError`.
-//
-// __.post(record, options)__ Must accept a record Object with `record.data`
-// attribute as the first argument. May accept an options Object as the second
-// argument. May throw an Error if a `record.id` attribute is provided. It is
-// assumed .post(record) will assign an ID to the record. Must return a
-// Promise for the record data as written to the underlying database.
-//
-// __.put(record, options)__ Must accept a record Object with both
-// `record.data` and `record.id` attributes as the first argument. May accept
-// an optinos Object as the second argument. May throw an Error if
-// `record.id` or `record.data` are not provided. Must return a Promise for the
-// data stored at `id`. If `id` does not exist in the database .put(record)
-// must reject the returned Promise with an `enginemill.Errors.NotFoundError`.
-//
-// __.remove(record, options)__ Must accept a String or Number ID as the first
-// argument. May accept an options Object as the second Argument.
-// May throw an Error if a String or Number ID is not provided.
-// Must return a Promise for the ID String or Number. If the record cannot
-// be found it must reject the Promise with an
-// `enginemill.Errors.NotFoundError`.
-//
 // ### JSONFileDatabase
 // For convenience during development Enginemill provides a simple JSON file
 // storage engine which impements the __Database Engine Interface__. You can
@@ -1048,7 +1050,6 @@ DatabaseConnector.create = U.factory(DatabaseConnector.prototype);
 // db.put();
 // db.remove();
 // ```
-
 function JSONFileDatabase() {}
 enginemill.JSONFileDatabase = JSONFileDatabase;
 
@@ -1230,13 +1231,7 @@ enginemill.Request = {
     return req;
   },
 
-  // #### enginemill.Request class methods
-  // __Note:__ When making a request the response body will be a Buffer by
-  // default. You can change that by setting the encoding option on your request
-  // to something other than null. 'utf8' for example, would be good for
-  // setting an HTML document body to a String on the response.
-  //
-  // ##### Options for HTTP requests
+  // #### Options for HTTP requests
   // A full list of options which can be passed into request methods.
   //
   // __qs__ - An Object hash containing query string values to be appended to
@@ -1335,6 +1330,12 @@ enginemill.Request = {
   // __auth__ - An Object hash containing values `username`, `password`, and
   // `sendImmediately` fields. See the __HTTP Authentication__ section for more
   // information.
+  //
+  // #### enginemill.Request class methods
+  // __Note:__ When making a request the response body will be a Buffer by
+  // default. You can change that by setting the encoding option on your request
+  // to something other than null. 'utf8' for example, would be good for
+  // setting an HTML document body to a String on the response.
 
   // __.get(uri, opts)__ Send a request using the HTTP 'GET' method.
   //
@@ -1413,7 +1414,7 @@ enginemill.Request = {
 };
 
 //
-// ##### HTTP Authentication
+// #### HTTP Authentication
 // Have a look at the Wikipedia article on
 // [Basic Access Authentication](http://en.wikipedia.org/wiki/Basic_access_authentication)
 // if this concept is not familiar to you. With that said, the `enginemill.Request`
@@ -1455,7 +1456,7 @@ enginemill.Request = {
 // Request instance is a Node.js Stream object, and has all the properties and
 // methods you would expect a Writable Stream to have.
 //
-// ##### Request Instance properties
+// #### Request Instance properties
 // * __promise__  - A [Promise](./promises) instance for the HTTP Response object.
 // * __readable__ - Boolean which is true if the Request Stream is still readable.
 // * __writable__ - Boolean which is true if the Request Stream is still writable.
@@ -1475,7 +1476,7 @@ enginemill.Request = {
 //   * __uri.query__    - Only the query String, like 'id=2'.
 //   * __uri.hash__     - The fragment String including the leading '#'.
 //
-// ##### Request Instance Methods
+// #### Request Instance Methods
 // * __form()__ - Returns a form object which can be used to send various kinds
 // of HTTP form data. See the __HTTP Request FormData__ section for more
 // information.
@@ -1486,7 +1487,7 @@ enginemill.Request = {
 // Response instance is a Node.js Stream object, and has all the properties and
 // methods you would expect a Readable Stream to have.
 //
-// ##### Request Instance properties
+// #### Request Instance properties
 // * __httpVersion__ - HTTP version String.
 // * __httpVersionMajor__ - HTTP major version Number (easier to detect than httpVersion String).
 // * __httpVersionMinor__ - HTTP minor version Number (easier to detect than httpVersion String).
