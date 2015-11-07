@@ -349,7 +349,9 @@ enginemill.load = function (args) {
   // })
   // ```
     .then(function loadCommandLineArgs(args) {
-      args.argv = enginemill.parseCommandLineOptions(args);
+      if (!args.argv) {
+        args.argv = enginemill.parseCommandLineOptions(args);
+      }
       return args;
     })
   // #### Environment Setting
@@ -401,7 +403,10 @@ enginemill.load = function (args) {
   // the `args.initializers` Array passed into `enginemill.load()`. See
   // the __Initializer Loading__ section for more information.
     .then(function loadInitializers(args) {
-      return enginemill.loadInitializers(args);
+      return enginemill.loadInitializers(args).then(function (app) {
+        args.app = app;
+        return args;
+      });
     })
 
   // #### Return a Promise
@@ -409,6 +414,8 @@ enginemill.load = function (args) {
     .then(function returnApplication(args) {
       return args.app;
     });
+
+  return promise;
 };
 
 // ### Defaults
@@ -584,7 +591,7 @@ enginemill.loadInitializers = function (args) {
           module = require(path);
         } catch (moduleError) {
           if (moduleError.code === 'MODULE_NOT_FOUND') {
-            throw new Error('Initializer module not found: '+ path);
+            throw new Errors.NotFoundError('Initializer module not found: '+ path);
           }
           throw moduleError;
         }
@@ -592,7 +599,7 @@ enginemill.loadInitializers = function (args) {
 
       if (typeof module !== 'function') {
         message = path ? ('path '+ path) : ('index '+ index);
-        throw new Error('Initializers must be functions: '+ message);
+        throw new Errors.OperationalError('Initializers must be functions: '+ message);
       }
 
       return module;
@@ -1554,8 +1561,7 @@ enginemill.parseCommandLineOptions = function (args) {
 
   if (args.options && typeof args.options === 'object') {
     Object.keys(args.options).forEach(function (key) {
-      var
-      conf = args.options[key];
+      var conf = args.options[key];
       options = options.option(key, conf);
     });
   }

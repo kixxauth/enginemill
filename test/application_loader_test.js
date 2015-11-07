@@ -1,11 +1,11 @@
 'use strict';
 
 var
-TOOLS = require('../tools/'),
-U     = require('../../lib/u'),
+TOOLS = require('./tools/'),
 
-errors            = require('../../lib/errors'),
-applicationLoader = require('../../lib/application_loader');
+enginemill = require('../'),
+U          = enginemill.U,
+Errors     = enginemill.Errors;
 
 
 exports["with defaults"] = {
@@ -14,7 +14,7 @@ exports["with defaults"] = {
     self = this;
     this.appdir = TOOLS.fixturePath.append('default-app');
 
-    applicationLoader.load({
+    enginemill.load({
       appdir       : this.appdir,
       initializers : [
         'configs',
@@ -100,7 +100,7 @@ exports["with argv"] = {
       port: 8888
     };
 
-    applicationLoader.load({
+    enginemill.load({
       appdir       : this.appdir,
       argv         : this.argv,
       options      : {
@@ -136,7 +136,7 @@ exports["with package.json"] = {
     self = this;
     this.appdir = TOOLS.fixturePath.append('app');
 
-    applicationLoader.load({
+    enginemill.load({
       appdir: this.appdir,
     })
     .then(function (app) {
@@ -189,7 +189,7 @@ exports["initializer not found"] = {
     self = this;
     this.appdir = TOOLS.fixturePath.append('default-app');
 
-    applicationLoader.load({
+    enginemill.load({
       appdir       : this.appdir,
       initializers : [
         'foobar'
@@ -204,12 +204,12 @@ exports["initializer not found"] = {
     });
   },
 
-  "rejects with an ArgumentError": function (test) {
+  "rejects with an NotFoundError": function (test) {
     var
     path = this.appdir.append('initializers', 'foobar');
     test.ok(this.error instanceof Error);
-    test.ok(this.error instanceof errors.ArgumentError);
-    test.ok(/^Cannot find module/.test(this.error.message));
+    test.ok(this.error instanceof Errors.NotFoundError);
+    test.ok(/^Initializer module not found/.test(this.error.message));
     test.ok(this.error.message.indexOf(path) > 0);
     test.done();
   }
@@ -221,7 +221,7 @@ exports["initializer not a function"] = {
     self = this;
     this.appdir = TOOLS.fixturePath.append('default-app');
 
-    applicationLoader.load({
+    enginemill.load({
       appdir       : this.appdir,
       initializers : [ {} ]
     })
@@ -234,9 +234,9 @@ exports["initializer not a function"] = {
     });
   },
 
-  "rejects with an ArgumentError": function (test) {
+  "rejects with an OperationalError": function (test) {
     test.ok(this.error instanceof Error);
-    test.ok(this.error instanceof errors.ArgumentError);
+    test.ok(this.error instanceof Errors.OperationalError);
     test.equal(this.error.message, 'Initializers must be functions: index 0');
     test.done();
   }
