@@ -3,7 +3,7 @@
 var
 sinon = require('sinon'),
 
-clArgsLoader = require('../../lib/cl_args_loader');
+enginemill = require('../');
 
 
 exports["with no defined options"] = {
@@ -16,7 +16,7 @@ exports["with no defined options"] = {
       'bar'
     ];
 
-    this.parsedArgv = clArgsLoader.loadArgv({
+    this.parsedArgv = enginemill.parseCommandLineOptions({
       argv: this.argv
     });
 
@@ -74,7 +74,7 @@ exports["with defined options"] = {
       }
     };
 
-    this.parsedArgv = clArgsLoader.loadArgv({
+    this.parsedArgv = enginemill.parseCommandLineOptions({
       options : this.options,
       argv    : this.argv
     });
@@ -131,7 +131,7 @@ exports["when help is invoked"] = {
       done();
     });
 
-    this.parsedArgv = clArgsLoader.loadArgv({
+    this.parsedArgv = enginemill.parseCommandLineOptions({
       options : this.options,
       argv    : this.argv
     });

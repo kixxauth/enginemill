@@ -349,20 +349,7 @@ enginemill.load = function (args) {
   // })
   // ```
     .then(function loadCommandLineArgs(args) {
-      var options = Yargs
-        .reset()
-        .usage(args.usageString)
-        .help('help', args.helpString);
-
-      if (args.options && typeof args.options === 'object') {
-        Object.keys(args.options).forEach(function (key) {
-          var
-          conf = args.options[key];
-          options = options.option(key, conf);
-        });
-      }
-
-      args.argv = options.parse(process.argv);
+      args.argv = enginemill.parseCommandLineOptions(args);
       return args;
     })
   // #### Environment Setting
@@ -1558,6 +1545,24 @@ enginemill.readJSON = function (args) {
     new Error('The FilePath is not a file: '+ path));
 };
 
+// ### enginemill.parseCommandLineOptions
+enginemill.parseCommandLineOptions = function (args) {
+  var options = Yargs
+    .reset()
+    .usage(args.usageString)
+    .help('help', args.helpString);
+
+  if (args.options && typeof args.options === 'object') {
+    Object.keys(args.options).forEach(function (key) {
+      var
+      conf = args.options[key];
+      options = options.option(key, conf);
+    });
+  }
+
+  return options.parse(args.argv || process.argv);
+};
+
 // Store/Query/Presenter Architecture
 // ----------------------------------
 // Enginemill holds a string opinion that Command/Query
@@ -1687,4 +1692,3 @@ enginemill.readJSON = function (args) {
 //     });
 // });
 // ```
-
