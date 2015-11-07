@@ -437,6 +437,46 @@ enginemill.DEFAULTS = {
 };
 
 // ### enginemill.Application
+// The Application object is constructed during the `enginemill.load()`
+// routine and is passed into your initilizers. After all your initializers
+// have executed the Application instance is returned in the Promise returned
+// from `enginemill.load()`. See the __Initializer Loading__ section for more
+// information. From there, best practice is to pass it into the
+// other components of your program.
+//
+// ##### enginemill.Application instance properties
+// __#name__ *String* The name of your application. The name is taken from the
+// `args.name` value passed into `enginemill.load()` or automatically taken
+// from your package.json.
+//
+// __#version__ *String* The version of your application. The version is taken
+// from the `args.version` value passed into `enginemill.load()` or
+// automatically taken from your package.json.
+//
+// __#appdir__ *FilePath* The FilePath instance representing the root directory
+// of your application. See the __appdir__ section for more information.
+//
+// __#packageJSON__ *Object* Your application package.json parsed into an
+// Object.
+//
+// __#environment__ *String* The environment setting. See the __Environment
+// Setting__ section for more information.
+//
+// __#configs__ *Object* A blank Object where you should set your configuration
+// settings in initializers.
+//
+// __#argv__ *Object* An Object containing your parsed command line options.
+// See __Command Line Option Parsing__ for more information.
+//
+// __#logger__ *Object* The application logger instance. See the __Logging__
+// section for more information.
+//
+// __#API__ *Object* A blank object for you to attach your plugins to in
+// initiallizers.
+//
+// ##### enginemill.Application instance methods
+// __#debug(name)__ A proxy to the node-debug tool. Pass in a String name and
+// it will return a new debugger bound to it by `debug(name + ':' + name)`.
 function Application() {}
 enginemill.Application = Application;
 
