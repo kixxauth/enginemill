@@ -22,7 +22,7 @@
     "filepath"      : "1.0.0",
     "immutable"     : "3.7.5",
     "lodash"        : "3.10.1",
-    "oddcast"       : "0.3.0",
+    "oddcast"       : "0.4.0",
     "request"       : "2.61.0",
     "yargs"         : "3.23.0"
   },
