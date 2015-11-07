@@ -1,18 +1,16 @@
 'use strict';
 
 var
-TOOLS      = require('../tools/'),
-enginemill = require('../../'),
+TOOLS      = require('./tools/'),
+enginemill = require('../'),
 
-objects      = enginemill.objects,
-mixins       = enginemill.mixins,
-errors       = enginemill.errors,
-path         = enginemill.path,
-simpleFileDb = enginemill.engines.simpleFileDb,
+U      = enginemill.U,
+Mixins = enginemill.Mixins,
+Errors = enginemill.Errors,
 
 factories = Object.create(null);
 
-factories.createCar = objects.factory(mixins.Model, {
+factories.createCar = U.factory(Mixins.Model, {
   name: 'Car',
   defaults: {
     id    : null,
@@ -38,8 +36,8 @@ exports["DBConnector#post()"] = {
       year  : 1925
     });
 
-    this.dir = path.create('/tmp');
-    this.engine = simpleFileDb.createEngine({
+    this.dir = enginemill.filepath.create('/tmp');
+    this.engine = enginemill.JSONFileDatabase.create({
       dir: this.dir
     });
 
@@ -47,7 +45,7 @@ exports["DBConnector#post()"] = {
       Car: factories.createCar
     };
 
-    this.db = enginemill.db({
+    this.db = enginemill.DatabaseConnector.create({
       engine    : this.engine,
       factories : this.factories
     });
@@ -93,14 +91,14 @@ exports["DBConnector#post()"] = {
 
 exports["DBConnector#post() with a record id"] = {
   setUp: function (done) {
-    this.dir = path.create('/tmp');
+    this.dir = enginemill.filepath.create('/tmp');
 
-    this.engine = simpleFileDb.createEngine({
+    this.engine = enginemill.JSONFileDatabase.create({
       dir: this.dir
     });
     this.factories = [factories.createCar];
 
-    this.db = enginemill.db({
+    this.db = enginemill.DatabaseConnector.create({
       engine    : this.engine,
       factories : this.factories
     });
@@ -129,11 +127,11 @@ exports["DBConnector#get() file does not exist"] = {
   setUp: function (done) {
     this.key = TOOLS.uuid();
     this.filename = this.key + '.json';
-    this.dir = path.create('/tmp');
+    this.dir = enginemill.filepath.create('/tmp');
     this.filepath = this.dir.append(this.filename);
     this.filepath.remove();
 
-    this.engine = simpleFileDb.createEngine({
+    this.engine = enginemill.JSONFileDatabase.create({
       dir: this.dir
     });
 
@@ -141,7 +139,7 @@ exports["DBConnector#get() file does not exist"] = {
       Car: factories.createCar
     };
 
-    this.db = enginemill.db({
+    this.db = enginemill.DatabaseConnector.create({
       engine    : this.engine,
       factories : this.factories
     });
@@ -156,7 +154,7 @@ exports["DBConnector#get() file does not exist"] = {
     this.db.get(this.key).then(function () {
       test.ok(false, 'should not be called');
     })
-    .catch(errors.NotFoundError, function (err) {
+    .catch(Errors.NotFoundError, function (err) {
       test.ok(err.message.indexOf(id) >= 0);
       test.done();
     })
@@ -170,7 +168,7 @@ exports["DBConnector#get()"] = {
 
     this.key = TOOLS.uuid();
     this.filename = this.key + '.json';
-    this.dir = path.create('/tmp');
+    this.dir = enginemill.filepath.create('/tmp');
     this.filepath = this.dir.append(this.filename);
 
     this.data = {
@@ -181,7 +179,7 @@ exports["DBConnector#get()"] = {
       year  : 2015
     };
 
-    this.engine = simpleFileDb.createEngine({
+    this.engine = enginemill.JSONFileDatabase.create({
       dir: this.dir
     });
 
@@ -189,7 +187,7 @@ exports["DBConnector#get()"] = {
       Car: factories.createCar
     };
 
-    this.db = enginemill.db({
+    this.db = enginemill.DatabaseConnector.create({
       engine    : this.engine,
       factories : this.factories
     });
@@ -223,14 +221,14 @@ exports["DBConnector#get()"] = {
 
 exports["DBConnector#put() without a record id"] = {
   setUp: function (done) {
-    this.dir = path.create('/tmp');
+    this.dir = enginemill.filepath.create('/tmp');
 
-    this.engine = simpleFileDb.createEngine({
+    this.engine = enginemill.JSONFileDatabase.create({
       dir: this.dir
     });
     this.factories = [factories.createCar];
 
-    this.db = enginemill.db({
+    this.db = enginemill.DatabaseConnector.create({
       engine    : this.engine,
       factories : this.factories
     });
@@ -257,7 +255,7 @@ exports["DBConnector#put() when record does not exist"] = {
   setUp: function (done) {
     this.key = TOOLS.uuid();
     this.filename = this.key + '.json';
-    this.dir = path.create('/tmp');
+    this.dir = enginemill.filepath.create('/tmp');
     this.filepath = this.dir.append(this.filename);
     this.filepath.remove();
 
@@ -269,7 +267,7 @@ exports["DBConnector#put() when record does not exist"] = {
       color : 'black'
     });
 
-    this.engine = simpleFileDb.createEngine({
+    this.engine = enginemill.JSONFileDatabase.create({
       dir: this.dir
     });
 
@@ -277,7 +275,7 @@ exports["DBConnector#put() when record does not exist"] = {
       Car: factories.createCar
     };
 
-    this.db = enginemill.db({
+    this.db = enginemill.DatabaseConnector.create({
       engine    : this.engine,
       factories : this.factories
     });
@@ -294,7 +292,7 @@ exports["DBConnector#put() when record does not exist"] = {
     this.db.put(this.car).then(function () {
       test.ok(false, 'should not be called');
     })
-    .catch(errors.NotFoundError, function (err) {
+    .catch(Errors.NotFoundError, function (err) {
       test.ok(err.message.indexOf(self.key) >= 0);
       test.done();
     })
@@ -309,7 +307,7 @@ exports["DBConnector#put()"] = {
 
     this.key = TOOLS.uuid();
     this.filename = this.key + '.json';
-    this.dir = path.create('/tmp');
+    this.dir = enginemill.filepath.create('/tmp');
     this.filepath = this.dir.append(this.filename);
 
     this.car = factories.createCar({
@@ -320,7 +318,7 @@ exports["DBConnector#put()"] = {
       color : 'black'
     });
 
-    this.engine = simpleFileDb.createEngine({
+    this.engine = enginemill.JSONFileDatabase.create({
       dir: this.dir
     });
 
@@ -328,7 +326,7 @@ exports["DBConnector#put()"] = {
       Car: factories.createCar
     };
 
-    this.db = enginemill.db({
+    this.db = enginemill.DatabaseConnector.create({
       engine    : this.engine,
       factories : this.factories
     });
@@ -384,10 +382,10 @@ exports["DBConnector#remove()"] = {
 
     this.key = TOOLS.uuid();
     this.filename = this.key + '.json';
-    this.dir = path.create('/tmp');
+    this.dir = enginemill.filepath.create('/tmp');
     this.filepath = this.dir.append(this.filename);
 
-    this.engine = simpleFileDb.createEngine({
+    this.engine = enginemill.JSONFileDatabase.create({
       dir: this.dir
     });
 
@@ -395,7 +393,7 @@ exports["DBConnector#remove()"] = {
       Car: factories.createCar
     };
 
-    this.db = enginemill.db({
+    this.db = enginemill.DatabaseConnector.create({
       engine    : this.engine,
       factories : this.factories
     });
@@ -424,11 +422,11 @@ exports["DBConnector#remove()"] = {
   setUp: function (done) {
     this.key = TOOLS.uuid();
     this.filename = this.key + '.json';
-    this.dir = path.create('/tmp');
+    this.dir = enginemill.filepath.create('/tmp');
     this.filepath = this.dir.append(this.filename);
     this.filepath.remove();
 
-    this.engine = simpleFileDb.createEngine({
+    this.engine = enginemill.JSONFileDatabase.create({
       dir: this.dir
     });
 
@@ -436,7 +434,7 @@ exports["DBConnector#remove()"] = {
       Car: factories.createCar
     };
 
-    this.db = enginemill.db({
+    this.db = enginemill.DatabaseConnector.create({
       engine    : this.engine,
       factories : this.factories
     });
@@ -453,7 +451,7 @@ exports["DBConnector#remove()"] = {
     this.db.remove(this.key).then(function () {
       test.ok(false, 'should not be called');
     })
-    .catch(errors.NotFoundError, function (err) {
+    .catch(Errors.NotFoundError, function (err) {
       test.ok(err.message.indexOf(self.key) >= 0);
       test.done();
     })
