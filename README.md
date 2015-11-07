@@ -10,9 +10,12 @@ Enginemill is a Node.js web development framework. The goal is to codify some op
 * Includes a handy Promisified [request](https://github.com/request/request) wrapper for [making HTTP requests](https://github.com/kixxauth/enginemill/blob/master/docs/current/making_http_requests.md).
 * Supports [CoffeeScript](http://coffeescript.org/) out of the box, which is nice for config and plugin initialization files.
 
-## Examples:
-See also [running scripts](https://github.com/kixxauth/enginemill/blob/master/docs/current/running_scripts.md) and [making HTTP requests](https://github.com/kixxauth/enginemill/blob/master/docs/current/making_http_requests.md).
+## On The Web
+* Website: [enginemill.org](http://enginemill.org)
+* NPM: [![npm version](https://badge.fury.io/js/enginemill.svg)](https://badge.fury.io/js/enginemill)
+* Issues: [GitHub](https://github.com/kixxauth/enginemill/issues)
 
+## Examples:
 Here is an example of booting up a new [Express.js](http://expressjs.com/) web application:
 
 In `./bin/start-server.js`:
