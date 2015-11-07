@@ -38,12 +38,12 @@
 some opinions about how to structure a Node.js system and provide
 tools to make the development of your systems easier and more fun.</p>
 <ul>
-<li>Includes <a href="https://github.com/petkaantonov/bluebird">Bluebird</a> for Promises.</li>
-<li>Includes <a href="https://lodash.com/">Lodash</a> (Underscore) too.</li>
-<li>Includes <a href="https://github.com/kixxauth/filepath">Filepath</a> to work with the filesystem.</li>
+<li><a href="https://github.com/petkaantonov/bluebird">Bluebird</a> for Promises.</li>
+<li><a href="https://lodash.com/">Lodash</a> (Underscore) too.</li>
+<li><a href="https://github.com/kixxauth/filepath">Filepath</a> to work with the filesystem.</li>
 <li>Parses command line options with <a href="https://github.com/bcoe/yargs">Yargs</a>.</li>
 <li>Serially loads plugins you define and kicks off your app only when they have all loaded.</li>
-<li>Includes a handy Promisified <a href="https://github.com/request/request">request</a> wrapper for <a href="https://github.com/kixxauth/enginemill/blob/master/docs/current/making_http_requests.md">making HTTP requests</a>.</li>
+<li>Includes a handy Promisified <a href="https://github.com/request/request">request</a> wrapper for making HTTP requests.</li>
 <li>Supports <a href="http://coffeescript.org/">CoffeeScript</a> out of the box, which is nice for config and plugin initialization files.</li>
 </ul>
 <p>This documentation is generated from <a href="https://github.com/kixxauth/enginemill">annotated source code</a> which you
@@ -80,9 +80,7 @@ can find on GitHub. Ideas, issues, and feedback is welcome on the
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> enginemill = exports;
-
-<span class="hljs-keyword">var</span> util = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> enginemill = exports;</pre></div></div>
             
         </li>
         
@@ -93,14 +91,9 @@ can find on GitHub. Ideas, issues, and feedback is welcome on the
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <h3 id="enginemill-promise">enginemill.Promise</h3>
-<p>Enginemill uses <a href="http://bluebirdjs.com/docs/getting-started.html">Bluebird Promises</a> to handle asynchronous programming
-from start to finish and exposes it as <code>enginemill.Promise</code> for you.</p>
+              <h2 id="dependencies">Dependencies</h2>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre>enginemill.Promise = <span class="hljs-built_in">require</span>(<span class="hljs-string">'Bluebird'</span>);
-<span class="hljs-keyword">var</span> <span class="hljs-built_in">Promise</span>     = enginemill.Promise;</pre></div></div>
             
         </li>
         
@@ -110,6 +103,24 @@ from start to finish and exposes it as <code>enginemill.Promise</code> for you.<
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <h3 id="enginemill-promise">enginemill.Promise</h3>
+<p>Enginemill uses <a href="http://bluebirdjs.com/docs/getting-started.html">Bluebird Promises</a> to handle asynchronous programming
+from start to finish and exposes it as <code>enginemill.Promise</code> for you.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>enginemill.Promise = <span class="hljs-built_in">require</span>(<span class="hljs-string">'Bluebird'</span>);
+<span class="hljs-keyword">var</span> <span class="hljs-built_in">Promise</span>        = enginemill.Promise;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
               <h3 id="enginemill-u">enginemill.U</h3>
 <p>Enginemill also uses <a href="https://lodash.com/">Lodash</a> as the default JavaScript utility library,
@@ -131,11 +142,11 @@ commonly used in set theory.</p>
         </li>
         
         
-        <li id="section-7">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-7">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <h3 id="lodash-extensions">Lodash Extensions</h3>
 <h4 id="enginemill-u-ensure-">enginemill.U.ensure()</h4>
@@ -166,7 +177,7 @@ The returned Object factory will call initialize() on your object instance.
 If there is an initialize() function defined on any of the mixins,
 they will be called before your mixin.</p>
 <p>Example:</p>
-<pre><code class="lang-JS"><span class="hljs-keyword">var</span> createWidget = enginemill.U.factory(enginemill.Mixins.Model, {
+<pre><code class="lang-JS"><span class="hljs-keyword">var</span> newWidget = enginemill.U.factory(enginemill.Mixins.Model, {
   name: <span class="hljs-string">'Widget'</span>,
   idAttribute: <span class="hljs-string">'_id'</span>,
 
@@ -199,11 +210,11 @@ they will be called before your mixin.</p>
         </li>
         
         
-        <li id="section-8">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
+                <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <h3 id="enginemill-filepath">enginemill.filepath</h3>
 <p>Enginemill uses the <a href="https://github.com/kixxauth/filepath">FilePath</a> library as the default cross platform
@@ -212,27 +223,7 @@ interface for working with the file system in both posix and win32.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>enginemill.filepath = <span class="hljs-built_in">require</span>(<span class="hljs-string">'filepath'</span>);
-<span class="hljs-keyword">var</span> filepath = enginemill.filepath;</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-9">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
-              </div>
-              <h3 id="enginemill-errors">enginemill.Errors</h3>
-<p>The Standard Enginemill Error constructors are all exposed on <code>enginemill</code>
-via the <code>Errors</code> namespace. This makes robust exception handling
-much easier with <a href="http://bluebirdjs.com/docs/api/catch.html">Bluebird’s catch</a>,
-allowing you to properly segment your exception handling based on <a href="https://www.joyent.com/developers/node/design/errors">operational and programmer errors</a>.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>enginemill.Errors = <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>);
-<span class="hljs-keyword">var</span> Errors = enginemill.Errors;</pre></div></div>
+<span class="hljs-keyword">var</span> filepath        = enginemill.filepath;</pre></div></div>
             
         </li>
         
@@ -242,6 +233,65 @@ allowing you to properly segment your exception handling based on <a href="https
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <h3 id="private-dependencies">Private Dependencies</h3>
+<p>Enginemill depends on the handy <a href="https://github.com/visionmedia/debug">debug</a> utility for Application#debug(),
+<a href="https://github.com/bcoe/yargs">Yargs</a> for parsing command line arguments in <code>enginemill.load()</code>,
+<a href="https://github.com/broofa/node-uuid">node-uuid</a> in the JSONFileDatabase,
+and <a href="https://github.com/request/request">request</a> in the <code>enginemill.Request</code> utility.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span>
+util     = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>),
+debug    = <span class="hljs-built_in">require</span>(<span class="hljs-string">'debug'</span>),
+nodeUUID = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node-uuid'</span>),
+REQ      = <span class="hljs-built_in">require</span>(<span class="hljs-string">'request'</span>),
+Yargs    = <span class="hljs-built_in">require</span>(<span class="hljs-string">'yargs'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <h2 id="error-handling">Error Handling</h2>
+<p>Enginemill makes robust exception handling
+easy with <a href="http://bluebirdjs.com/docs/api/catch.html">Bluebird’s catch</a>,
+allowing you to properly segment your exception handling based on <a href="https://www.joyent.com/developers/node/design/errors">operational and programmer errors</a>.</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <h3 id="enginemill-errors">enginemill.Errors</h3>
+<p>The Standard Enginemill Error constructors are all exposed on <code>enginemill</code>
+via the <code>Errors</code> namespace, allowing you to easily use them to handle
+specific Error classes with <a href="http://bluebirdjs.com/docs/api/catch.html">Bluebird’s catch</a>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>enginemill.Errors = <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>);
+<span class="hljs-keyword">var</span> Errors        = enginemill.Errors;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
               <h4 id="enginemill-errors-operationalerror">enginemill.Errors.OperationalError</h4>
 <p>A superclass for all other Operational Errors and used by itself
@@ -261,11 +311,11 @@ enginemill.Errors.OperationalError = OperationalError;</pre></div></div>
         </li>
         
         
-        <li id="section-11">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <h4 id="enginemill-errors-notimplementederror">enginemill.Errors.NotImplementedError</h4>
 <p>Useful for parts of a program which are not implemented yet. Exported
@@ -285,11 +335,11 @@ enginemill.Errors.NotImplementedError = NotImplementedError;</pre></div></div>
         </li>
         
         
-        <li id="section-12">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <h4 id="enginemill-errors-notfounderror">enginemill.Errors.NotFoundError</h4>
 <p>Used when a resource cannot be located. Exported publically as
@@ -304,16 +354,16 @@ enginemill.Errors.NotImplementedError = NotImplementedError;</pre></div></div>
   <span class="hljs-keyword">this</span>.message = message;
 }
 util.inherits(NotFoundError, OperationalError);
-enginemill.Errors.NotFoundError;</pre></div></div>
+enginemill.Errors.NotFoundError = NotFoundError;</pre></div></div>
             
         </li>
         
         
-        <li id="section-13">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <h4 id="enginemill-errors-jsonparseerror">enginemill.Errors.JSONParseError</h4>
 <p>Handle the special case of parsing JSON. Exported publically as
@@ -327,17 +377,62 @@ enginemill.Errors.NotFoundError;</pre></div></div>
   <span class="hljs-keyword">this</span>.name = <span class="hljs-keyword">this</span>.constructor.name;
   <span class="hljs-keyword">this</span>.message = message;
 }
-util.inherits(JSONReadError, OperationalError);
-enginemill.Errors.JSONReadError;</pre></div></div>
+util.inherits(JSONParseError, OperationalError);
+enginemill.Errors.JSONParseError = JSONParseError;</pre></div></div>
             
         </li>
         
         
-        <li id="section-14">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <h2 id="message-based-communication">Message Based Communication</h2>
+<p>Enginemill holds a string opinion that Command/Query
+Responsibility Segregation (<a href="http://martinfowler.com/bliki/CQRS.html">CQRS</a>)
+is essential to allow developers to reason about otherwise complex systems.
+Strict adherence to CQRS should lead to a Store/Index/Query/Presenter
+architecture as suggested by Enginemill. Having a built in message
+based communication system makes Store/Index/Query/Presenter possible.</p>
+<h3 id="enginemill-radio">enginemill.radio</h3>
+<p>Enginemill incudes the <a href="https://github.com/oddnetworks/oddcast">oddcast</a> library for passing messages between
+system components. This makes it easy to keep your system components
+decaupled which makes Command/Query Responsibility Segregation and
+Store/Index/Query/Presenter architecture possible.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>enginemill.oddcast = <span class="hljs-built_in">require</span>(<span class="hljs-string">'oddcast'</span>);
+<span class="hljs-keyword">var</span> oddcast = enginemill.oddcast;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <h2 id="application-loading">Application Loading</h2>
+<p>Enginemill uses your applications package.json combined wth command line
+command line arguments to create a preconfigured Application Object. Once
+the Application Object is initialized, it is passed into each of your
+registered initializers. After each handler has initialized, the
+your application is ready to begin execution.</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
               <h3 id="coffeescript">CoffeeScript</h3>
 <p>Enginemill registers the <a href="http://coffeescript.org/">CoffeeScript</a> compiler before loading or
@@ -349,16 +444,16 @@ CoffeeScript to write your configuration files.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>coffee.register();</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">require</span>(<span class="hljs-string">'coffee-script'</span>).register();</pre></div></div>
             
         </li>
         
         
-        <li id="section-15">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
+                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
               <h3 id="enginemill-load">enginemill.load</h3>
 <p><code>enginemill.load()</code> is the main entry point for your program. This is where
@@ -374,18 +469,21 @@ expectation of Enginemill is that your application looks something like this:</p
 |  |- middleware.coffee
 |  |- routes.coffee
 |  `- databases.coffee
+|- store
+|  |- models.js
+|  `- index.js
+|- query
+|  |- author_profile.js
+|  `- article.js
+|- index
+|  |- author_profile.js
+|  `- article.js
 |- presenters
 |  |- users.js
 |  `- posts.js
 |- middleware
 |  |- auth_token.js
 |  `- api_response.js
-|- views
-|  |- author_profile.js
-|  `- article.js
-|- store
-|  |- models.js
-|  `- index.js
 |- server.js
 `- package.json
 </code></pre>
@@ -463,7 +561,7 @@ enginemill.load({
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>enginemill.load = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args, callback</span>) </span>{
+            <div class="content"><div class='highlight'><pre>enginemill.load = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args</span>) </span>{
   args = args || <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>);
 
   <span class="hljs-keyword">var</span> promise;</pre></div></div>
@@ -471,11 +569,11 @@ enginemill.load({
         </li>
         
         
-        <li id="section-16">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
               <h4 id="appdir">appdir</h4>
 <p>The load sequence begins by determining what the application root
@@ -499,11 +597,11 @@ is used as a best guess by default.</p>
         </li>
         
         
-        <li id="section-17">
+        <li id="section-22">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
               <h4 id="asynchronous-application-loading">Asynchronous Application Loading</h4>
 <p>Once the <code>appdir</code> has been determined, the process is asynchronously
@@ -528,11 +626,11 @@ hash to pass through the rest of the chain.</p>
         </li>
         
         
-        <li id="section-18">
+        <li id="section-23">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
+                <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
               <h4 id="read-package-json">Read package.json</h4>
 <p>After determining the root application directory and constructing the
@@ -554,11 +652,11 @@ overridden with <code>args.name</code> and <code>args.version</code>.</p>
         </li>
         
         
-        <li id="section-19">
+        <li id="section-24">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-19">&#182;</a>
+                <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
               <h4 id="command-line-options-parsing">Command Line Options Parsing</h4>
 <p>Next, the command line arguments are parsed based on the <code>args.options</code>
@@ -569,29 +667,64 @@ step will be skipped and it will be assigned to <code>app.argv</code> instead.
 Command line options parsing is directed by the <code>args.options</code> Object
 passed into <code>enginemill.load()</code>, as well as the <code>args.usageString</code> and
 <code>args.helpString</code>.</p>
+<p>The <code>args.options</code> hash passed into <code>enginemill.load()</code> should contain a hash
+of arguments with an object for each value containing:</p>
+<ul>
+<li>alias - String</li>
+<li>describe - Description String</li>
+<li>demand - Boolean</li>
+<li>type - String (“boolean”|”string”)</li>
+<li>default - Any value
+<strong>Example:</strong></li>
+</ul>
+<pre><code class="lang-JS">enginemill.load({
+  options: {
+    environment: {
+      describe: <span class="hljs-string">"The environment setting."</span>,
+      type: <span class="hljs-string">"string"</span>,
+      <span class="hljs-keyword">default</span>: <span class="hljs-string">"development"</span>
+    },
+    verbose: {
+      alias: <span class="hljs-string">"v"</span>,
+      describe: <span class="hljs-string">"Set logging on."</span>,
+      type: <span class="hljs-string">"boolean"</span>
+    }
+  }
+  initializers: [
+    <span class="hljs-string">'configs'</span>,
+    <span class="hljs-string">'middleware'</span>
+  ]
+})
+</code></pre>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>    .then(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">loadCommandLineArgs</span>(<span class="hljs-params">args</span>) </span>{
-      <span class="hljs-keyword">if</span> (!args.argv) {
-        args.argv = clArgsLoader.loadArgv({
-          usageString : args.usageString,
-          helpString  : args.helpString,
-          options     : args.options,
-          argv        : process.argv
+      <span class="hljs-keyword">var</span> options = Yargs
+        .reset()
+        .usage(args.usageString)
+        .help(<span class="hljs-string">'help'</span>, args.helpString);
+
+      <span class="hljs-keyword">if</span> (args.options &amp;&amp; <span class="hljs-keyword">typeof</span> args.options === <span class="hljs-string">'object'</span>) {
+        <span class="hljs-built_in">Object</span>.keys(args.options).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key</span>) </span>{
+          <span class="hljs-keyword">var</span>
+          conf = args.options[key];
+          options = options.option(key, conf);
         });
       }
+
+      args.argv = options.parse(process.argv);
       <span class="hljs-keyword">return</span> args;
     })</pre></div></div>
             
         </li>
         
         
-        <li id="section-20">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <h4 id="environment-setting">Environment Setting</h4>
 <p>The environment setting String will be available on the Application
@@ -615,11 +748,11 @@ environment variable is used, followed by the passed in
         </li>
         
         
-        <li id="section-21">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <h4 id="create-the-application-instance">Create the Application Instance</h4>
 <p>With the package.json, command line arguments, and environment setting
@@ -637,13 +770,13 @@ for the rest of your program.</p>
             <div class="content"><div class='highlight'><pre>    .then(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createApplication</span>(<span class="hljs-params">args</span>) </span>{
       <span class="hljs-keyword">var</span> packageJSON = args.packageJSON || <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>);
 
-      args.app = application.create({
+      args.app = Application.create({
         name        : args.name ||
                       packageJSON.name ||
-                      exports.DEFAULTS.APP_NAME,
+                      enginemill.DEFAULTS.APP_NAME,
         version     : args.version ||
                       packageJSON.version ||
-                      exports.DEFAULTS.APP_VERSION,
+                      enginemill.DEFAULTS.APP_VERSION,
         appdir      : args.appdir,
         packageJSON : args.packageJSON,
         environment : args.environment,
@@ -656,11 +789,11 @@ for the rest of your program.</p>
         </li>
         
         
-        <li id="section-22">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-22">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <h4 id="load-initializers">Load Initializers</h4>
 <p>After the Application instance has been created the initializers are
@@ -671,17 +804,17 @@ the <strong>Initializer Loading</strong> section for more information.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>    .then(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">loadInitializers</span>(<span class="hljs-params">args</span>) </span>{
-      <span class="hljs-keyword">return</span> exports.loadInitializers(args);
+      <span class="hljs-keyword">return</span> enginemill.loadInitializers(args);
     })</pre></div></div>
             
         </li>
         
         
-        <li id="section-23">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-23">&#182;</a>
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <h4 id="return-a-promise">Return a Promise</h4>
 <p>Finally <code>enginemill.load()</code> returns a Promise for the Application instance.</p>
@@ -696,11 +829,11 @@ the <strong>Initializer Loading</strong> section for more information.</p>
         </li>
         
         
-        <li id="section-24">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <h3 id="defaults">Defaults</h3>
 <p>Some default options used by Enginemill which you can extend by modifying
@@ -719,11 +852,81 @@ information about how these are used.</p>
         </li>
         
         
-        <li id="section-25">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <h3 id="enginemill-application">enginemill.Application</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Application</span>(<span class="hljs-params"></span>) </span>{}
+enginemill.Application = Application;
+
+U.extend(Application.prototype, {
+
+  initialize: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">spec</span>) </span>{
+    <span class="hljs-built_in">Object</span>.defineProperties(<span class="hljs-keyword">this</span>, {
+      name: {
+        enumerable: <span class="hljs-literal">true</span>,
+        value: spec.name
+      },
+      version: {
+        enumerable: <span class="hljs-literal">true</span>,
+        value: spec.version
+      },
+      appdir: {
+        enumerable: <span class="hljs-literal">true</span>,
+        value: spec.appdir
+      },
+      packageJSON: {
+        enumerable: <span class="hljs-literal">true</span>,
+        value: spec.packageJSON ? U.deepFreeze(spec.packageJSON) : <span class="hljs-literal">null</span>
+      },
+      environment: {
+        enumerable: <span class="hljs-literal">true</span>,
+        value: spec.environment
+      },
+      configs: {
+        enumerable: <span class="hljs-literal">true</span>,
+        value: <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>)
+      },
+      argv: {
+        enumerable: <span class="hljs-literal">true</span>,
+        value: U.deepFreeze(U.ensure(spec.argv))
+      },
+      logger: {
+        enumerable: <span class="hljs-literal">true</span>,
+        value: Logger.create({
+          appname: spec.name
+        })
+      },
+      debug: {
+        enumerable: <span class="hljs-literal">true</span>,
+        value: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name</span>) </span>{
+          <span class="hljs-keyword">return</span> debug(spec.name + <span class="hljs-string">':'</span> + name);
+        }
+      },
+      API: {
+        enumerable: <span class="hljs-literal">true</span>,
+        value: <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>)
+      }
+    });
+  }
+});
+
+Application.create = U.factory(Application.prototype);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <h3 id="initializer-loading">Initializer Loading</h3>
 <p>The initialization loader requires and loads all initializers passed in as
@@ -818,11 +1021,191 @@ have been executed in order.</p>
         <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.resolve(<span class="hljs-built_in">module</span>(app)).then(U.constant(app));
       });
     }, <span class="hljs-built_in">Promise</span>.resolve(args.app));
-}
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <h2 id="factories-and-mixins">Factories and Mixins</h2>
+<p>Enginemill includes an Object factory mixed into lodash as
+<code>enginemill.U.factory()</code>. This factory creator accepts any number of mixins,
+plus your own prototype definitions to compose factory functions for
+Objects.</p>
+<h3 id="creating-factories">Creating Factories</h3>
+<p><code>enginemill.U.factory()</code> returns a Function which
+will create new Objects using a prototype composed of the mixins passed in.
+The returned Object factory Function will automatically call initialize()
+on your object instance. If there is an initialize() function defined on any
+of the mixins, they will also be called, in order, before your mixin.</p>
+<p>Example:</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">var</span> newWidget = enginemill.U.factory(enginemill.Mixins.Model, {
+  name: <span class="hljs-string">'Widget'</span>,
+  idAttribute: <span class="hljs-string">'_id'</span>,
 
-enginemill.db = objects.factory(mixins.DBConnector, {
+  defaults: {
+    _id    : <span class="hljs-literal">null</span>,
+    width  : <span class="hljs-number">5</span>,
+    height : <span class="hljs-number">2</span>
+  },
+
+  initialize: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">this</span>.cid = randomString();
+  },
+
+  area: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.width * <span class="hljs-keyword">this</span>.height;
+  }
+});
+</code></pre>
+<h3 id="mixins">Mixins</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>enginemill.Mixins = {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <h4 id="enginemill-mixins-model">enginemill.Mixins.Model</h4>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  Model: BRIXX.Model
+};
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Logger</span>(<span class="hljs-params"></span>) </span>{}
+enginemill.Logger = Logger;
+
+U.extend(Logger.prototype, {
+
+  initialize: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args</span>) </span>{
+    <span class="hljs-keyword">this</span>.channel = oddcast.eventChannel();
+    <span class="hljs-keyword">this</span>.channel.use({role: <span class="hljs-string">'logging'</span>}, oddcast.inprocessTransport());
+
+    <span class="hljs-keyword">this</span>.logger = Logger.bunyan.createLogger({
+      name: args.appname
+    });
+
+    <span class="hljs-keyword">this</span>.logger.streams = [];
+    <span class="hljs-keyword">this</span>.logger.addStream({
+      type: <span class="hljs-string">'raw'</span>,
+      stream: <span class="hljs-keyword">new</span> Logger.EmitterRawStream({
+        channel: <span class="hljs-keyword">this</span>.channel
+      }),
+      closeOnExit: <span class="hljs-literal">false</span>
+    });
+
+    <span class="hljs-keyword">this</span>.defaultObserver = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">rec</span>) </span>{
+      process.stdout.write(<span class="hljs-built_in">JSON</span>.stringify(rec));
+    };
+
+    <span class="hljs-keyword">this</span>.channel.observe({role: <span class="hljs-string">'logging'</span>}, <span class="hljs-keyword">this</span>.defaultObserver);
+  },
+
+  configure: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">configs</span>) </span>{
+    configs = U.ensure(configs);
+
+    <span class="hljs-keyword">if</span> (U.isBoolean(configs.useDefaultStream)) {
+      <span class="hljs-keyword">if</span> (configs.useDefaultStream) {
+        <span class="hljs-keyword">this</span>.channel.remove({role: <span class="hljs-string">'logging'</span>}, <span class="hljs-keyword">this</span>.defaultObserver);
+        <span class="hljs-keyword">this</span>.channel.observe({role: <span class="hljs-string">'logging'</span>}, <span class="hljs-keyword">this</span>.defaultObserver);
+      } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">this</span>.channel.remove({role: <span class="hljs-string">'logging'</span>}, <span class="hljs-keyword">this</span>.defaultObserver);
+      }
+    }
+
+    <span class="hljs-keyword">if</span> (configs.level) {
+      <span class="hljs-keyword">this</span>.logger.level(configs.level);
+    }
+  },
+
+  create: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">attributes</span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.logger.child(attributes);
+  }
+});
+
+Logger.create = U.factory(Logger.prototype);
+
+Logger.FATAL = <span class="hljs-string">'fatal'</span>;
+Logger.ERROR = <span class="hljs-string">'error'</span>;
+Logger.WARN  = <span class="hljs-string">'warn'</span>;
+Logger.INFO  = <span class="hljs-string">'info'</span>;
+Logger.DEBUG = <span class="hljs-string">'debug'</span>;
+Logger.TRACE = <span class="hljs-string">'trace'</span>;
+
+Logger.PATTERNS = {
+  FATAL : {role: <span class="hljs-string">'logging'</span>, level: Logger.FATAL},
+  ERROR : {role: <span class="hljs-string">'logging'</span>, level: Logger.ERROR},
+  WARN  : {role: <span class="hljs-string">'logging'</span>, level: Logger.WARN},
+  INFO  : {role: <span class="hljs-string">'logging'</span>, level: Logger.INFO},
+  DEBUG : {role: <span class="hljs-string">'logging'</span>, level: Logger.DEBUG},
+  TRACE : {role: <span class="hljs-string">'logging'</span>, level: Logger.TRACE}
+};
+
+Logger.bunyan = <span class="hljs-built_in">require</span>(<span class="hljs-string">'bunyan'</span>);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">EmitterRawStream</span>(<span class="hljs-params">spec</span>) </span>{
+  <span class="hljs-keyword">this</span>.channel = spec.channel;
+}
+EmitterRawStream.prototype.write = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">rec</span>) </span>{
+  <span class="hljs-keyword">var</span> level = Logger.bunyan.nameFromLevel[rec.level].toUpperCase();
+  <span class="hljs-keyword">this</span>.channel.broadcast(Logger.PATTERNS[level], rec);
+};
+
+Logger.EmitterRawStream = EmitterRawStream;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">DatabaseConnector</span>(<span class="hljs-params"></span>) </span>{}
+enginemill.DatabaseConnector = DatabaseConnector;
+
+U.extend(DatabaseConnector.prototype, {
   initialize: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">spec</span>) </span>{
+    <span class="hljs-keyword">this</span>.engine    = spec.engine;
     <span class="hljs-keyword">this</span>.factories = spec.factories;
+  },
+
+  get: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">id, options</span>) </span>{
+    options = options || <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>);
+    <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.engine.get(id, options).then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">data</span>) </span>{
+      <span class="hljs-keyword">return</span> self.factory(data);
+    });
+  },
+
+  post: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">entity, options</span>) </span>{
+    options = options || <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>);
+    <span class="hljs-keyword">var</span>
+    self   = <span class="hljs-keyword">this</span>,
+    record = <span class="hljs-keyword">this</span>.serialize(entity);
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.engine.post(record, options).then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">data</span>) </span>{
+      <span class="hljs-keyword">return</span> self.factory(data);
+    });
+  },
+
+  put: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">entity, options</span>) </span>{
+    options = options || <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>);
+    <span class="hljs-keyword">var</span>
+    self   = <span class="hljs-keyword">this</span>,
+    record = <span class="hljs-keyword">this</span>.serialize(entity);
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.engine.put(record, options).then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">data</span>) </span>{
+      <span class="hljs-keyword">return</span> self.factory(data);
+    });
+  },
+
+  remove: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">id, options</span>) </span>{
+    options = options || <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.engine.remove(id, options);
   },
 
   factory: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">data</span>) </span>{
@@ -831,17 +1214,194 @@ enginemill.db = objects.factory(mixins.DBConnector, {
       <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Missing factory for "'</span> + data.name + <span class="hljs-string">'"'</span>);
     }
     <span class="hljs-keyword">return</span> factory(data);
+  },
+
+  serialize: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">entity</span>) </span>{
+    <span class="hljs-keyword">var</span> record  = <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>);
+    record.id   = entity.id;
+    record.data = entity;
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> entity.toJSON === <span class="hljs-string">'function'</span>) {
+      record.data = entity.toJSON();
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> entity.valueOf === <span class="hljs-string">'function'</span>) {
+      record.data = entity.valueOf();
+    }
+
+    <span class="hljs-keyword">if</span> (entity.idAttribute) {
+      record.id = entity[entity.idAttribute];
+    }
+
+    <span class="hljs-keyword">return</span> record;
   }
-});</pre></div></div>
+});
+
+DatabaseConnector.create = U.factory(DatabaseConnector.prototype);
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">JSONFileDatabase</span>(<span class="hljs-params"></span>) </span>{}
+enginemill.JSONFileDatabase = JSONFileDatabase;
+
+U.extend(JSONFileDatabase.prototype, {
+
+  initialize: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args</span>) </span>{
+    <span class="hljs-keyword">if</span> (!args.dir) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'args.dir is required for JSONFileDatabase'</span>);
+    }
+
+    <span class="hljs-keyword">this</span>.nodeId = args.nodeId;
+    <span class="hljs-keyword">this</span>.dir = filepath.create(args.dir);
+  },
+
+  get: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">id</span>) </span>{
+    <span class="hljs-keyword">if</span> (!id) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'SimpleFileDB#get() requires an ID argument'</span>);
+    }
+    <span class="hljs-keyword">var</span> file = <span class="hljs-keyword">this</span>.dir.append(id + <span class="hljs-string">'.json'</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.resolve(file.read().then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">text</span>) </span>{
+      <span class="hljs-keyword">var</span> err;
+      <span class="hljs-keyword">if</span> (text) {
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">JSON</span>.parse(text);
+      }
+      err = <span class="hljs-keyword">new</span> Errors.NotFoundError(<span class="hljs-string">'Could not find record with id "'</span> + id + <span class="hljs-string">'"'</span>);
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.reject(err);
+    }));
+  },
+
+  post: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">record</span>) </span>{
+    <span class="hljs-keyword">if</span> (record.id) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'SimpleFileDB#post() does not accept a record ID'</span>);
+    }
+    <span class="hljs-keyword">var</span>
+    file,
+    id = <span class="hljs-keyword">this</span>.uuid();
+    record.data.id = id;
+    file = <span class="hljs-keyword">this</span>.dir.append(id + <span class="hljs-string">'.json'</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.resolve(file.write(<span class="hljs-built_in">JSON</span>.stringify(record.data)).then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">JSON</span>.parse(<span class="hljs-built_in">JSON</span>.stringify(record.data));
+    }));
+  },
+
+  put: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">record</span>) </span>{
+    <span class="hljs-keyword">if</span> (!record.id) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'SimpleFileDB#put() requires a record with an ID'</span>);
+    }
+    <span class="hljs-keyword">var</span>
+    err,
+    file = <span class="hljs-keyword">this</span>.dir.append(record.id + <span class="hljs-string">'.json'</span>),
+    text = <span class="hljs-built_in">JSON</span>.stringify(record.data);
+
+    <span class="hljs-keyword">if</span> (file.isFile()) {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.resolve(file.write(text).then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">JSON</span>.parse(text);
+      }));
+    }
+    err = <span class="hljs-keyword">new</span> Errors.NotFoundError(<span class="hljs-string">'Could not find record with id "'</span> + record.id + <span class="hljs-string">'"'</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.reject(err);
+  },
+
+  remove: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">id</span>) </span>{
+    <span class="hljs-keyword">if</span> (!id) {
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'SimpleFileDB#remove() requires an ID argument'</span>);
+    }
+
+    <span class="hljs-keyword">var</span>
+    err,
+    file = <span class="hljs-keyword">this</span>.dir.append(id + <span class="hljs-string">'.json'</span>);
+
+    <span class="hljs-keyword">if</span> (file.isFile()) {
+      file.remove();
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.resolve(id);
+    }
+
+    err = <span class="hljs-keyword">new</span> Errors.NotFoundError(<span class="hljs-string">'Could not find record with id "'</span> + id + <span class="hljs-string">'"'</span>);
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.reject(err);
+  },
+
+  uuid: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-keyword">this</span>.nodeId === <span class="hljs-string">'string'</span> || <span class="hljs-keyword">typeof</span> <span class="hljs-keyword">this</span>.nodeId === <span class="hljs-string">'number'</span>) {
+      <span class="hljs-keyword">return</span> nodeUUID.v1({node: <span class="hljs-keyword">this</span>.nodeId});
+    }
+    <span class="hljs-keyword">return</span> nodeUUID.v1();
+  }
+});
+
+JSONFileDatabase.create = U.factory(JSONFileDatabase.prototype);</pre></div></div>
             
         </li>
         
         
-        <li id="section-26">
+        <li id="section-34">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <h2 id="utilities">Utilities</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+enginemill.Request = {
+
+  request: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts, makeRequest</span>) </span>{
+    makeRequest = makeRequest || REQ;
+    <span class="hljs-keyword">var</span>
+    req, promise, resolve, reject, params;
+
+    promise = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">res, rej</span>) </span>{
+      resolve = res;
+      reject = rej;
+    });
+
+    params = REQ.initParams(uri, opts, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err, res, body</span>) </span>{
+      <span class="hljs-keyword">if</span> (err) {
+        <span class="hljs-keyword">return</span> reject(err);
+      }
+
+      <span class="hljs-built_in">Object</span>.defineProperties(res, {
+        body: {
+          enumerable : <span class="hljs-literal">true</span>,
+          value      : body
+        }
+      });
+      <span class="hljs-keyword">return</span> resolve(res);
+    });
+
+    params.followRedirect = params.followRedirect || <span class="hljs-literal">false</span>;
+    params.encoding = <span class="hljs-keyword">typeof</span> params.encoding === <span class="hljs-string">'string'</span> ? params.encoding : <span class="hljs-literal">null</span>;
+    req = makeRequest(params, params.callback);
+    req.promise = promise;
+    <span class="hljs-keyword">return</span> req;
+  },
+
+  get: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.request(uri, opts, REQ.get.bind(REQ));
+  },
+
+  post: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.request(uri, opts, REQ.post.bind(REQ));
+  },
+
+  put: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.request(uri, opts, REQ.put.bind(REQ));
+  },
+
+  del: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.request(uri, opts, REQ.del.bind(REQ));
+  },
+
+  patch: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.request(uri, opts, REQ.patch.bind(REQ));
+  },
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-35">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <h3 id="enginemill-readjson">enginemill.readJSON</h3>
 <p>A utility function used by Enginemill to read JSON files, but available
@@ -873,7 +1433,7 @@ passed via rejection.</li>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>exports.readJSON = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args</span>) </span>{
+            <div class="content"><div class='highlight'><pre>enginemill.readJSON = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args</span>) </span>{
   <span class="hljs-keyword">var</span> path = args.path;
 
   <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">parseJSON</span>(<span class="hljs-params">text</span>) </span>{
