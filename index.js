@@ -724,6 +724,71 @@ enginemill.Mixins = {
   Model: BRIXX.Model
 };
 
+// Logging
+// -------
+// Enginemill includes an application level logging system out of the box. It
+// is designed to be easy to extend, or even to not use at all. It does this
+// by emitting logging events on an Oddcast broadaster, which you can listen
+// to with any other logging tools you'd like to use.
+//
+// The logging calls are taken by the Bunyan logging tool, and then the
+// resulting log records created by Bunyan are emitted through the
+// broadcaster. By default the logging system is initialized with a listener
+// which simply writes the Bunyan log records as JSON to stdout.
+//
+// You can set your own listeners, or turn off logging altogether, by calling
+// #configure() on the logger.
+//
+// You create new loggers by calling #create() on the logger instance.
+//
+// __Example:__
+//
+// ```JS
+// // Pass in the Application instance to a Store submodule.
+// exports.create = function (app) {
+//   var logger = app.logger.create({store: 'users'});
+//
+//   logger.trace('a trace message');
+//   // {"name":"myapp","hostname":"myhost","pid":34572,"store":"users","level":10,"msg":"a trace message","time":"2013-01-04T07:47:25.814Z","v":0}
+//
+//   logger.debug({modelName: 'Widget'}, 'a widget');
+//   // {"name":"myapp","hostname":"myhost","pid":34572,"store":"users","level":20,"modelName":"Wdiget",msg":"a widget","time":"2013-01-04T07:47:25.815Z","v":0}
+//
+//   logger.info('hi %s', 'John');
+//   // {"name":"myapp","hostname":"myhost","pid":34572,"store":"users","level":30,"msg":"hi John","time":"2013-01-04T07:47:25.814Z","v":0}
+//
+//   logger.warn('A warning');
+//   // {"name":"myapp","hostname":"myhost","pid":34572,"store":"users","level":40,"msg":"A warning","time":"2013-01-04T07:47:25.814Z","v":0}
+//
+//   logger.error(err);
+//   // Special case to log an `Error` instance to the record.
+//   // This adds an "err" field with exception details
+//   // (including the stack) and sets "msg" to the exception
+//   // message.
+//
+//   logger.fatal(err, 'a message about this error');
+//   // Almost the same as above, but will specify the msg portion of the
+//   // log record.
+// }
+// ```
+// ### enginemill.Logger
+// An instance of `enginemill.Logger` will be placed on the Application
+// instance as `app.logger`.
+//
+// ##### enginemill.Logger instance methods
+// __#configure(args)__ Reconfigure the default logging setup.
+//
+// `args.level` Should be a string to set the global log level. One of
+// "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL".
+//
+// If `args.useDefaultObserver` is `false` the default observer will be
+// removed and the logger will no longer write to stdout. If
+// `args.useDefaultObserver` is `true` the logger will reset the default
+// observer and write to stdout.
+//
+// __#create(attributes)__ Creates a new logger which will always log the
+// given attributes.
+//
 function Logger() {}
 enginemill.Logger = Logger;
 
@@ -756,8 +821,8 @@ U.extend(Logger.prototype, {
   configure: function (configs) {
     configs = U.ensure(configs);
 
-    if (U.isBoolean(configs.useDefaultStream)) {
-      if (configs.useDefaultStream) {
+    if (U.isBoolean(configs.useDefaultObserver)) {
+      if (configs.useDefaultObserver) {
         this.channel.remove({role: 'logging'}, this.defaultObserver);
         this.channel.observe({role: 'logging'}, this.defaultObserver);
       } else {
@@ -777,6 +842,13 @@ U.extend(Logger.prototype, {
 
 Logger.create = U.factory(Logger.prototype);
 
+// #### enginemill.Logger log levels:
+// Logger.FATAL = 'fatal'
+// Logger.ERROR = 'error'
+// Logger.WARN  = 'warn'
+// Logger.INFO  = 'info'
+// Logger.DEBUG = 'debug'
+// Logger.TRACE = 'trace'
 Logger.FATAL = 'fatal';
 Logger.ERROR = 'error';
 Logger.WARN  = 'warn';
