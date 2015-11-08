@@ -88,6 +88,12 @@ exports["exported modules"] = {
     test.done();
   },
 
+  "exports.Mixins.EventEmitter": function (test) {
+    var Mixins = this.enginemill.Mixins;
+    test.equal(typeof Mixins.EventEmitter, 'object', 'Mixins.EventEmitter');
+    test.done();
+  },
+
   "exports.DatabaseConnector": function (test) {
     var DatabaseConnector = this.enginemill.DatabaseConnector;
     test.equal(typeof DatabaseConnector, 'function', 'DatabaseConnector');

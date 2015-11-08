@@ -8,6 +8,7 @@
 // * [Lodash](https://lodash.com/) (Underscore) too.
 // * [Filepath](https://github.com/kixxauth/filepath) to work with the filesystem.
 // * [Yargs](https://github.com/bcoe/yargs) to parse command line options.
+// * An Object factory for composing mixins.
 // * Serially load plugins you define and kicks off your app only when they have all loaded.
 // * Comprehensive logging based on [Bunyan](https://github.com/trentm/node-bunyan).
 // * Promisified [request](https://github.com/request/request) wrapper for making HTTP requests.
@@ -94,11 +95,12 @@ var filepath        = enginemill.filepath;
 // [node-uuid](https://github.com/broofa/node-uuid) in the JSONFileDatabase,
 // and [request](https://github.com/request/request) in the `enginemill.Request` utility.
 var
-util     = require('util'),
-debug    = require('debug'),
-nodeUUID = require('node-uuid'),
-REQ      = require('request'),
-Yargs    = require('yargs');
+util         = require('util'),
+EventEmitter = require('events'),
+debug        = require('debug'),
+nodeUUID     = require('node-uuid'),
+REQ          = require('request'),
+Yargs        = require('yargs');
 
 // Error Handling
 // --------------
@@ -649,6 +651,7 @@ enginemill.loadInitializers = function (args) {
 // });
 // ```
 // ### Mixins
+enginemill.Mixins = {
 // #### enginemill.Mixins.Model
 // An Object mixin for creating Immutable models. Define a set of default
 // values in your definition and the keys will be used to enforce assignment
@@ -713,8 +716,29 @@ enginemill.loadInitializers = function (args) {
 //
 // __#toString()__ Returns a special String representation of this model
 // instance.
-enginemill.Mixins = {
-  Model: BRIXX.Model
+  Model: BRIXX.Model,
+
+  // #### enginemill.Mixins.EventEmitter
+  // The EventEmitter mixin is the Node.js EventEmitter prototype Object with
+  // a #destroy() method added to it. When you call #destroy() on an instance
+  // created with the `enginemill.Mixins.EventEmitter` it will call
+  // #removeAllListeners() on the EventEmitter for you.
+  EventEmitter: (function () {
+    var proto = Object.keys(EventEmitter.prototype).reduce(function (proto, k) {
+      proto[k] = EventEmitter.prototype[k];
+      return proto;
+    }, Object.create(null));
+
+    proto.initialize = function () {
+      EventEmitter.init.call(this);
+    };
+
+    proto.destroy = function () {
+      this.removeAllListeners();
+    };
+
+    return proto;
+  }())
 };
 
 // Logging
