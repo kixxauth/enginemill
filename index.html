@@ -41,9 +41,14 @@ tools to make the development of your systems easier and more fun.</p>
 <li><a href="https://github.com/petkaantonov/bluebird">Bluebird</a> for Promises.</li>
 <li><a href="https://lodash.com/">Lodash</a> (Underscore) too.</li>
 <li><a href="https://github.com/kixxauth/filepath">Filepath</a> to work with the filesystem.</li>
-<li>Parses command line options with <a href="https://github.com/bcoe/yargs">Yargs</a>.</li>
-<li>Serially loads plugins you define and kicks off your app only when they have all loaded.</li>
-<li>Includes a handy Promisified <a href="https://github.com/request/request">request</a> wrapper for making HTTP requests.</li>
+<li><a href="https://github.com/bcoe/yargs">Yargs</a> to parse command line options.</li>
+<li><a href="http://momentjs.com/">Moment</a> to parse, validate, manipulate and display dates.</li>
+<li><a href="http://numeraljs.com/">Numeral</a> for Number formatting and manipulation.</li>
+<li>An Object factory for composing mixins.</li>
+<li>Serially load plugins you define and kicks off your app only when they have all loaded.</li>
+<li>Comprehensive logging based on <a href="https://github.com/trentm/node-bunyan">Bunyan</a>.</li>
+<li>Message and pattern based communication with <a href="https://github.com/oddnetworks/oddcast">Oddcast</a>.</li>
+<li>Promisified <a href="https://github.com/request/request">request</a> wrapper for making HTTP requests.</li>
 <li>Supports <a href="http://coffeescript.org/">CoffeeScript</a> out of the box, which is nice for config and plugin initialization files.</li>
 </ul>
 <p>This documentation is generated from <a href="https://github.com/kixxauth/enginemill">annotated source code</a> which you
@@ -76,7 +81,7 @@ can find on GitHub. Ideas, issues, and feedback is welcome on the
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>The <code>exports</code> object is assigned to <code>enginemill</code> for readability.</p>
+              <p>The <code>exports</code> Object is assigned to <code>enginemill</code> for readability.</p>
 
             </div>
             
@@ -104,6 +109,33 @@ can find on GitHub. Ideas, issues, and feedback is welcome on the
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
+              <h3 id="private-dependencies">Private Dependencies</h3>
+<p>Enginemill has some dependencies which are used internally, or exposed
+elsewhere, but need to be loaded early.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span>
+util         = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>),
+EventEmitter = <span class="hljs-built_in">require</span>(<span class="hljs-string">'events'</span>),
+debug        = <span class="hljs-built_in">require</span>(<span class="hljs-string">'debug'</span>),
+nodeUUID     = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node-uuid'</span>),
+REQ          = <span class="hljs-built_in">require</span>(<span class="hljs-string">'request'</span>),
+Yargs        = <span class="hljs-built_in">require</span>(<span class="hljs-string">'yargs'</span>),
+
+sendDebug    = debug(<span class="hljs-string">'enginemill'</span>);
+
+sendDebug(<span class="hljs-string">'Loading the Enginemill module.'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
               <h3 id="enginemill-promise">enginemill.Promise</h3>
 <p>Enginemill uses <a href="http://bluebirdjs.com/docs/getting-started.html">Bluebird Promises</a> to handle asynchronous programming
 from start to finish and exposes it as <code>enginemill.Promise</code> for you.</p>
@@ -116,11 +148,11 @@ from start to finish and exposes it as <code>enginemill.Promise</code> for you.<
         </li>
         
         
-        <li id="section-7">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-7">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <h3 id="enginemill-u">enginemill.U</h3>
 <p>Enginemill also uses <a href="https://lodash.com/">Lodash</a> as the default JavaScript utility library,
@@ -142,11 +174,11 @@ commonly used in set theory.</p>
         </li>
         
         
-        <li id="section-8">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
+                <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <h3 id="lodash-extensions">Lodash Extensions</h3>
 <h4 id="enginemill-u-ensure-">enginemill.U.ensure()</h4>
@@ -162,40 +194,17 @@ like <code>Object.freeze()</code> would.</p>
 <p>Check to see if the passed in Object exists. Returns false for null,
 undefined, or NaN. Returns true for everything else.</p>
 <h4 id="enginemill-u-stringify-">enginemill.U.stringify()</h4>
-<p>A different way to stringify an Object, other than .toString().</p>
+<p>A different way to stringify an Object, other than .toString():</p>
 <ol>
 <li>Returns an empty string for null, undefined or NaN.</li>
 <li>Returns the special ‘[object Function]’ String for Functions.</li>
-<li>Returns the result of .toString() for anything else if it exists.</li>
-<li>Returns the result of Object.prototype.toString if .toString()
-is not present.</li>
+<li>Returns the result of .toString() if it exists.</li>
+<li>Returns the result of Object.prototype.toString.</li>
 </ol>
 <h4 id="enginemill-u-factory-">enginemill.U.factory()</h4>
 <p>An object factory which uses the mixin pattern. Returns a Function which
 will create new Objects using a prototype composed of the mixins passed in.
-The returned Object factory will call initialize() on your object instance.
-If there is an initialize() function defined on any of the mixins,
-they will be called before your mixin.</p>
-<p>Example:</p>
-<pre><code class="lang-JS"><span class="hljs-keyword">var</span> newWidget = enginemill.U.factory(enginemill.Mixins.Model, {
-  name: <span class="hljs-string">'Widget'</span>,
-  idAttribute: <span class="hljs-string">'_id'</span>,
-
-  defaults: {
-    _id    : <span class="hljs-literal">null</span>,
-    width  : <span class="hljs-number">5</span>,
-    height : <span class="hljs-number">2</span>
-  },
-
-  initialize: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-    <span class="hljs-keyword">this</span>.cid = randomString();
-  },
-
-  area: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.width * <span class="hljs-keyword">this</span>.height;
-  }
-});
-</code></pre>
+See the <strong>Factories and Mixins</strong> section for more information.</p>
 
             </div>
             
@@ -210,11 +219,11 @@ they will be called before your mixin.</p>
         </li>
         
         
-        <li id="section-9">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <h3 id="enginemill-filepath">enginemill.filepath</h3>
 <p>Enginemill uses the <a href="https://github.com/kixxauth/filepath">FilePath</a> library as the default cross platform
@@ -228,30 +237,6 @@ interface for working with the file system in both posix and win32.</p>
         </li>
         
         
-        <li id="section-10">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
-              </div>
-              <h3 id="private-dependencies">Private Dependencies</h3>
-<p>Enginemill depends on the handy <a href="https://github.com/visionmedia/debug">debug</a> utility for Application#debug(),
-<a href="https://github.com/bcoe/yargs">Yargs</a> for parsing command line arguments in <code>enginemill.load()</code>,
-<a href="https://github.com/broofa/node-uuid">node-uuid</a> in the JSONFileDatabase,
-and <a href="https://github.com/request/request">request</a> in the <code>enginemill.Request</code> utility.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span>
-util     = <span class="hljs-built_in">require</span>(<span class="hljs-string">'util'</span>),
-debug    = <span class="hljs-built_in">require</span>(<span class="hljs-string">'debug'</span>),
-nodeUUID = <span class="hljs-built_in">require</span>(<span class="hljs-string">'node-uuid'</span>),
-REQ      = <span class="hljs-built_in">require</span>(<span class="hljs-string">'request'</span>),
-Yargs    = <span class="hljs-built_in">require</span>(<span class="hljs-string">'yargs'</span>);</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-11">
             <div class="annotation">
               
@@ -259,9 +244,6 @@ Yargs    = <span class="hljs-built_in">require</span>(<span class="hljs-string">
                 <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <h2 id="error-handling">Error Handling</h2>
-<p>Enginemill makes robust exception handling
-easy with <a href="http://bluebirdjs.com/docs/api/catch.html">Bluebird’s catch</a>,
-allowing you to properly segment your exception handling based on <a href="https://www.joyent.com/developers/node/design/errors">operational and programmer errors</a>.</p>
 
             </div>
             
@@ -273,6 +255,22 @@ allowing you to properly segment your exception handling based on <a href="https
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Enginemill makes robust exception handling
+easy with <a href="http://bluebirdjs.com/docs/api/catch.html">Bluebird’s catch</a>,
+allowing you to properly segment your exception handling based on
+<a href="https://www.joyent.com/developers/node/design/errors">operational and programmer errors</a>.</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
               <h3 id="enginemill-errors">enginemill.Errors</h3>
 <p>The Standard Enginemill Error constructors are all exposed on <code>enginemill</code>
@@ -287,11 +285,11 @@ specific Error classes with <a href="http://bluebirdjs.com/docs/api/catch.html">
         </li>
         
         
-        <li id="section-13">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <h4 id="enginemill-errors-operationalerror">enginemill.Errors.OperationalError</h4>
 <p>A superclass for all other Operational Errors and used by itself
@@ -311,11 +309,11 @@ enginemill.Errors.OperationalError = OperationalError;</pre></div></div>
         </li>
         
         
-        <li id="section-14">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <h4 id="enginemill-errors-notimplementederror">enginemill.Errors.NotImplementedError</h4>
 <p>Useful for parts of a program which are not implemented yet. Exported
@@ -335,11 +333,11 @@ enginemill.Errors.NotImplementedError = NotImplementedError;</pre></div></div>
         </li>
         
         
-        <li id="section-15">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <h4 id="enginemill-errors-notfounderror">enginemill.Errors.NotFoundError</h4>
 <p>Used when a resource cannot be located. Exported publically as
@@ -359,15 +357,15 @@ enginemill.Errors.NotFoundError = NotFoundError;</pre></div></div>
         </li>
         
         
-        <li id="section-16">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
               <h4 id="enginemill-errors-jsonparseerror">enginemill.Errors.JSONParseError</h4>
 <p>Handle the special case of parsing JSON. Exported publically as
-<code>enginemill.Errors.JSONReadError</code></p>
+<code>enginemill.Errors.JSONParseError</code></p>
 
             </div>
             
@@ -383,47 +381,22 @@ enginemill.Errors.JSONParseError = JSONParseError;</pre></div></div>
         </li>
         
         
-        <li id="section-17">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
-              </div>
-              <h2 id="message-based-communication">Message Based Communication</h2>
-<p>Enginemill holds a string opinion that Command/Query
-Responsibility Segregation (<a href="http://martinfowler.com/bliki/CQRS.html">CQRS</a>)
-is essential to allow developers to reason about otherwise complex systems.
-Strict adherence to CQRS should lead to a Store/Index/Query/Presenter
-architecture as suggested by Enginemill. Having a built in message
-based communication system makes Store/Index/Query/Presenter possible.</p>
-<h3 id="enginemill-radio">enginemill.radio</h3>
-<p>Enginemill incudes the <a href="https://github.com/oddnetworks/oddcast">oddcast</a> library for passing messages between
-system components. This makes it easy to keep your system components
-decaupled which makes Command/Query Responsibility Segregation and
-Store/Index/Query/Presenter architecture possible.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>enginemill.oddcast = <span class="hljs-built_in">require</span>(<span class="hljs-string">'oddcast'</span>);
-<span class="hljs-keyword">var</span> oddcast = enginemill.oddcast;</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-18">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
-              <h2 id="application-loading">Application Loading</h2>
-<p>Enginemill uses your applications package.json combined wth command line
-command line arguments to create a preconfigured Application Object. Once
-the Application Object is initialized, it is passed into each of your
-registered initializers. After each handler has initialized, the
-your application is ready to begin execution.</p>
+              <h3 id="enginemill-oddcast">enginemill.oddcast</h3>
+<p>Enginemill incudes the <a href="https://github.com/oddnetworks/oddcast">Oddcast</a>
+library for passing messages between system components. This makes it easy
+to keep your system components decoupled for true Store/Index/Query/
+Presenter architecture.</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre>enginemill.oddcast = <span class="hljs-built_in">require</span>(<span class="hljs-string">'oddcast'</span>);
+<span class="hljs-keyword">var</span> oddcast = enginemill.oddcast;</pre></div></div>
             
         </li>
         
@@ -434,8 +407,73 @@ your application is ready to begin execution.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
+              <h3 id="enginemill-numeral">enginemill.numeral</h3>
+<p>Enginemill includes the <a href="http://momentjs.com/">Moment</a> library to parse,
+validate, manipulate and display dates.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>enginemill.moment = <span class="hljs-built_in">require</span>(<span class="hljs-string">'moment'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <h3 id="enginemill-numeral">enginemill.numeral</h3>
+<p>Enginemill includes the <a href="http://numeraljs.com/">Numeral</a> library for
+formatting and manipulating Numbers.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>enginemill.numeral = <span class="hljs-built_in">require</span>(<span class="hljs-string">'numeral'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <h2 id="application-loading">Application Loading</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Enginemill uses your applications package.json combined wth parsed command
+line options to create a preconfigured Application Object. Once the
+Application Object has been constructed, it is passed into each of your
+registered initializers. After each handler has initialized, the your
+application is ready to begin execution.</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
               <h3 id="coffeescript">CoffeeScript</h3>
-<p>Enginemill registers the <a href="http://coffeescript.org/">CoffeeScript</a> compiler before loading or
+<p>Enginemill registers the <a href="http://coffeescript.org/">CoffeeScript</a>
+compiler before loading or
 initializing your program. This way you can use CoffeeScript to write your
 configuration and initialization files. In fact, you could use CoffeeScript
 to write your whole program, but Enginemill holds the opinion that programs
@@ -449,11 +487,11 @@ CoffeeScript to write your configuration files.</p>
         </li>
         
         
-        <li id="section-20">
+        <li id="section-24">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
               <h3 id="enginemill-load">enginemill.load</h3>
 <p><code>enginemill.load()</code> is the main entry point for your program. This is where
@@ -473,11 +511,9 @@ expectation of Enginemill is that your application looks something like this:</p
 |  |- models.js
 |  `- index.js
 |- query
-|  |- author_profile.js
-|  `- article.js
-|- index
-|  |- author_profile.js
-|  `- article.js
+|  |- author_profile_index.js
+|  |- article_index.js
+|  `- index.js
 |- presenters
 |  |- users.js
 |  `- posts.js
@@ -487,7 +523,7 @@ expectation of Enginemill is that your application looks something like this:</p
 |- server.js
 `- package.json
 </code></pre>
-<h4 id="arguments">Arguments</h4>
+<h4 id="enginemill-load-arguments">enginemill.load() arguments</h4>
 <table>
 <thead>
 <tr>
@@ -498,7 +534,7 @@ expectation of Enginemill is that your application looks something like this:</p
 <tbody>
 <tr>
 <td><strong>appdir</strong></td>
-<td><em>FilePath instance</em> Defaults to the directory of the currently executing script.</td>
+<td><em>FilePath</em> Defaults to the directory of the currently executing script.</td>
 </tr>
 <tr>
 <td><strong>name</strong></td>
@@ -510,11 +546,11 @@ expectation of Enginemill is that your application looks something like this:</p
 </tr>
 <tr>
 <td><strong>usageString</strong></td>
-<td><em>String</em> Used as the usage string on the command line if present.</td>
+<td><em>String</em> Used as the usage message on the command line if present.</td>
 </tr>
 <tr>
 <td><strong>helpString</strong></td>
-<td><em>String</em> Used as the help string on the command line if present.</td>
+<td><em>String</em> Used as the help message on the command line if present.</td>
 </tr>
 <tr>
 <td><strong>options</strong></td>
@@ -530,7 +566,7 @@ expectation of Enginemill is that your application looks something like this:</p
 </tr>
 <tr>
 <td><strong>initializers</strong></td>
-<td><em>Array</em> of initializers (String names).</td>
+<td><em>Array</em> of initializers (<em>Strings</em> or <em>Functions</em>).</td>
 </tr>
 </tbody>
 </table>
@@ -562,6 +598,8 @@ enginemill.load({
             </div>
             
             <div class="content"><div class='highlight'><pre>enginemill.load = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args</span>) </span>{
+  sendDebug(<span class="hljs-string">'Beginning enginemill.load().'</span>);
+
   args = args || <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>);
 
   <span class="hljs-keyword">var</span> promise;</pre></div></div>
@@ -569,11 +607,11 @@ enginemill.load({
         </li>
         
         
-        <li id="section-21">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <h4 id="appdir">appdir</h4>
 <p>The load sequence begins by determining what the application root
@@ -597,11 +635,11 @@ is used as a best guess by default.</p>
         </li>
         
         
-        <li id="section-22">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-22">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <h4 id="asynchronous-application-loading">Asynchronous Application Loading</h4>
 <p>Once the <code>appdir</code> has been determined, the process is asynchronously
@@ -626,11 +664,11 @@ hash to pass through the rest of the chain.</p>
         </li>
         
         
-        <li id="section-23">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-23">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <h4 id="read-package-json">Read package.json</h4>
 <p>After determining the root application directory and constructing the
@@ -645,6 +683,7 @@ overridden with <code>args.name</code> and <code>args.version</code>.</p>
       <span class="hljs-keyword">var</span> path = args.appdir.append(<span class="hljs-string">'package.json'</span>);
       <span class="hljs-keyword">return</span> enginemill.readJSON({path: path}).then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">res</span>) </span>{
         args.packageJSON = res || <span class="hljs-literal">null</span>;
+        sendDebug(<span class="hljs-string">'.load() package.json has loaded.'</span>);
         <span class="hljs-keyword">return</span> args;
       });
     })</pre></div></div>
@@ -652,11 +691,11 @@ overridden with <code>args.name</code> and <code>args.version</code>.</p>
         </li>
         
         
-        <li id="section-24">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <h4 id="command-line-options-parsing">Command Line Options Parsing</h4>
 <p>Next, the command line arguments are parsed based on the <code>args.options</code>
@@ -674,9 +713,9 @@ of arguments with an object for each value containing:</p>
 <li>describe - Description String</li>
 <li>demand - Boolean</li>
 <li>type - String (“boolean”|”string”)</li>
-<li>default - Any value
-<strong>Example:</strong></li>
+<li>default - Any value</li>
 </ul>
+<p><strong>Example:</strong></p>
 <pre><code class="lang-JS">enginemill.load({
   options: {
     environment: {
@@ -700,31 +739,23 @@ of arguments with an object for each value containing:</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>    .then(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">loadCommandLineArgs</span>(<span class="hljs-params">args</span>) </span>{
-      <span class="hljs-keyword">var</span> options = Yargs
-        .reset()
-        .usage(args.usageString)
-        .help(<span class="hljs-string">'help'</span>, args.helpString);
-
-      <span class="hljs-keyword">if</span> (args.options &amp;&amp; <span class="hljs-keyword">typeof</span> args.options === <span class="hljs-string">'object'</span>) {
-        <span class="hljs-built_in">Object</span>.keys(args.options).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key</span>) </span>{
-          <span class="hljs-keyword">var</span>
-          conf = args.options[key];
-          options = options.option(key, conf);
-        });
+      <span class="hljs-keyword">if</span> (!args.argv) {
+        args.argv = enginemill.parseCommandLineOptions(args);
+        sendDebug(<span class="hljs-string">'.load() parsed command line options.'</span>);
+      } <span class="hljs-keyword">else</span> {
+        sendDebug(<span class="hljs-string">'.load() skipped command line option parsing.'</span>);
       }
-
-      args.argv = options.parse(process.argv);
       <span class="hljs-keyword">return</span> args;
     })</pre></div></div>
             
         </li>
         
         
-        <li id="section-25">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <h4 id="environment-setting">Environment Setting</h4>
 <p>The environment setting String will be available on the Application
@@ -737,22 +768,27 @@ environment variable is used, followed by the passed in
             </div>
             
             <div class="content"><div class='highlight'><pre>    .then(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setEnvironment</span>(<span class="hljs-params">args</span>) </span>{
+      sendDebug(<span class="hljs-string">'.load() args.argv.environment = %s.'</span>, args.argv.environment);
+      sendDebug(<span class="hljs-string">'.load() process.env.ENVIRONMENT = %s.'</span>, process.env.ENVIRONMENT);
+      sendDebug(<span class="hljs-string">'.load() process.env.NODE_ENV = %s.'</span>, process.env.NODE_ENV);
+      sendDebug(<span class="hljs-string">'.load() args.environment = %s.'</span>, args.environment);
       args.environment = args.argv.environment ||
                          process.env.ENVIRONMENT ||
                          process.env.NODE_ENV ||
                          args.environment ||
                          enginemill.DEFAULTS.ENVIRONMENT;
+      sendDebug(<span class="hljs-string">'.load() set environment to %s.'</span>, args.environment);
       <span class="hljs-keyword">return</span> args;
     })</pre></div></div>
             
         </li>
         
         
-        <li id="section-26">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               <h4 id="create-the-application-instance">Create the Application Instance</h4>
 <p>With the package.json, command line arguments, and environment setting
@@ -760,10 +796,10 @@ in hand, the load process will create an Application instance. The
 Application instance will be passed into all the initialization functions
 and should be referenced in your application simply as <code>app</code>. The
 Application instance will include usefull attributes like <code>app.name</code> and
-<code>app.environment</code> as well as the <code>app.argv</code> Object containing command
-line arguments. In your initializers, you’ll probably want to extend
-the <code>app.configs</code> and <code>app.API</code> Objects to provide useful references
-for the rest of your program.</p>
+<code>app.environment</code> as well as the <code>app.argv</code> Object containing the parsed
+command line arguments. In your initializers, you’ll probably want to
+extend the <code>app.configs</code> and <code>app.API</code> Objects to provide useful
+references for the rest of your program.</p>
 
             </div>
             
@@ -783,38 +819,44 @@ for the rest of your program.</p>
         argv        : args.argv
       });
 
+      sendDebug(<span class="hljs-string">'.load() Application instance has been created.'</span>);
       <span class="hljs-keyword">return</span> args;
     })</pre></div></div>
             
         </li>
         
         
-        <li id="section-27">
+        <li id="section-31">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-31">&#182;</a>
               </div>
               <h4 id="load-initializers">Load Initializers</h4>
 <p>After the Application instance has been created the initializers are
-loaded and executed in serial. The initializers to run are defined by
+loaded and executed in serial. The initializers to are defined by
 the <code>args.initializers</code> Array passed into <code>enginemill.load()</code>. See
 the <strong>Initializer Loading</strong> section for more information.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>    .then(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">loadInitializers</span>(<span class="hljs-params">args</span>) </span>{
-      <span class="hljs-keyword">return</span> enginemill.loadInitializers(args);
+      sendDebug(<span class="hljs-string">'.load() Loading and executing initializers.'</span>);
+      <span class="hljs-keyword">return</span> enginemill.loadInitializers(args).then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">app</span>) </span>{
+        args.app = app;
+        sendDebug(<span class="hljs-string">'.load() Initializers have executed.'</span>);
+        <span class="hljs-keyword">return</span> args;
+      });
     })</pre></div></div>
             
         </li>
         
         
-        <li id="section-28">
+        <li id="section-32">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-32">&#182;</a>
               </div>
               <h4 id="return-a-promise">Return a Promise</h4>
 <p>Finally <code>enginemill.load()</code> returns a Promise for the Application instance.</p>
@@ -822,18 +864,21 @@ the <strong>Initializer Loading</strong> section for more information.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>    .then(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">returnApplication</span>(<span class="hljs-params">args</span>) </span>{
+      sendDebug(<span class="hljs-string">'.load() Done. Returning Appliation instance.'</span>);
       <span class="hljs-keyword">return</span> args.app;
     });
+
+  <span class="hljs-keyword">return</span> promise;
 };</pre></div></div>
             
         </li>
         
         
-        <li id="section-29">
+        <li id="section-33">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
               <h3 id="defaults">Defaults</h3>
 <p>Some default options used by Enginemill which you can extend by modifying
@@ -852,13 +897,43 @@ information about how these are used.</p>
         </li>
         
         
-        <li id="section-30">
+        <li id="section-34">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
+                <a class="pilcrow" href="#section-34">&#182;</a>
               </div>
               <h3 id="enginemill-application">enginemill.Application</h3>
+<p>The Application object is constructed during the <code>enginemill.load()</code>
+routine and is passed into your initilizers. After all your initializers
+have executed the Application instance is returned in the Promise returned
+from <code>enginemill.load()</code>. See the <strong>Initializer Loading</strong> section for more
+information. From there, best practice is to pass it into the
+other components of your program.</p>
+<h4 id="enginemill-application-instance-properties">enginemill.Application instance properties</h4>
+<p><strong>#name</strong> <em>String</em> The name of your application. The name is taken from the
+<code>args.name</code> value passed into <code>enginemill.load()</code> or automatically taken
+from your package.json.</p>
+<p><strong>#version</strong> <em>String</em> The version of your application. The version is taken
+from the <code>args.version</code> value passed into <code>enginemill.load()</code> or
+automatically taken from your package.json.</p>
+<p><strong>#appdir</strong> <em>FilePath</em> The FilePath instance representing the root directory
+of your application. See the <strong>appdir</strong> section for more information.</p>
+<p><strong>#packageJSON</strong> <em>Object</em> Your application package.json parsed into an
+Object.</p>
+<p><strong>#environment</strong> <em>String</em> The environment setting. See the <strong>Environment
+Setting</strong> section for more information.</p>
+<p><strong>#configs</strong> <em>Object</em> A blank Object where you should set your configuration
+settings in initializers.</p>
+<p><strong>#argv</strong> <em>Object</em> An Object containing your parsed command line options.
+See <strong>Command Line Option Parsing</strong> for more information.</p>
+<p><strong>#logger</strong> <em>Object</em> The application logger instance. See the <strong>Logging</strong>
+section for more information.</p>
+<p><strong>#API</strong> <em>Object</em> A blank object for you to attach your plugins to in
+initiallizers.</p>
+<h4 id="enginemill-application-instance-methods">enginemill.Application instance methods</h4>
+<p><strong>#debug(name)</strong> A proxy to the node-debug tool. Pass in a String name and
+it will return a new debugger bound to it by <code>debug(name + &#39;:&#39; + name)</code>.</p>
 
             </div>
             
@@ -903,15 +978,15 @@ U.extend(Application.prototype, {
           appname: spec.name
         })
       },
-      debug: {
-        enumerable: <span class="hljs-literal">true</span>,
-        value: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name</span>) </span>{
-          <span class="hljs-keyword">return</span> debug(spec.name + <span class="hljs-string">':'</span> + name);
-        }
-      },
       API: {
         enumerable: <span class="hljs-literal">true</span>,
         value: <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>)
+      },
+      debug: {
+        enumerable: <span class="hljs-literal">true</span>,
+        value: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name</span>) </span>{
+          <span class="hljs-keyword">return</span> debug(name + <span class="hljs-string">':'</span> + name);
+        }
       }
     });
   }
@@ -922,11 +997,11 @@ Application.create = U.factory(Application.prototype);</pre></div></div>
         </li>
         
         
-        <li id="section-31">
+        <li id="section-35">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
+                <a class="pilcrow" href="#section-35">&#182;</a>
               </div>
               <h3 id="initializer-loading">Initializer Loading</h3>
 <p>The initialization loader requires and loads all initializers passed in as
@@ -939,6 +1014,16 @@ order. Each initializer function is passed a single argument; the
 Application instance. Extending the <code>app.configs</code> or <code>app.API</code> Objects
 is a great use of an initializer. It is expected that initializers will
 complete aysnchronously, and if so, they should return a Promise.</p>
+<p><strong>Example</strong></p>
+<p>Good example of an initializer which sets configuration settings:</p>
+<pre><code class="lang-CoffeeScript"><span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-params">(app)</span> -&gt;</span>
+    <span class="hljs-comment"># app.environment is set with the --environment option, or the</span>
+    <span class="hljs-comment"># NODE_ENV environment variable.</span>
+    app.configs.port = <span class="hljs-keyword">if</span> app.environment <span class="hljs-keyword">is</span> <span class="hljs-string">'production'</span> <span class="hljs-keyword">then</span> <span class="hljs-number">8080</span> <span class="hljs-keyword">else</span> <span class="hljs-number">3000</span>
+
+    <span class="hljs-comment"># Set the public path to '../public'</span>
+    app.configs.public_path = app.appdir.append <span class="hljs-string">'public'</span>
+</code></pre>
 <h3 id="enginemill-loadinitializers">enginemill.loadInitializers</h3>
 <p>Typically you can just allow <code>enginemill.load</code> to call
 <code>enginemill.loadInitializers</code>, but in case you need to extend it, or call
@@ -964,16 +1049,6 @@ it separately, it is available as <code>enginemill.loadInitializers</code>.</p>
 </table>
 <p><strong>Returns</strong> A Promise for the Application instance after all initializers
 have been executed in order.</p>
-<h4 id="example">Example</h4>
-<p>Good example of an initializer which sets configuration settings:</p>
-<pre><code class="lang-CoffeeScript"><span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-params">(app)</span> -&gt;</span>
-    <span class="hljs-comment"># app.environment is set with the --environment option, or the</span>
-    <span class="hljs-comment"># NODE_ENV environment variable.</span>
-    app.configs.port = <span class="hljs-keyword">if</span> app.environment <span class="hljs-keyword">is</span> <span class="hljs-string">'production'</span> <span class="hljs-keyword">then</span> <span class="hljs-number">8080</span> <span class="hljs-keyword">else</span> <span class="hljs-number">3000</span>
-
-    <span class="hljs-comment"># Set the public path to '../public'</span>
-    app.configs.public_path = app.appdir.append <span class="hljs-string">'public'</span>
-</code></pre>
 
             </div>
             
@@ -1002,7 +1077,7 @@ have been executed in order.</p>
           <span class="hljs-built_in">module</span> = <span class="hljs-built_in">require</span>(path);
         } <span class="hljs-keyword">catch</span> (moduleError) {
           <span class="hljs-keyword">if</span> (moduleError.code === <span class="hljs-string">'MODULE_NOT_FOUND'</span>) {
-            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Initializer module not found: '</span>+ path);
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Errors.NotFoundError(<span class="hljs-string">'Initializer module not found: '</span>+ path);
           }
           <span class="hljs-keyword">throw</span> moduleError;
         }
@@ -1010,7 +1085,7 @@ have been executed in order.</p>
 
       <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">module</span> !== <span class="hljs-string">'function'</span>) {
         message = path ? (<span class="hljs-string">'path '</span>+ path) : (<span class="hljs-string">'index '</span>+ index);
-        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Initializers must be functions: '</span>+ message);
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Errors.OperationalError(<span class="hljs-string">'Initializers must be functions: '</span>+ message);
       }
 
       <span class="hljs-keyword">return</span> <span class="hljs-built_in">module</span>;
@@ -1026,14 +1101,26 @@ have been executed in order.</p>
         </li>
         
         
-        <li id="section-32">
+        <li id="section-36">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-32">&#182;</a>
+                <a class="pilcrow" href="#section-36">&#182;</a>
               </div>
               <h2 id="factories-and-mixins">Factories and Mixins</h2>
-<p>Enginemill includes an Object factory mixed into lodash as
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-37">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-37">&#182;</a>
+              </div>
+              <p>Enginemill includes an Object factory mixed into lodash as
 <code>enginemill.U.factory()</code>. This factory creator accepts any number of mixins,
 plus your own prototype definitions to compose factory functions for
 Objects.</p>
@@ -1043,7 +1130,7 @@ will create new Objects using a prototype composed of the mixins passed in.
 The returned Object factory Function will automatically call initialize()
 on your object instance. If there is an initialize() function defined on any
 of the mixins, they will also be called, in order, before your mixin.</p>
-<p>Example:</p>
+<p><strong>Example:</strong></p>
 <pre><code class="lang-JS"><span class="hljs-keyword">var</span> newWidget = enginemill.U.factory(enginemill.Mixins.Model, {
   name: <span class="hljs-string">'Widget'</span>,
   idAttribute: <span class="hljs-string">'_id'</span>,
@@ -1072,20 +1159,194 @@ of the mixins, they will also be called, in order, before your mixin.</p>
         </li>
         
         
-        <li id="section-33">
+        <li id="section-38">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-33">&#182;</a>
+                <a class="pilcrow" href="#section-38">&#182;</a>
               </div>
               <h4 id="enginemill-mixins-model">enginemill.Mixins.Model</h4>
+<p>An Object mixin for creating Immutable models. Define a set of default
+values in your definition and the keys will be used to enforce assignment
+rules on the instance. Includes a mechnanism for naming the type for your
+model, as well as assigning an ID.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="lang-JS"><span class="hljs-keyword">var</span> newWidget = enginemill.U.factory(enginemill.Mixins.Model, {
+  name: <span class="hljs-string">'Widget'</span>,
+  idAttribute: <span class="hljs-string">'_id'</span>,
+
+  defaults: {
+    _id    : <span class="hljs-literal">null</span>,
+    width  : <span class="hljs-number">5</span>,
+    height : <span class="hljs-number">2</span>
+  },
+
+  initialize: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">this</span>.cid = randomString();
+  },
+
+  area: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.width * <span class="hljs-keyword">this</span>.height;
+  }
+});
+
+<span class="hljs-keyword">var</span> widget = newWidget({width: <span class="hljs-number">4</span>, height: <span class="hljs-number">4</span>});
+widget.area(); <span class="hljs-comment">// 16</span>
+</code></pre>
+<p>Setting the defaults Object hash determines not only what the default
+values will be for the keys, but also which keys are allowed on an instance
+of this model. Using #set() to set a key which was not defined in the
+defaults hash will throw an error.</p>
+<h4 id="enginemill-mixin-model-instance-properties">enginemill.Mixin.Model instance properties</h4>
+<p><strong>#name</strong> A frozen enumerable property. Used in #toString() and #diff().</p>
+<p><strong>#idAttribute</strong> A non-enumerable prototype property used to determine the
+ID.</p>
+<h4 id="enginemill-mixin-model-instance-methods">enginemill.Mixin.Model instance methods</h4>
+<p><strong>#has(key)</strong> Check to see if the model instance has the given key,
+regardless of if it is defined or not.</p>
+<p><strong>#hasId()</strong> Check to see if the ID property defined by #idAttribute is
+present.</p>
+<p><strong>#set(values)</strong> Pass in an Object hash of key/value pairs to set.
+Attempting to set a key which was not defined in the defaults will throw an
+Error. Returns a new instance of the model.</p>
+<p><strong>#diff(otherInstance)</strong> Pass in another model instance to determine if they
+are different. Returns <code>null</code> if they are the same, or an Array of
+differences if they are not. Each item in the diff Array is another Array
+containing [key, selfValue, otherValue].</p>
+<p><strong>#toJSON()</strong> Returns a new Object containing all the key/value pairs
+defined on this model instance. This makes
+<code>JSON.stringify(myModelInstance)</code> work as you would expect.</p>
+<p><strong>#toString()</strong> Returns a special String representation of this model
+instance.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  Model: BRIXX.Model
-};
+            <div class="content"><div class='highlight'><pre>  Model: BRIXX.Model,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-39">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-39">&#182;</a>
+              </div>
+              <h4 id="enginemill-mixins-eventemitter">enginemill.Mixins.EventEmitter</h4>
+<p>The EventEmitter mixin is the Node.js EventEmitter prototype Object with
+a #destroy() method added to it. When you call #destroy() on an instance
+created with the <code>enginemill.Mixins.EventEmitter</code> it will call</p>
+<p>#removeAllListeners() on the EventEmitter for you.</p>
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Logger</span>(<span class="hljs-params"></span>) </span>{}
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  EventEmitter: (<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> proto = <span class="hljs-built_in">Object</span>.keys(EventEmitter.prototype).reduce(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">proto, k</span>) </span>{
+      proto[k] = EventEmitter.prototype[k];
+      <span class="hljs-keyword">return</span> proto;
+    }, <span class="hljs-built_in">Object</span>.create(<span class="hljs-literal">null</span>));
+
+    proto.initialize = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+      EventEmitter.init.call(<span class="hljs-keyword">this</span>);
+    };
+
+    proto.destroy = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+      <span class="hljs-keyword">this</span>.removeAllListeners();
+    };
+
+    <span class="hljs-keyword">return</span> proto;
+  }())
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-40">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-40">&#182;</a>
+              </div>
+              <h2 id="logging">Logging</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-41">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-41">&#182;</a>
+              </div>
+              <p>Enginemill includes an application level logging system out of the box. It
+is designed to be easy to extend, or not use at all. It does this
+by emitting logging events on an Oddcast broadaster, which you can listen
+to with any other logging tools you’d like to use.</p>
+<p>The logging calls are taken by the
+<a href="https://github.com/trentm/node-bunyan">Bunyan logging library</a>,
+and then the
+resulting log records created by Bunyan are emitted through the
+broadcaster. By default the logging system is initialized with a listener
+which simply writes the Bunyan log records as JSON to stdout.</p>
+<p>You can set your own listeners, or turn off logging altogether, by
+calling #configure() on the logger.</p>
+<p>You create new loggers by calling #create() on the logger instance.</p>
+<p><strong>Example:</strong></p>
+<pre><code class="lang-JS"><span class="hljs-comment">// Pass in the Application instance to a Store submodule.</span>
+exports.create = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">app</span>) </span>{
+  <span class="hljs-keyword">var</span> logger = app.logger.create({store: <span class="hljs-string">'users'</span>});
+
+  logger.trace(<span class="hljs-string">'a trace message'</span>);
+  <span class="hljs-comment">// {"name":"myapp","hostname":"myhost","pid":34572,"store":"users","level":10,"msg":"a trace message","time":"2013-01-04T07:47:25.814Z","v":0}</span>
+
+  logger.debug({modelName: <span class="hljs-string">'Widget'</span>}, <span class="hljs-string">'a widget'</span>);
+  <span class="hljs-comment">// {"name":"myapp","hostname":"myhost","pid":34572,"store":"users","level":20,"modelName":"Wdiget",msg":"a widget","time":"2013-01-04T07:47:25.815Z","v":0}</span>
+
+  logger.info(<span class="hljs-string">'hi %s'</span>, <span class="hljs-string">'John'</span>);
+  <span class="hljs-comment">// {"name":"myapp","hostname":"myhost","pid":34572,"store":"users","level":30,"msg":"hi John","time":"2013-01-04T07:47:25.814Z","v":0}</span>
+
+  logger.warn(<span class="hljs-string">'A warning'</span>);
+  <span class="hljs-comment">// {"name":"myapp","hostname":"myhost","pid":34572,"store":"users","level":40,"msg":"A warning","time":"2013-01-04T07:47:25.814Z","v":0}</span>
+
+  logger.error(err);
+  <span class="hljs-comment">// Special case to log an `Error` instance to the record.</span>
+  <span class="hljs-comment">// This adds an "err" field with exception details</span>
+  <span class="hljs-comment">// (including the stack) and sets "msg" to the exception</span>
+  <span class="hljs-comment">// message.</span>
+
+  logger.fatal(err, <span class="hljs-string">'a message about this error'</span>);
+  <span class="hljs-comment">// Almost the same as above, but will specify the msg portion of the</span>
+  <span class="hljs-comment">// log record.</span>
+}
+</code></pre>
+<h3 id="enginemill-logger">enginemill.Logger</h3>
+<p>An instance of <code>enginemill.Logger</code> will be placed on the Application
+instance as <code>app.logger</code>.</p>
+<h4 id="enginemill-logger-instance-methods">enginemill.Logger instance methods</h4>
+<p><strong>#configure(args)</strong> Reconfigure the default logging setup.</p>
+<p><code>args.level</code> Should be a string to set the global log level. One of
+“TRACE”, “DEBUG”, “INFO”, “WARN”, “ERROR”, “FATAL”.</p>
+<p>If <code>args.useDefaultObserver</code> is <code>false</code> the default observer will be
+removed and the logger will no longer write to stdout. If
+<code>args.useDefaultObserver</code> is <code>true</code> the logger will reset the default
+observer and write to stdout.</p>
+<p><strong>#create(attributes)</strong> Creates a new logger which will always log the
+given attributes.</p>
+<h4 id="adding-log-record-observers">Adding Log Record Observers</h4>
+<p>Adding your own observers is simple; just pass a pattern and handler
+function into <code>app.logger.channel.observe()</code> like so:</p>
+<pre><code class="lang-CoffeeScript"><span class="hljs-comment"># In logging.coffee initializer:</span>
+<span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-params">(app)</span> -&gt;</span>
+  <span class="hljs-comment"># Observe only error log records</span>
+  errors = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../lib/logging_error_handler'</span>).create(app)
+  app.logger.channel.observe {<span class="hljs-attribute">role</span>: <span class="hljs-string">'logging'</span>, <span class="hljs-attribute">level</span>: <span class="hljs-string">'error'</span>}, errors
+</code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Logger</span>(<span class="hljs-params"></span>) </span>{}
 enginemill.Logger = Logger;
 
 U.extend(Logger.prototype, {
@@ -1117,11 +1378,13 @@ U.extend(Logger.prototype, {
   configure: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">configs</span>) </span>{
     configs = U.ensure(configs);
 
-    <span class="hljs-keyword">if</span> (U.isBoolean(configs.useDefaultStream)) {
-      <span class="hljs-keyword">if</span> (configs.useDefaultStream) {
+    <span class="hljs-keyword">if</span> (U.isBoolean(configs.useDefaultObserver)) {
+      <span class="hljs-keyword">if</span> (configs.useDefaultObserver) {
+        sendDebug(<span class="hljs-string">'Logger use default observer.'</span>);
         <span class="hljs-keyword">this</span>.channel.remove({role: <span class="hljs-string">'logging'</span>}, <span class="hljs-keyword">this</span>.defaultObserver);
         <span class="hljs-keyword">this</span>.channel.observe({role: <span class="hljs-string">'logging'</span>}, <span class="hljs-keyword">this</span>.defaultObserver);
       } <span class="hljs-keyword">else</span> {
+        sendDebug(<span class="hljs-string">'Logger Remove default observer.'</span>);
         <span class="hljs-keyword">this</span>.channel.remove({role: <span class="hljs-string">'logging'</span>}, <span class="hljs-keyword">this</span>.defaultObserver);
       }
     }
@@ -1136,9 +1399,30 @@ U.extend(Logger.prototype, {
   }
 });
 
-Logger.create = U.factory(Logger.prototype);
+Logger.create = U.factory(Logger.prototype);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-42">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-42">&#182;</a>
+              </div>
+              <h4 id="enginemill-logger-log-levels-">enginemill.Logger log levels:</h4>
+<ul>
+<li>Logger.FATAL = ‘fatal’</li>
+<li>Logger.ERROR = ‘error’</li>
+<li>Logger.WARN  = ‘warn’</li>
+<li>Logger.INFO  = ‘info’</li>
+<li>Logger.DEBUG = ‘debug’</li>
+<li>Logger.TRACE = ‘trace’</li>
+</ul>
 
-Logger.FATAL = <span class="hljs-string">'fatal'</span>;
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Logger.FATAL = <span class="hljs-string">'fatal'</span>;
 Logger.ERROR = <span class="hljs-string">'error'</span>;
 Logger.WARN  = <span class="hljs-string">'warn'</span>;
 Logger.INFO  = <span class="hljs-string">'info'</span>;
@@ -1164,9 +1448,103 @@ EmitterRawStream.prototype.write = <span class="hljs-function"><span class="hljs
   <span class="hljs-keyword">this</span>.channel.broadcast(Logger.PATTERNS[level], rec);
 };
 
-Logger.EmitterRawStream = EmitterRawStream;
+Logger.EmitterRawStream = EmitterRawStream;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-43">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-43">&#182;</a>
+              </div>
+              <h2 id="database-connector">Database Connector</h2>
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">DatabaseConnector</span>(<span class="hljs-params"></span>) </span>{}
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-44">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-44">&#182;</a>
+              </div>
+              <p>The core functionality of your application Store is to store data in a
+database. The <code>enginemill.DatabaseConnector</code> provides a consistent API for
+writing data changes to your database of choice from within your Store.</p>
+<h3 id="enginemill-databaseconnector">enginemill.DatabaseConnector</h3>
+<p>The DatabaseConnector takes an underlying database engine you create, and a
+list of Model factory functions, and creates a database API.</p>
+<h4 id="enginemill-databaseconnector-class-methods">enginemill.DatabaseConnector class methods</h4>
+<p><strong>.create(spec)</strong> create a new databaseconnector api.</p>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>engine</strong></td>
+<td><em>Object</em> A database engine following the <strong>Database Engine Interface</strong> contract.</td>
+</tr>
+<tr>
+<td><strong>factories</strong></td>
+<td><em>Object</em> Index of factory functions by Model name.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> A DatabaseConnector instance.</p>
+<h4 id="enginemill-databaseconnector-instance-methods">enginemill.DatabaseConnector instance methods</h4>
+<p><strong>#get(id, options)</strong> Should get an entity by calling <code>engine.get()</code> and
+return a Promise for the Model instance from the appropriate factory denoted
+by <code>data.name</code>.</p>
+<p><strong>#post(entity, options)</strong> Accepts a Model instance as the first argument.
+Serializes the entity into a record Object and passes it into
+<code>engine.post()</code>. The entity must not yet have an ID assigned. Returns a
+Promise for a new Model instance representing the saved entity.</p>
+<p><strong>#put(entity, options)</strong> Accepts a Model instance as the first argument.
+Serializes the entity into a record Object and passes it into
+<code>engine.put()</code>. The entity must already have an ID assigned. Returns a
+Promise for a new Model instance representing the saved entity.</p>
+<p><strong>#remove(id, options)</strong> Should remove an entity by calling
+<code>engine.remove()</code> and return a Promise for the ID of the removed entity.</p>
+<h3 id="database-engine-interface">Database Engine Interface</h3>
+<p>An interface contract specification. When an Object meets this contract it
+can be passed into <code>enginemill.DatabaseConnector.create(spec)</code> as the
+<code>spec.engine</code>.</p>
+<h4 id="database-engine-instance-methods">Database Engine instance methods</h4>
+<p><strong>.get(id, options)</strong> Must accept a String or Number ID as the first
+argument. May accept an options Object as the second argument.
+May throw an Error if a String or Number ID is not provided. Must
+return a Promise for an Object representing the data stored at <code>id</code>. If the
+data does not exist it must reject the Promise with an
+<code>enginemill.Errors.NotFoundError</code>.</p>
+<p><strong>.post(record, options)</strong> Must accept a record Object with <code>record.data</code>
+attribute as the first argument. May accept an options Object as the second
+argument. May throw an Error if a <code>record.id</code> attribute is provided. It is
+assumed .post(record) will assign an ID to the record. Must return a
+Promise for the record data as written to the underlying database.</p>
+<p><strong>.put(record, options)</strong> Must accept a record Object with both
+<code>record.data</code> and <code>record.id</code> attributes as the first argument. May accept
+an optinos Object as the second argument. May throw an Error if
+<code>record.id</code> or <code>record.data</code> are not provided. Must return a Promise for the
+data stored at <code>id</code>. If <code>id</code> does not exist in the database .put(record)
+must reject the returned Promise with an <code>enginemill.Errors.NotFoundError</code>.</p>
+<p><strong>.remove(record, options)</strong> Must accept a String or Number ID as the first
+argument. May accept an options Object as the second Argument.
+May throw an Error if a String or Number ID is not provided.
+Must return a Promise for the ID String or Number. If the record cannot
+be found it must reject the Promise with an
+<code>enginemill.Errors.NotFoundError</code>.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">DatabaseConnector</span>(<span class="hljs-params"></span>) </span>{}
 enginemill.DatabaseConnector = DatabaseConnector;
 
 U.extend(DatabaseConnector.prototype, {
@@ -1235,9 +1613,40 @@ U.extend(DatabaseConnector.prototype, {
   }
 });
 
-DatabaseConnector.create = U.factory(DatabaseConnector.prototype);
+DatabaseConnector.create = U.factory(DatabaseConnector.prototype);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-45">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-45">&#182;</a>
+              </div>
+              <h3 id="jsonfiledatabase">JSONFileDatabase</h3>
+<p>For convenience during development Enginemill provides a simple JSON file
+storage engine which impements the <strong>Database Engine Interface</strong>. You can
+create an <strong>enginemill.DatabaseConnector</strong> which uses it:</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">var</span> db = enginemill.DatabaseConnector.create({
+  engine: enginemill.JSONFileDatabase.create({
+    dir: enginemill.filepath.root().append(<span class="hljs-string">'tmp'</span>, <span class="hljs-string">'appdata'</span>)
+  }),
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">JSONFileDatabase</span>(<span class="hljs-params"></span>) </span>{}
+  factories: {
+    Car: createCar
+  }
+});
+
+db.get();
+db.post();
+db.put();
+db.remove();
+</code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">JSONFileDatabase</span>(<span class="hljs-params"></span>) </span>{}
 enginemill.JSONFileDatabase = JSONFileDatabase;
 
 U.extend(JSONFileDatabase.prototype, {
@@ -1329,18 +1738,91 @@ JSONFileDatabase.create = U.factory(JSONFileDatabase.prototype);</pre></div></di
         </li>
         
         
-        <li id="section-34">
+        <li id="section-46">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-34">&#182;</a>
+                <a class="pilcrow" href="#section-46">&#182;</a>
               </div>
               <h2 id="utilities">Utilities</h2>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>
-enginemill.Request = {
+        </li>
+        
+        
+        <li id="section-47">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-47">&#182;</a>
+              </div>
+              
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-48">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-48">&#182;</a>
+              </div>
+              <h3 id="making-http-requests">Making HTTP Requests</h3>
+<p>Enginemill exposes a thin wrapper around the venerable
+<a href="https://github.com/request/request">request</a>
+library to integrate Bluebird Promises into the API.</p>
+<p>Here’s an example of making a request and either printing out the HTTP headers,
+or reporting a failure.</p>
+<pre><code class="lang-JS">enginemill.Request.get(<span class="hljs-string">'www.example.com'</span>).promise
+  .then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">response</span>) </span>{
+    <span class="hljs-built_in">console</span>.log(response.headers);
+  })
+  .catch(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+    <span class="hljs-built_in">console</span>.error(err.stack);
+    process.exit(<span class="hljs-number">1</span>);
+  });
+</code></pre>
+<p>If there are any errors in the process of making the HTTP request, or if any
+errors are thrown inside the <code>printHeaders()</code> function, they will be caught
+and passed to the handler passed into <code>.catch()</code>.</p>
+<p>The <code>.then()</code> and <code>.catch()</code> methods of a Promise instance both return another
+promise instance, so you can chain them like this:</p>
+<pre><code class="lang-JS"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">printHeaders</span>(<span class="hljs-params">response</span>) </span>{
+  <span class="hljs-built_in">console</span>.log(response.headers);
+  <span class="hljs-keyword">return</span> response;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">printBody</span>(<span class="hljs-params">response</span>) </span>{
+  <span class="hljs-built_in">console</span>.log(response.body);
+  <span class="hljs-keyword">return</span> response;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">printLineCount</span>(<span class="hljs-params">response</span>) </span>{
+  <span class="hljs-keyword">var</span> count = respond.body.split(<span class="hljs-string">'\n'</span>).length;
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Line Count: %s'</span>, count);
+  <span class="hljs-keyword">return</span> response;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fail</span>(<span class="hljs-params">err</span>) </span>{
+  <span class="hljs-built_in">console</span>.error(err.stack);
+  process.exit(<span class="hljs-number">1</span>)
+}
+
+enginemill.Request.get(<span class="hljs-string">"www.example.com"</span>).promise
+  .then(printHeaders)
+  .then(printBody)
+  .then(printLineCount)
+  .catch(fail);
+</code></pre>
+<p>There are several methods you can use to make HTTP requests, each
+corresponding to an HTTP request method. There is also one generic method
+you can use for any HTTP request type.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>enginemill.Request = {
 
   request: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts, makeRequest</span>) </span>{
     makeRequest = makeRequest || REQ;
@@ -1371,37 +1853,345 @@ enginemill.Request = {
     req = makeRequest(params, params.callback);
     req.promise = promise;
     <span class="hljs-keyword">return</span> req;
-  },
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-49">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-49">&#182;</a>
+              </div>
+              <h4 id="options-for-http-requests">Options for HTTP requests</h4>
+<p>A full list of options which can be passed into request methods.</p>
+<p><strong>qs</strong> - An Object hash containing query string values to be appended to
+the URL String before the request is sent.</p>
+<pre><code class="lang-JS"><span class="hljs-comment">// Send "http://localhost:8080/pathname?foo=bar&amp;baz=true"</span>
+enginemill.Request.get(<span class="hljs-string">'http://localhost:8080/pathname'</span>, {qs: {
+  foo: <span class="hljs-string">'bar'</span>,
+  baz: <span class="hljs-literal">true</span>
+}});
 
-  get: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
+<span class="hljs-comment">// Send "http://localhost:8080/pathname?foo[0]=a&amp;foo[1]=b&amp;foo[2]=c&amp;baz="</span>
+enginemill.Request.get(<span class="hljs-string">'http://localhost:8080/pathname'</span>, {qs: {
+  foo: [<span class="hljs-string">'a'</span>, <span class="hljs-string">'b'</span>, <span class="hljs-string">'c'</span>],
+  baz: <span class="hljs-literal">null</span>
+}});
+</code></pre>
+<p><strong>headers</strong> - An Object hash defining HTTP headers to send (default: <code>{}</code>).</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">var</span> headers = {
+  <span class="hljs-string">'user-agent'</span>: <span class="hljs-string">'Enginemill request library :-)'</span>,
+  cookie: <span class="hljs-string">'foo=bar; baz=true'</span>
+};
+
+enginemill.Request.get(<span class="hljs-string">'http://localhost:8080/pathname'</span>, {headers: headers});
+</code></pre>
+<p>In most POST, PUT, and PATCH requests the “content-length” and
+“content-type” headers will be set for you based on your use of <code>json</code>,
+<code>form</code>, or <code>body</code>.</p>
+<p><strong>encoding</strong> - A String or null indicating the encoding to use when
+parsing the response. A null value will cause the HTTP body to be set as a
+Buffer. A string like ‘utf8’ will cause the HTTP body to be set as a
+String. (default: null)</p>
+<p><strong>body</strong> - Buffer or String for PATCH, POST and PUT requests.</p>
+<pre><code class="lang-JS"># Send a Buffer representing a String.
+enginemill.Request.post(&#39;http://localhost:8080/pathname&#39;, {body: new Buffer(&#39;Hi server!&#39;)});
+</code></pre>
+<p>A String or Buffer will cause the ‘content-length’ header to be set
+automatically, but not the ‘content-type’ header.</p>
+<p><strong>form</strong> - An Object hash to send PATCH, POST and PUT requests with a
+URL encoded string.</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">var</span> form = {
+  email: <span class="hljs-string">'john@example.io'</span>,
+  available: [<span class="hljs-string">'mon'</span>, <span class="hljs-string">'wed'</span>, <span class="hljs-string">'fri'</span>],
+  after_hours: <span class="hljs-literal">false</span>
+};
+
+<span class="hljs-comment">// Send the URL encoded form data as</span>
+<span class="hljs-comment">// "email=john%40example.io&amp;available[0]=mon&amp;available[1]=wed&amp;available[2]=fri&amp;after_hours=false".</span>
+enginemill.Request.post(<span class="hljs-string">'http://localhost:8080/pathname'</span>, {form: form});
+</code></pre>
+<p>This will add ‘content-type:
+application/x-www-form-urlencoded; charset=utf-8’ and ‘content-length’ headers.</p>
+<p><strong>json</strong> - An Object hash to send PATCH, POST and PUT requests with a JSON
+encoded string.</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">var</span> form = {
+  email: <span class="hljs-string">'john@example.io'</span>,
+  available: [<span class="hljs-string">'mon'</span>, <span class="hljs-string">'wed'</span>, <span class="hljs-string">'fri'</span>],
+  after_hours: <span class="hljs-literal">false</span>
+};
+
+<span class="hljs-comment">// Send the JSON encoded data as:</span>
+<span class="hljs-comment">// "{"email":"john@example.io","available":["mon","wed","fri"],"after_hours":false}".</span>
+enginemill.Request.post(<span class="hljs-string">'http://localhost:8080/pathname'</span>, {json: form});
+</code></pre>
+<p>This will add ‘content-type:
+application/json’, ‘accept: application/json’, and ‘content-length’ headers.</p>
+<p><strong>followRedirect</strong> - A Boolean indicating that GET requests should
+automatically follow HTTP 3xx responses as redirects (default: <code>false</code>).</p>
+<p><strong>followAllRedirects</strong> - A Boolean indicating that <em>non</em> GET requests
+should automatically follow HTTP 3xx responses as redirects
+(default: <code>false</code>).</p>
+<p><strong>maxRedirects</strong> - A Number indicating the maximum number of redirects to
+follow (default: <code>10</code>). If this number is exceeded the request will
+eventually fail with “Error: Exceeded maxRedirects”.</p>
+<p><strong>strictSSL</strong> - Boolean if <code>true</code> the SSL certificate from the server must
+be valid. <strong>Note:</strong> to use your own certificate authority, you need to
+specify an agent that was created with that CA as an option.</p>
+<p><strong>timeout</strong> - Integer indicating the number of milliseconds to wait for a
+request to respond before aborting the request. If a request times out it
+will raise an [Error: ETIMEDOUT] Error.</p>
+<p><strong>auth</strong> - An Object hash containing values <code>username</code>, <code>password</code>, and
+<code>sendImmediately</code> fields. See the <strong>HTTP Authentication</strong> section for more
+information.</p>
+<h4 id="enginemill-request-class-methods">enginemill.Request class methods</h4>
+<p><strong>Note:</strong> When making a request the response body will be a Buffer by
+default. You can change that by setting the encoding option on your request
+to something other than null. ‘utf8’ for example, would be good for
+setting an HTML document body to a String on the response.</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-50">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-50">&#182;</a>
+              </div>
+              <p><strong>.get(uri, opts)</strong> Send a request using the HTTP ‘GET’ method.</p>
+<p>To send URL query parameters, you can just append them on the URL String like
+this:</p>
+<pre><code class="lang-JS">enginemill.Request.get(<span class="hljs-string">'http://localhost:8080/pathname?foo=bar'</span>);
+</code></pre>
+<p>Or, you can add the parameters using an Object hash assigned to <code>qs</code> instead
+(which is usually a better idea than manipulating the strings yourself):</p>
+<pre><code class="lang-JS">enginemill.Request.get(<span class="hljs-string">'http://localhost:8080/pathname'</span>, {qs: {foo: <span class="hljs-string">'bar'</span>})
+</code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  get: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.request(uri, opts, REQ.get.bind(REQ));
-  },
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-51">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-51">&#182;</a>
+              </div>
+              <p><strong>.post(uri, opts)</strong> Send a request using the HTTP ‘POST’ method.</p>
+<p>You can send a buffer or string in the options:</p>
+<pre><code class="lang-JS">enginemill.Request.post(<span class="hljs-string">'http://localhost:8080/pathname'</span>, {body: <span class="hljs-string">'hi'</span>});
+</code></pre>
+<p>You can send form data with an Object hash:</p>
+<pre><code class="lang-JS">enginemill.Request.post(<span class="hljs-string">'http://localhost:8080/pathname'</span>, {form: {foo: <span class="hljs-string">'bar'</span>}});
+</code></pre>
+<p>which will encode the form Object as a URL encoded query String and set
+the Content-Type header to <code>application/x-www-form-urlencoded</code>.</p>
+<p>Sending JSON is easy too:</p>
+<pre><code class="lang-JS">enginemill.Request.post(<span class="hljs-string">'http://localhost:8080/pathname'</span>, {json: {foo: <span class="hljs-string">'bar'</span>}});
+</code></pre>
+<p>The Content-Type header will be set to <code>application/json</code> and the response
+body will be parsed as JSON.</p>
+<p>If no options hash Object is passed into .post(), it will return a
+FormData instance (see FormData below).</p>
 
-  post: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  post: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.request(uri, opts, REQ.post.bind(REQ));
-  },
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-52">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-52">&#182;</a>
+              </div>
+              <p><strong>.put(uri, opts)</strong> Send a request using the HTTP ‘PUT’ method.</p>
+<p>See the .post() docs above; the API is the same.</p>
+<pre><code class="lang-JS">enginemill.Request.put(<span class="hljs-string">'http://localhost:8080/pathname'</span>, {form: {foo: <span class="hljs-string">'bar'</span>}});
+</code></pre>
 
-  put: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  put: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.request(uri, opts, REQ.put.bind(REQ));
-  },
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-53">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-53">&#182;</a>
+              </div>
+              <p><strong>.patch(uri, opts)</strong> Send a request using the HTTP ‘PATCH’ method.</p>
+<p>See the .post() docs above. The API is the same.</p>
 
-  del: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.request(uri, opts, REQ.del.bind(REQ));
-  },
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-54">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-54">&#182;</a>
+              </div>
+              <pre><code class="lang-JS">enginemill.Request.patch(<span class="hljs-string">'http://localhost:8080/pathname'</span>, {form: {foo: <span class="hljs-string">'bar'</span>}});
+</code></pre>
 
-  patch: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  patch: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.request(uri, opts, REQ.patch.bind(REQ));
-  },
+  },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-55">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-55">&#182;</a>
+              </div>
+              <p><strong>.del(uri, opts)</strong> Send a request using the HTTP ‘DELETE’ method.</p>
+<pre><code class="lang-JS">enginemill.Request.del(<span class="hljs-string">'http://localhost:8080/path/resource'</span>);
+</code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  del: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">uri, opts</span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.request(uri, opts, REQ.del.bind(REQ));
+  }
 };</pre></div></div>
             
         </li>
         
         
-        <li id="section-35">
+        <li id="section-56">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-35">&#182;</a>
+                <a class="pilcrow" href="#section-56">&#182;</a>
+              </div>
+              <h4 id="http-authentication">HTTP Authentication</h4>
+<p>Have a look at the Wikipedia article on
+<a href="http://en.wikipedia.org/wiki/Basic_access_authentication">Basic Access Authentication</a>
+if this concept is not familiar to you. With that said, the <code>enginemill.Request</code>
+library includes an easy way of providing HTTP authentication credentials.</p>
+<pre><code class="lang-JS"><span class="hljs-comment">// Send a basic authentication header.</span>
+<span class="hljs-keyword">var</span> auth = {
+  username: <span class="hljs-string">'john'</span>,
+  password: <span class="hljs-string">'firesale'</span>
+};
+
+enginemill.Request.get(<span class="hljs-string">'http://localhost:8080/pathname'</span>, {auth: auth});
+
+<span class="hljs-comment">// Retry with a basic authentication header, after receiving a 401 response</span>
+<span class="hljs-comment">// from the server.</span>
+<span class="hljs-keyword">var</span> auth = {
+  username: <span class="hljs-string">'john'</span>,
+  password: <span class="hljs-string">'firesale'</span>,
+  sendImmediately: <span class="hljs-literal">false</span>
+};
+
+enginemill.Request.get(<span class="hljs-string">'http://localhost:8080/pathname'</span>, {auth: auth});
+</code></pre>
+<p>The <code>sendImmediately</code> parameter defaults to <code>true</code>, which causes the basic
+authentication header to be sent on the first request, which is usualy
+what you want. If you explicitly set <code>sendImmediately</code> to <code>false</code> then the
+library will retry the request with a proper authentication header after
+receiving a 401 response from the server, which must include a
+‘WWW-Authenticate’ header indicating the required authentication method.</p>
+<p>Digest authentication is supported, but it only works with <code>sendImmediately</code>
+set to false; otherwise the library will send the basic authentication header
+on the initial request, which will probably cause the request to fail when the
+server is expecting digest authentication.</p>
+<h4 id="request-instances">Request Instances</h4>
+<p>Each <code>enginemill.Request</code> method returns a Request instance. <em>Remember:</em> A
+Request instance is a Node.js Stream object, and has all the properties and
+methods you would expect a Writable Stream to have.</p>
+<h4 id="request-instance-properties">Request Instance properties</h4>
+<ul>
+<li><strong>promise</strong>  - A <a href="./promises">Promise</a> instance for the HTTP Response object.</li>
+<li><strong>readable</strong> - Boolean which is true if the Request Stream is still readable.</li>
+<li><strong>writable</strong> - Boolean which is true if the Request Stream is still writable.</li>
+<li><strong>method</strong>   - String like ‘GET’ indicating the HTTP method.</li>
+<li><strong>headers</strong>  - An dictionary Object of HTTP headers sent.</li>
+<li><strong>agent</strong>    - The Node.js HTTP Agent object used.</li>
+<li><strong>uri</strong>      - A Node.js URL Object structured like this:<ul>
+<li><strong>uri.href</strong>     - The full URL String, like ‘<a href="http://www.example.com">http://www.example.com</a>‘.</li>
+<li><strong>uri.protocol</strong> - The protocol String, like ‘http’ or ‘https’.</li>
+<li><strong>uri.auth</strong>     - The authorization String, like ‘username:password’.</li>
+<li><strong>uri.host</strong>     - The full host string, including the port, like ‘www.example.com:8080’.</li>
+<li><strong>uri.hostname</strong> - Only the host name, not the port, like ‘www.example.com’.</li>
+<li><strong>uri.port</strong>     - The port number String of the URI, like ‘8080’.</li>
+<li><strong>uri.path</strong>     - The path String with the query String, like ‘/customers?id=2’.</li>
+<li><strong>uri.pathname</strong> - Only the path String, like ‘/customers’.</li>
+<li><strong>uri.search</strong>   - Query String including the leading ‘?’.</li>
+<li><strong>uri.query</strong>    - Only the query String, like ‘id=2’.</li>
+<li><strong>uri.hash</strong>     - The fragment String including the leading ‘#’.</li>
+</ul>
+</li>
+</ul>
+<h4 id="request-instance-methods">Request Instance Methods</h4>
+<ul>
+<li><strong>form()</strong> - Returns a form object which can be used to send various kinds
+of HTTP form data. See the <strong>HTTP Request FormData</strong> section for more
+information.</li>
+</ul>
+<h4 id="response-instances">Response Instances</h4>
+<p>Each <code>enginemill.Request</code> method returns a Request instance with a <code>promise</code>
+attribute. That promise will resolve to a Response instance. <em>Remember:</em> A
+Response instance is a Node.js Stream object, and has all the properties and
+methods you would expect a Readable Stream to have.</p>
+<h4 id="request-instance-properties">Request Instance properties</h4>
+<ul>
+<li><strong>httpVersion</strong> - HTTP version String.</li>
+<li><strong>httpVersionMajor</strong> - HTTP major version Number (easier to detect than httpVersion String).</li>
+<li><strong>httpVersionMinor</strong> - HTTP minor version Number (easier to detect than httpVersion String).</li>
+<li><strong>headers</strong> - Object hash of HTTP response headers.</li>
+<li><strong>statusCode</strong> - The HTTP status code of the response. See the <a href="http://tools.ietf.org/html/rfc2616#section-10">original RFC document</a> as an authoritative reference.</li>
+<li><strong>body</strong> - The HTTP response body as a Buffer by default. If you would like a String returned, set the encoding option on your request to ‘utf8’.</li>
+<li><strong>request</strong> - The Request instance that resulted in this Response instance.</li>
+</ul>
+<h4 id="http-request-formdata">HTTP Request FormData</h4>
+<p>Send multipart file data by creating a form object with the Request#form() method:</p>
+<pre><code class="lang-JS"><span class="hljs-comment">// No .body, .form, or .json options are required.</span>
+<span class="hljs-keyword">var</span> form = enginemill.Request.post(<span class="hljs-string">'http://localhost:8080/pathname'</span>).form();
+form.append(<span class="hljs-string">'foo'</span>, <span class="hljs-string">'bar'</span>);
+form.append(<span class="hljs-string">'a_file'</span>, enginemill.filepath.create(<span class="hljs-string">'./my_pic.jpg'</span>).newReadStream());
+form.append(<span class="hljs-string">'a_buffer'</span>, <span class="hljs-keyword">new</span> Buffer(<span class="hljs-string">'foobarbaz'</span>));
+</code></pre>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-57">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-57">&#182;</a>
               </div>
               <h3 id="enginemill-readjson">enginemill.readJSON</h3>
 <p>A utility function used by Enginemill to read JSON files, but available
@@ -1425,7 +2215,7 @@ on the public API as well.</p>
 <ul>
 <li>A Promise for parsed JSON file if it exists.</li>
 <li>If it does not exist then returns a Promise for null.</li>
-<li>If there is a JSON syntax error detected a JSONReadError is
+<li>If there is a JSON syntax error detected a JSONParseError is
 returned via rejection.</li>
 <li>If the given path is not a file an Error is
 passed via rejection.</li>
@@ -1441,7 +2231,7 @@ passed via rejection.</li>
     <span class="hljs-keyword">try</span> {
       data = <span class="hljs-built_in">JSON</span>.parse(text +<span class="hljs-string">''</span>);
     } <span class="hljs-keyword">catch</span> (e) {
-      err = <span class="hljs-keyword">new</span> Errors.JSONReadError(<span class="hljs-string">'JSON SyntaxError: '</span>+ e.message +<span class="hljs-string">' in '</span>+ path);
+      err = <span class="hljs-keyword">new</span> Errors.JSONParseError(<span class="hljs-string">'JSON SyntaxError: '</span>+ e.message +<span class="hljs-string">' in '</span>+ path);
       <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.reject(err);
     }
     <span class="hljs-keyword">return</span> data;
@@ -1465,8 +2255,181 @@ passed via rejection.</li>
     <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.resolve(<span class="hljs-literal">null</span>);
   }
   <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.reject(
-    <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'The FilePath is not a file: '</span>+ path));
+    <span class="hljs-keyword">new</span> Errors.OperationalError(<span class="hljs-string">'The FilePath is not a file: '</span>+ path));
 };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-58">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-58">&#182;</a>
+              </div>
+              <h3 id="enginemill-parsecommandlineoptions">enginemill.parseCommandLineOptions</h3>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>enginemill.parseCommandLineOptions = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args</span>) </span>{
+  <span class="hljs-keyword">var</span> options = Yargs
+    .reset()
+    .usage(args.usageString)
+    .help(<span class="hljs-string">'help'</span>, args.helpString);
+
+  <span class="hljs-keyword">if</span> (args.options &amp;&amp; <span class="hljs-keyword">typeof</span> args.options === <span class="hljs-string">'object'</span>) {
+    <span class="hljs-built_in">Object</span>.keys(args.options).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key</span>) </span>{
+      <span class="hljs-keyword">var</span> conf = args.options[key];
+      options = options.option(key, conf);
+    });
+  }
+
+  <span class="hljs-keyword">return</span> options.parse(args.argv || process.argv);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-59">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-59">&#182;</a>
+              </div>
+              <h2 id="store-query-presenter-architecture">Store/Query/Presenter Architecture</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-60">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-60">&#182;</a>
+              </div>
+              <p>Enginemill holds a string opinion that Command/Query
+Responsibility Segregation (<a href="http://martinfowler.com/bliki/CQRS.html">CQRS</a>)
+is essential to allow developers to reason about otherwise complex systems.
+Strict adherence to CQRS should lead to a Store/Query/Presenter
+architecture as suggested by Enginemill.</p>
+<h3 id="message-based-communication">Message Based Communication</h3>
+<p>Having a built in message based communication system makes Store/Query/
+Presenter possible. See <code>enginemill.oddcast</code> for more info.</p>
+<p>Examples:</p>
+<h4 id="broadcast-channel">Broadcast Channel</h4>
+<p>A Broadcast Channel broadcasts events throughout the system to anyone who
+might be listening.</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">var</span> oddcast = <span class="hljs-built_in">require</span>(<span class="hljs-string">'oddcast'</span>);
+<span class="hljs-keyword">var</span> transport = <span class="hljs-built_in">require</span>(<span class="hljs-string">'my-transport'</span>);
+<span class="hljs-keyword">var</span> events = oddcast.eventChannel();
+events.use({role: <span class="hljs-string">'store'</span>}, transport({
+    url: <span class="hljs-string">'http://mypubsub.io/channel/1'</span>
+  }));
+
+events.observe({role: <span class="hljs-string">'store'</span>, op: <span class="hljs-string">'write'</span>, type: <span class="hljs-string">'video'</span>}, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args</span>) </span>{
+  writeIndexRecord(args.entity.key, args.entity);
+});
+</code></pre>
+<p>And in some other code, somewhere else …</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">var</span> oddcast = <span class="hljs-built_in">require</span>(<span class="hljs-string">'oddcast'</span>);
+<span class="hljs-keyword">var</span> transport = <span class="hljs-built_in">require</span>(<span class="hljs-string">'my-transport'</span>);
+<span class="hljs-keyword">var</span> events = oddcast.eventChannel();
+events.use({role:<span class="hljs-string">'store'</span>}, transport({
+    url: <span class="hljs-string">'http://mypubsub.io/channel/1'</span>
+  }));
+
+<span class="hljs-comment">// When a record is saved to the datastore, we broadcast it.</span>
+events.broadcast({
+    role: <span class="hljs-string">'store'</span>,
+    type: entity.type,
+    op: <span class="hljs-string">'write'</span>,
+    entity: entity
+  });
+</code></pre>
+<h4 id="command-channel">Command Channel</h4>
+<p>A Command Channel is used for directed messages, with the expectation that
+the receiving component will take a specified action. The underlying
+transport under a command channel will usually be a message queue.</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">var</span> oddcast = <span class="hljs-built_in">require</span>(<span class="hljs-string">'oddcast'</span>);
+<span class="hljs-keyword">var</span> transport = <span class="hljs-built_in">require</span>(<span class="hljs-string">'my-transport'</span>);
+<span class="hljs-keyword">var</span> commands = oddcast.commandChannel();
+commands.use({role: <span class="hljs-string">'ingest'</span>}, transport({
+    url: <span class="hljs-string">'http://myqueue.io/queue/1'</span>
+  }));
+
+commands.receive({role: <span class="hljs-string">'ingest'</span>, type: <span class="hljs-string">'video'</span>}, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">args</span>) </span>{
+  <span class="hljs-keyword">var</span> entity = transformItem(args.item);
+  <span class="hljs-keyword">var</span> promise = saveEntity(entity).then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-comment">// We return true so the queue knows this message has been processed.</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+  })
+  .catch(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+    log.error(err);
+    <span class="hljs-comment">// We return false so the queue will keep this message and try</span>
+    <span class="hljs-comment">// sending it again.</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+  });
+
+  <span class="hljs-keyword">return</span> promise;
+});
+</code></pre>
+<p>And in some other code, somewhere else …</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">var</span> oddcast = <span class="hljs-built_in">require</span>(<span class="hljs-string">'oddcast'</span>);
+<span class="hljs-keyword">var</span> transport = <span class="hljs-built_in">require</span>(<span class="hljs-string">'my-transport'</span>);
+<span class="hljs-keyword">var</span> commands = oddcast.commandChannel();
+commands.use({role: <span class="hljs-string">'ingest'</span>}, transport({
+    url: <span class="hljs-string">'http://myqueue.io/queue/1'</span>
+  }));
+
+<span class="hljs-comment">// Fetch data from a remote API and queue it up for the store</span>
+<span class="hljs-comment">// by sending off a "job" for each one.</span>
+items.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">item</span>) </span>{
+  commands.send({role: <span class="hljs-string">'ingest'</span>, type: item.type, item: item});
+});
+</code></pre>
+<h4 id="request-channel">Request Channel</h4>
+<p>A Request Channel is used when you know who has the data you need, and
+would like to request it from them.</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">var</span> oddcast = <span class="hljs-built_in">require</span>(<span class="hljs-string">'oddcast'</span>);
+<span class="hljs-keyword">var</span> transport = <span class="hljs-built_in">require</span>(<span class="hljs-string">'my-transport'</span>);
+<span class="hljs-keyword">var</span> rchannel = oddcast.requestChannel();
+rchannel.use({role: <span class="hljs-string">'views'</span>}, transport({
+    host: <span class="hljs-string">'0.0.0.0'</span>,
+    port: <span class="hljs-number">8080</span>
+  }));
+
+rchannel.respond({view: <span class="hljs-string">'homePage'</span>}, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> {
+    featuredVideo: getFeaturedVideo(),
+    recentlyAdded: getRecentlyAdded(),
+    season: getShowSeason()
+  };
+});
+</code></pre>
+<p>// And in some other code, somewhere else …</p>
+<pre><code class="lang-JS"><span class="hljs-keyword">var</span> oddcast = <span class="hljs-built_in">require</span>(<span class="hljs-string">'oddcast'</span>);
+<span class="hljs-keyword">var</span> transport = <span class="hljs-built_in">require</span>(<span class="hljs-string">'my-transport'</span>);
+<span class="hljs-keyword">var</span> rchannel = oddcast.requestChannel();
+rchannel.use({role: <span class="hljs-string">'views'</span>}, transport({
+    url: <span class="hljs-string">'http://mymicroservice.io:8080/endpoint/1'</span>
+  }));
+
+<span class="hljs-comment">// Respond to an HTTP request by querying your view.</span>
+Router.get(<span class="hljs-string">'/'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">req, res</span>) </span>{
+  rchannel
+    .request({role: views, view: <span class="hljs-string">'homePage'</span>})
+    .then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">viewData</span>) </span>{
+      res.render(<span class="hljs-string">'homePage.html'</span>, viewData);
+    });
+});
+</code></pre>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+sendDebug(<span class="hljs-string">'The Enginemill module has loaded.'</span>);</pre></div></div>
             
         </li>
         
