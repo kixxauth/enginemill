@@ -82,6 +82,11 @@ exports["exported modules"] = {
     test.done();
   },
 
+  "exports.numeral": function (test) {
+    test.equal(this.enginemill.numeral, require('numeral'));
+    test.done();
+  },
+
   "exports.Mixins.Model": function (test) {
     var Mixins = this.enginemill.Mixins;
     test.equal(typeof Mixins.Model, 'object', 'Mixins.Model');

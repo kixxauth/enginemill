@@ -8,9 +8,11 @@
 // * [Lodash](https://lodash.com/) (Underscore) too.
 // * [Filepath](https://github.com/kixxauth/filepath) to work with the filesystem.
 // * [Yargs](https://github.com/bcoe/yargs) to parse command line options.
+// * [Numeral](http://numeraljs.com/) for Number formatting and manipulation.
 // * An Object factory for composing mixins.
 // * Serially load plugins you define and kicks off your app only when they have all loaded.
 // * Comprehensive logging based on [Bunyan](https://github.com/trentm/node-bunyan).
+// * Message and pattern based communication with [Oddcast](https://github.com/oddnetworks/oddcast).
 // * Promisified [request](https://github.com/request/request) wrapper for making HTTP requests.
 // * Supports [CoffeeScript](http://coffeescript.org/) out of the box, which is nice for config and plugin initialization files.
 //
@@ -28,10 +30,8 @@ var enginemill = exports;
 // Dependencies
 // ------------
 // ### Private Dependencies
-// Enginemill depends on the handy [debug](https://github.com/visionmedia/debug) utility for Application#debug(),
-// [Yargs](https://github.com/bcoe/yargs) for parsing command line arguments in `enginemill.load()`,
-// [node-uuid](https://github.com/broofa/node-uuid) in the JSONFileDatabase,
-// and [request](https://github.com/request/request) in the `enginemill.Request` utility.
+// Enginemill has some dependencies which are used internally, or exposed
+// elsewhere, but need to be loaded early.
 var
 util         = require('util'),
 EventEmitter = require('events'),
@@ -174,6 +174,11 @@ enginemill.Errors.JSONParseError = JSONParseError;
 // Presenter architecture.
 enginemill.oddcast = require('oddcast');
 var oddcast = enginemill.oddcast;
+
+// ### enginemill.numeral
+// Enginemill includes the [Numeral](http://numeraljs.com/) library for
+// formatting and manipulating Numbers.
+enginemill.numeral = require('numeral');
 
 // Application Loading
 // -------------------
