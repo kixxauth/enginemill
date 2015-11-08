@@ -18,3 +18,12 @@ TAGS
 
 # node modules
 node_modules/**
+
+# test
+test/**
+
+# README
+README.md
+
+# docs
+docs/**
