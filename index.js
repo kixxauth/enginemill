@@ -8,6 +8,7 @@
 // * [Lodash](https://lodash.com/) (Underscore) too.
 // * [Filepath](https://github.com/kixxauth/filepath) to work with the filesystem.
 // * [Yargs](https://github.com/bcoe/yargs) to parse command line options.
+// * [Moment](http://momentjs.com/) to parse, validate, manipulate and display dates.
 // * [Numeral](http://numeraljs.com/) for Number formatting and manipulation.
 // * An Object factory for composing mixins.
 // * Serially load plugins you define and kicks off your app only when they have all loaded.
@@ -174,6 +175,11 @@ enginemill.Errors.JSONParseError = JSONParseError;
 // Presenter architecture.
 enginemill.oddcast = require('oddcast');
 var oddcast = enginemill.oddcast;
+
+// ### enginemill.numeral
+// Enginemill includes the [Moment](http://momentjs.com/) library to parse,
+// validate, manipulate and display dates.
+enginemill.moment = require('moment');
 
 // ### enginemill.numeral
 // Enginemill includes the [Numeral](http://numeraljs.com/) library for

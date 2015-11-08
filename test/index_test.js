@@ -82,6 +82,11 @@ exports["exported modules"] = {
     test.done();
   },
 
+  "exports.moment": function (test) {
+    test.equal(this.enginemill.moment, require('moment'));
+    test.done();
+  },
+
   "exports.numeral": function (test) {
     test.equal(this.enginemill.numeral, require('numeral'));
     test.done();
