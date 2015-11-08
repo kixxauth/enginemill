@@ -1,5 +1,7 @@
 Enginemill
 ==========
+[![npm version](https://badge.fury.io/js/enginemill.svg)](https://badge.fury.io/js/enginemill)
+
 Enginemill is a Node.js web development framework. The goal is to codify
 some opinions about how to structure a Node.js system and provide
 tools to make the development of your systems easier and more fun.
@@ -19,7 +21,7 @@ tools to make the development of your systems easier and more fun.
 
 ## On The Web
 * Website: [enginemill.org](http://enginemill.org)
-* NPM: [![npm version](https://badge.fury.io/js/enginemill.svg)](https://badge.fury.io/js/enginemill)
+* [NPM](https://www.npmjs.com/package/enginemill)
 * Issues: [GitHub](https://github.com/kixxauth/enginemill/issues)
 
 __Built by [@kixxauth](https://twitter.com/kixxauth)__
