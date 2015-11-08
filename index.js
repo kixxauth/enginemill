@@ -27,6 +27,22 @@ var enginemill = exports;
 //
 // Dependencies
 // ------------
+// ### Private Dependencies
+// Enginemill depends on the handy [debug](https://github.com/visionmedia/debug) utility for Application#debug(),
+// [Yargs](https://github.com/bcoe/yargs) for parsing command line arguments in `enginemill.load()`,
+// [node-uuid](https://github.com/broofa/node-uuid) in the JSONFileDatabase,
+// and [request](https://github.com/request/request) in the `enginemill.Request` utility.
+var
+util         = require('util'),
+EventEmitter = require('events'),
+debug        = require('debug'),
+nodeUUID     = require('node-uuid'),
+REQ          = require('request'),
+Yargs        = require('yargs'),
+
+sendDebug    = debug('enginemill');
+
+sendDebug('Loading the Enginemill module.');
 
 // ### enginemill.Promise
 // Enginemill uses [Bluebird Promises](http://bluebirdjs.com/docs/getting-started.html) to handle asynchronous programming
@@ -88,19 +104,6 @@ enginemill.U.mixin({
 // interface for working with the file system in both posix and win32.
 enginemill.filepath = require('filepath');
 var filepath        = enginemill.filepath;
-
-// ### Private Dependencies
-// Enginemill depends on the handy [debug](https://github.com/visionmedia/debug) utility for Application#debug(),
-// [Yargs](https://github.com/bcoe/yargs) for parsing command line arguments in `enginemill.load()`,
-// [node-uuid](https://github.com/broofa/node-uuid) in the JSONFileDatabase,
-// and [request](https://github.com/request/request) in the `enginemill.Request` utility.
-var
-util         = require('util'),
-EventEmitter = require('events'),
-debug        = require('debug'),
-nodeUUID     = require('node-uuid'),
-REQ          = require('request'),
-Yargs        = require('yargs');
 
 // Error Handling
 // --------------
@@ -261,6 +264,8 @@ require('coffee-script').register();
 // });
 // ```
 enginemill.load = function (args) {
+  sendDebug('Beginning enginemill.load().');
+
   args = args || Object.create(null);
 
   var promise;
@@ -307,6 +312,7 @@ enginemill.load = function (args) {
       var path = args.appdir.append('package.json');
       return enginemill.readJSON({path: path}).then(function (res) {
         args.packageJSON = res || null;
+        sendDebug('.load() package.json has loaded.');
         return args;
       });
     })
@@ -353,6 +359,9 @@ enginemill.load = function (args) {
     .then(function loadCommandLineArgs(args) {
       if (!args.argv) {
         args.argv = enginemill.parseCommandLineOptions(args);
+        sendDebug('.load() parsed command line options.');
+      } else {
+        sendDebug('.load() skipped command line option parsing.');
       }
       return args;
     })
@@ -364,11 +373,16 @@ enginemill.load = function (args) {
   // environment variable is used, followed by the passed in
   // `args.environment` and the default `enginemill.DEFAULTS.ENVIRONMENT`.
     .then(function setEnvironment(args) {
+      sendDebug('.load() args.argv.environment = %s.', args.argv.environment);
+      sendDebug('.load() process.env.ENVIRONMENT = %s.', process.env.ENVIRONMENT);
+      sendDebug('.load() process.env.NODE_ENV = %s.', process.env.NODE_ENV);
+      sendDebug('.load() args.environment = %s.', args.environment);
       args.environment = args.argv.environment ||
                          process.env.ENVIRONMENT ||
                          process.env.NODE_ENV ||
                          args.environment ||
                          enginemill.DEFAULTS.ENVIRONMENT;
+      sendDebug('.load() set environment to %s.', args.environment);
       return args;
     })
   // #### Create the Application Instance
@@ -397,6 +411,7 @@ enginemill.load = function (args) {
         argv        : args.argv
       });
 
+      sendDebug('.load() Application instance has been created.');
       return args;
     })
   // #### Load Initializers
@@ -405,8 +420,10 @@ enginemill.load = function (args) {
   // the `args.initializers` Array passed into `enginemill.load()`. See
   // the __Initializer Loading__ section for more information.
     .then(function loadInitializers(args) {
+      sendDebug('.load() Loading and executing initializers.');
       return enginemill.loadInitializers(args).then(function (app) {
         args.app = app;
+        sendDebug('.load() Initializers have executed.');
         return args;
       });
     })
@@ -414,6 +431,7 @@ enginemill.load = function (args) {
   // #### Return a Promise
   // Finally `enginemill.load()` returns a Promise for the Application instance.
     .then(function returnApplication(args) {
+      sendDebug('.load() Done. Returning Appliation instance.');
       return args.app;
     });
 
@@ -852,9 +870,11 @@ U.extend(Logger.prototype, {
 
     if (U.isBoolean(configs.useDefaultObserver)) {
       if (configs.useDefaultObserver) {
+        sendDebug('Logger use default observer.');
         this.channel.remove({role: 'logging'}, this.defaultObserver);
         this.channel.observe({role: 'logging'}, this.defaultObserver);
       } else {
+        sendDebug('Logger Remove default observer.');
         this.channel.remove({role: 'logging'}, this.defaultObserver);
       }
     }
@@ -1722,3 +1742,5 @@ enginemill.parseCommandLineOptions = function (args) {
 //     });
 // });
 // ```
+
+sendDebug('The Enginemill module has loaded.');
