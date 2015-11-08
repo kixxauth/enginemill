@@ -1,19 +1,28 @@
 Enginemill
 ==========
-Enginemill is a Node.js web development framework. The goal is to codify some opinions about how to structure a Node.js system and provide some tools to make the development of your systems easier and more fun.
+Enginemill is a Node.js web development framework. The goal is to codify
+some opinions about how to structure a Node.js system and provide
+tools to make the development of your systems easier and more fun.
 
-* Includes [Bluebird](https://github.com/petkaantonov/bluebird) for Promises.
-* Includes [Lodash](https://lodash.com/) (Underscore) too.
-* Includes [Filepath](https://github.com/kixxauth/filepath) to work with the filesystem.
-* Parses command line options with [Yargs](https://github.com/bcoe/yargs).
-* Serially loads plugins you define and kicks off your app only when they have all loaded.
-* Includes a handy Promisified [request](https://github.com/request/request) wrapper for [making HTTP requests](https://github.com/kixxauth/enginemill/blob/master/docs/current/making_http_requests.md).
+* [Bluebird](https://github.com/petkaantonov/bluebird) for Promises.
+* [Lodash](https://lodash.com/) (Underscore) too.
+* [Filepath](https://github.com/kixxauth/filepath) to work with the filesystem.
+* [Yargs](https://github.com/bcoe/yargs) to parse command line options.
+* [Moment](http://momentjs.com/) to parse, validate, manipulate and display dates.
+* [Numeral](http://numeraljs.com/) for Number formatting and manipulation.
+* An Object factory for composing mixins.
+* Serially load plugins you define and kicks off your app only when they have all loaded.
+* Comprehensive logging based on [Bunyan](https://github.com/trentm/node-bunyan).
+* Message and pattern based communication with [Oddcast](https://github.com/oddnetworks/oddcast).
+* Promisified [request](https://github.com/request/request) wrapper for making HTTP requests.
 * Supports [CoffeeScript](http://coffeescript.org/) out of the box, which is nice for config and plugin initialization files.
 
 ## On The Web
 * Website: [enginemill.org](http://enginemill.org)
 * NPM: [![npm version](https://badge.fury.io/js/enginemill.svg)](https://badge.fury.io/js/enginemill)
 * Issues: [GitHub](https://github.com/kixxauth/enginemill/issues)
+
+__Built by [@kixxauth](https://twitter.com/kixxauth)__
 
 ## Examples:
 Here is an example of booting up a new [Express.js](http://expressjs.com/) web application:
