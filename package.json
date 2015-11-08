@@ -14,25 +14,24 @@
     "url"  : "git://github.com/kixxauth/enginemill.git"
   },
   "dependencies": {
-    "bluebird"      : "2.9.34",
+    "bluebird"      : "3.0.5",
     "brixx"         : "1.1.0",
     "bunyan"        : "1.5.1",
     "coffee-script" : "1.10.0",
     "debug"         : "2.2.0",
-    "filepath"      : "1.0.0",
-    "immutable"     : "3.7.5",
+    "filepath"      : "1.1.0",
     "lodash"        : "3.10.1",
     "moment"        : "2.10.6",
+    "node-uuid"     : "1.4.3",
     "numeral"       : "1.5.3",
     "oddcast"       : "0.4.0",
-    "request"       : "2.61.0",
-    "yargs"         : "3.23.0"
+    "request"       : "2.65.0",
+    "yargs"         : "3.29.0"
   },
   "devDependencies": {
     "jshint"    : "2.8.0",
-    "node-uuid" : "1.4.3",
     "nodeunit"  : "0.9.1",
-    "sinon"     : "1.16.1"
+    "sinon"     : "1.17.2"
   },
   "bugs": {"url": "https://github.com/kixxauth/enginemill/issues"}
 }
