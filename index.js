@@ -48,7 +48,7 @@ sendDebug('Loading the Enginemill module.');
 // ### enginemill.Promise
 // Enginemill uses [Bluebird Promises](http://bluebirdjs.com/docs/getting-started.html) to handle asynchronous programming
 // from start to finish and exposes it as `enginemill.Promise` for you.
-enginemill.Promise = require('Bluebird');
+enginemill.Promise = require('bluebird');
 var Promise        = enginemill.Promise;
 
 // ### enginemill.U
