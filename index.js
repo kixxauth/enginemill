@@ -507,10 +507,11 @@ enginemill.Application = Application;
 U.extend(Application.prototype, {
 
   initialize: function (spec) {
+    var name = spec.name;
     Object.defineProperties(this, {
       name: {
         enumerable: true,
-        value: spec.name
+        value: name
       },
       version: {
         enumerable: true,
@@ -539,7 +540,7 @@ U.extend(Application.prototype, {
       logger: {
         enumerable: true,
         value: Logger.create({
-          appname: spec.name
+          appname: name
         })
       },
       API: {
@@ -548,8 +549,8 @@ U.extend(Application.prototype, {
       },
       debug: {
         enumerable: true,
-        value: function (name) {
-          return debug(name + ':' + name);
+        value: function (modname) {
+          return debug(name + ':' + modname);
         }
       }
     });
