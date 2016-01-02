@@ -4,7 +4,7 @@
 <head>
   <title>Enginemill</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
 </head>
 <body>
@@ -70,7 +70,7 @@ can find on GitHub. Ideas, issues, and feedback is welcome on the
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-pi">'use strict'</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-meta">'use strict'</span>;</pre></div></div>
             
         </li>
         
@@ -142,7 +142,7 @@ from start to finish and exposes it as <code>enginemill.Promise</code> for you.<
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>enginemill.Promise = <span class="hljs-built_in">require</span>(<span class="hljs-string">'Bluebird'</span>);
+            <div class="content"><div class='highlight'><pre>enginemill.Promise = <span class="hljs-built_in">require</span>(<span class="hljs-string">'bluebird'</span>);
 <span class="hljs-keyword">var</span> <span class="hljs-built_in">Promise</span>        = enginemill.Promise;</pre></div></div>
             
         </li>
@@ -943,10 +943,11 @@ enginemill.Application = Application;
 U.extend(Application.prototype, {
 
   initialize: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">spec</span>) </span>{
+    <span class="hljs-keyword">var</span> name = spec.name;
     <span class="hljs-built_in">Object</span>.defineProperties(<span class="hljs-keyword">this</span>, {
       name: {
         enumerable: <span class="hljs-literal">true</span>,
-        value: spec.name
+        value: name
       },
       version: {
         enumerable: <span class="hljs-literal">true</span>,
@@ -975,7 +976,7 @@ U.extend(Application.prototype, {
       logger: {
         enumerable: <span class="hljs-literal">true</span>,
         value: Logger.create({
-          appname: spec.name
+          appname: name
         })
       },
       API: {
@@ -984,8 +985,8 @@ U.extend(Application.prototype, {
       },
       debug: {
         enumerable: <span class="hljs-literal">true</span>,
-        value: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">name</span>) </span>{
-          <span class="hljs-keyword">return</span> debug(name + <span class="hljs-string">':'</span> + name);
+        value: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">modname</span>) </span>{
+          <span class="hljs-keyword">return</span> debug(name + <span class="hljs-string">':'</span> + modname);
         }
       }
     });
@@ -1079,7 +1080,8 @@ have been executed in order.</p>
           <span class="hljs-keyword">if</span> (moduleError.code === <span class="hljs-string">'MODULE_NOT_FOUND'</span>) {
             <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Errors.NotFoundError(<span class="hljs-string">'Initializer module not found: '</span>+ path);
           }
-          <span class="hljs-keyword">throw</span> moduleError;
+          message = <span class="hljs-string">'Error loading initializer '</span> + path + <span class="hljs-string">': '</span> + moduleError.message;
+          <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(message);
         }
       }
 
@@ -1341,7 +1343,7 @@ function into <code>app.logger.channel.observe()</code> like so:</p>
 <span class="hljs-built_in">module</span>.exports = <span class="hljs-function"><span class="hljs-params">(app)</span> -&gt;</span>
   <span class="hljs-comment"># Observe only error log records</span>
   errors = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../lib/logging_error_handler'</span>).create(app)
-  app.logger.channel.observe {<span class="hljs-attribute">role</span>: <span class="hljs-string">'logging'</span>, <span class="hljs-attribute">level</span>: <span class="hljs-string">'error'</span>}, errors
+  app.logger.channel.observe {role: <span class="hljs-string">'logging'</span>, level: <span class="hljs-string">'error'</span>}, errors
 </code></pre>
 
             </div>
