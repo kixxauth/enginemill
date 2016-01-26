@@ -624,7 +624,10 @@ enginemill.loadInitializers = function (args) {
           module = require(path);
         } catch (moduleError) {
           if (moduleError.code === 'MODULE_NOT_FOUND') {
-            throw new Errors.NotFoundError('Initializer module not found: '+ path);
+            if (moduleError.message.indexOf(module) !== -1) {
+              throw new Errors.NotFoundError('Initializer module not found: '+ path);
+            }
+            throw moduleError;
           }
           message = 'Error loading initializer ' + path + ': ' + moduleError.message;
           throw new Error(message);
