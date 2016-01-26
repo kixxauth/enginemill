@@ -8,8 +8,8 @@
   "bugs"        : {"url": "https://github.com/kixxauth/enginemill/issues"},
   "main"        : "./index.js",
   "scripts"     : {
-    "lint": "node management/run_jshint.js",
-    "test": "node management/run_tests.js ./test"
+    "lint": "jshint .",
+    "test": "jshint . && node management/run_tests.js ./test"
   },
   "repository"  : {
     "type" : "git",
