@@ -9,7 +9,7 @@
   "main"        : "./index.js",
   "scripts"     : {
     "lint": "jshint .",
-    "test": "jshint . && node management/run_tests.js ./test"
+    "test": "jshint . && node tools/run_tests.js ./test"
   },
   "repository"  : {
     "type" : "git",
