@@ -34,13 +34,15 @@ var enginemill = exports;
 // Enginemill has some dependencies which are used internally, or exposed
 // elsewhere, but need to be loaded early.
 var
+os           = require('os'),
 util         = require('util'),
 EventEmitter = require('events'),
 debug        = require('debug'),
 REQ          = require('request'),
 Yargs        = require('yargs'),
 
-sendDebug    = debug('enginemill');
+EOL        = os.EOL,
+sendDebug  = debug('enginemill');
 
 sendDebug('Loading the Enginemill module.');
 
@@ -783,7 +785,7 @@ U.extend(Logger.prototype, {
     });
 
     this.defaultObserver = function (rec) {
-      process.stdout.write(JSON.stringify(rec));
+      process.stdout.write(JSON.stringify(rec) + EOL);
     };
 
     this.channel.observe({role: 'logging'}, this.defaultObserver);
