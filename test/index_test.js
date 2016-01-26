@@ -92,29 +92,9 @@ exports["exported modules"] = {
     test.done();
   },
 
-  "exports.Mixins.Model": function (test) {
-    var Mixins = this.enginemill.Mixins;
-    test.equal(typeof Mixins.Model, 'object', 'Mixins.Model');
-    test.done();
-  },
-
   "exports.Mixins.EventEmitter": function (test) {
     var Mixins = this.enginemill.Mixins;
     test.equal(typeof Mixins.EventEmitter, 'object', 'Mixins.EventEmitter');
-    test.done();
-  },
-
-  "exports.DatabaseConnector": function (test) {
-    var DatabaseConnector = this.enginemill.DatabaseConnector;
-    test.equal(typeof DatabaseConnector, 'function', 'DatabaseConnector');
-    test.equal(typeof DatabaseConnector.create, 'function', 'DatabaseConnector.create');
-    test.done();
-  },
-
-  "exports.JSONFileDatabase": function (test) {
-    var JSONFileDatabase = this.enginemill.JSONFileDatabase;
-    test.equal(typeof JSONFileDatabase, 'function', 'JSONFileDatabase');
-    test.equal(typeof JSONFileDatabase.create, 'function', 'JSONFileDatabase.create');
     test.done();
   },
 
