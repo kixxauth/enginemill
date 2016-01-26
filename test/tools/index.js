@@ -1,17 +1,12 @@
 'use strict';
 
 var
-filepath = require('filepath'),
-nodeUUID = require('node-uuid');
+filepath = require('filepath');
 
 exports.fixturePath = filepath.create(__dirname).resolve('../fixtures');
 
 exports.hasOwnProp = function (obj, key) {
   return Object.prototype.hasOwnProperty.call(obj, key);
-};
-
-exports.uuid = function () {
-  return nodeUUID.v1();
 };
 
 exports.runOnce = (function () {
