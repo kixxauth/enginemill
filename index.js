@@ -775,7 +775,8 @@ U.extend(Logger.prototype, {
     this.channel.use({role: 'logging'}, oddcast.inprocessTransport());
 
     this.logger = Logger.bunyan.createLogger({
-      name: args.appname
+      name: args.appname,
+      serializers: Logger.bunyan.stdSerializers
     });
 
     this.logger.streams = [];
