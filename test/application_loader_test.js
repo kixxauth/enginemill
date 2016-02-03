@@ -130,6 +130,58 @@ exports["with argv"] = {
   }
 };
 
+exports["with config values"] = {
+  setUp: function (done) {
+    var
+    self = this;
+    this.appdir = TOOLS.fixturePath.append('default-app');
+    this.configs = {
+      logLevel: 'ALL',
+      secretKey: 'foobarbaz'
+    };
+
+    enginemill.load({
+      appdir       : this.appdir,
+      configs      : this.configs,
+      options      : {
+        host: {
+          describe: 'The host String for the server',
+          default: 'localhost'
+        },
+        port: {
+          describe: 'The port Number for the server',
+          default: 3000
+        }
+      },
+      initializers : [
+        'configs'
+      ]
+    })
+    .then(function (app) {
+      self.app = app;
+      done();
+    });
+  },
+
+  "has set config values": function (test) {
+    var
+    configs = this.app.configs;
+
+    test.equal(configs.logLevel, this.configs.logLevel);
+    test.equal(configs.secretKey, this.configs.secretKey);
+    return test.done();
+  },
+
+  "also assigns config file values": function (test) {
+    var
+    configs = this.app.configs;
+
+    test.equal(configs.port, 8080);
+    test.equal(configs.sky_color, 'blue');
+    return test.done();
+  }
+};
+
 exports["with package.json"] = {
   setUp: function (done) {
     var

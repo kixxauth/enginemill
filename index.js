@@ -312,6 +312,7 @@ enginemill.load = function (args) {
       options      : args.options,
       argv         : args.argv,
       environment  : args.environment,
+      configs      : args.configs,
       initializers : args.initializers
     })
   // #### Read package.json
@@ -420,12 +421,14 @@ enginemill.load = function (args) {
         appdir      : args.appdir,
         packageJSON : args.packageJSON,
         environment : args.environment,
+        configs     : args.configs,
         argv        : args.argv
       });
 
       sendDebug('.load() Application instance has been created.');
       return args;
     })
+
   // #### Load Initializers
   // After the Application instance has been created the initializers are
   // loaded and executed in serial. The initializers to are defined by
@@ -532,7 +535,7 @@ U.extend(Application.prototype, {
       },
       configs: {
         enumerable: true,
-        value: Object.create(null)
+        value: U.extend(Object.create(null), (spec.configs || {}))
       },
       argv: {
         enumerable: true,
