@@ -1,3 +1,5 @@
 test/**
 management/**
 docs/**
+tools/**
+jshint*
