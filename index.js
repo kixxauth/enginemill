@@ -203,7 +203,7 @@ enginemill.numeral = require('numeral');
 // to write your whole program, but Enginemill holds the opinion that programs
 // are better written in JavaScript, while it can still be convenient to use
 // CoffeeScript to write your configuration files.
-require('coffee-script').register();
+require('coffeescript').register();
 
 // ### enginemill.load
 // `enginemill.load()` is the main entry point for your program. This is where
