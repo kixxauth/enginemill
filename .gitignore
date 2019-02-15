@@ -1,20 +1,31 @@
-# Ignore TextMate project files
-*.tmproj
+# Logs
+logs
+*.log
+npm-debug.log*
 
-# Ignore Mac OS metadata files
-.DS_Store
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
 
-# Ignore Mac OS X extended file attribute files
-._*
-._*/
+# node-waf configuration
+.lock-wscript
 
-# Ignore Vim .swp files and temp backups
-*.swp
-*~
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/Release
 
-# Emacs tags files
-TAGS
-*.tags
+# Dependency directories
+node_modules/
 
-# node modules
-node_modules/**
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
