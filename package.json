@@ -16,5 +16,8 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kixxauth/enginemill.git"
+  },
+  "devDependencies": {
+    "eslint": "^5.13.0"
   }
 }
