@@ -16,14 +16,5 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kixxauth/enginemill.git"
-  },
-  "devDependencies": {
-    "eslint": "^5.13.0"
-  },
-  "dependencies": {
-    "kixx-assert": "^1.0.5",
-    "kixx-lib-es6": "^1.0.0",
-    "kixx-server-errors": "^1.0.0",
-    "ramda": "^0.26.1"
   }
 }
