@@ -17,9 +17,6 @@
     "type": "git",
     "url": "git+https://github.com/kixxauth/enginemill.git"
   },
-  "dependencies": {
-    "kixx-logger": "1.0.0"
-  },
   "devDependencies": {
     "eslint": "5.14.0"
   }
