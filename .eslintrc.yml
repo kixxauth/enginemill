@@ -40,6 +40,8 @@ rules:
     - error
   no-shadow:
     - error
+    -
+      builtinGlobals: true
   for-direction:
     - error
   no-template-curly-in-string:
