@@ -2,7 +2,7 @@ Enginemill
 ==========
 [![npm version](https://badge.fury.io/js/enginemill.svg)](https://badge.fury.io/js/enginemill)
 
-Enginemill is a Node.js dynamic web server with strong opinions.
+Enginemill is a content database, rendering, and publishing tool using Node.js.
 
 Copyright and License
 ---------------------
