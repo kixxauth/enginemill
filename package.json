@@ -19,5 +19,9 @@
   },
   "devDependencies": {
     "eslint": "6.0.1"
+  },
+  "dependencies": {
+    "kixx-server-errors": "1.0.0",
+    "uuid": "3.3.2"
   }
 }
