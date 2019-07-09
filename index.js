@@ -12,12 +12,17 @@ exports.buildAllResources = function () {
 	};
 
 	/* eslint-disable no-console */
-	eng.initialize(options).buildAllResources().then((res) => {
-		console.log('DONE:');
-		console.log(res);
-	}).catch((err) => {
-		console.log('Runtime ERROR:');
-		console.log(err.stack || err);
-	});
+	eng.initialize(options)
+		.then(() => {
+			return eng.buildAllResources();
+		})
+		.then((res) => {
+			console.log('DONE:');
+			console.log(res);
+		})
+		.catch((err) => {
+			console.log('Runtime ERROR:');
+			console.log(err.stack || err);
+		});
 	/* eslint-enable no-console */
 };
